@@ -90,7 +90,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 tokenMetadata.tokenId = tokenId.toString();
                 tokenMetadata.title =
                     metaTitle && !metaTitle.isNull() ? metaTitle.toString() : null;
-                tokenMetadata.decsription =
+                tokenMetadata.description =
                     metaDescription && !metaDescription.isNull()
                         ? metaDescription.toString()
                         : null;

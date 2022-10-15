@@ -46,7 +46,7 @@ type Token @entity {
 type TokenMetadata @entity {
     id: ID!
     title: String
-    decsription: String
+  description: String
     media: String
 
     #
