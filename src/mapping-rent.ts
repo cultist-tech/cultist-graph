@@ -1,9 +1,9 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import { Account, MarketRent } from "../generated/schema";
+import { Account, MarketRent, MarketRentCondition, MarketSaleCondition } from "../generated/schema";
 import { parseEvent } from "./utils";
 import { getOrCreateAccount } from "./account/account";
-import { BigDecimal } from "@graphprotocol/graph-ts/index";
+import { BigDecimal, BigInt } from "@graphprotocol/graph-ts/index";
 import { getOrCreateStatisticSystem } from "./statistic/statistic";
 import { saveMarketRentConditions } from "./market-rent/condition";
 import { getMarketSaleId, removeMarketSale } from "./market-sale";
@@ -154,6 +154,63 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const stats = getOrCreateStatisticSystem();
             stats.marketRentTotal--;
             stats.save();
+        } else if (method == "rent_update") {
+            const tokenId = data.get("token_id");
+            const ownerId = data.get("owner_id");
+            const contractId = data.get("contract_id");
+            const minTime = data.get("min_time");
+            const maxTime = data.get("max_time");
+            const ftTokenId = data.get("ft_token_id");
+            const price = data.get("price");
+
+            if (!tokenId || !ownerId || !contractId || !ftTokenId || !price) {
+                log.error("[market_update_sale] - invalid args", []);
+                return;
+            }
+
+            const saleId = contractId.toString() + "||" + tokenId.toString();
+            const saleConditionId = saleId + "||" + ftTokenId.toString();
+
+            const sale = MarketRent.load(saleId);
+
+            if (!sale) {
+                return;
+            }
+
+            let saleCondition = MarketRentCondition.load(saleConditionId);
+
+            if (!saleCondition) {
+                saleCondition = new MarketRentCondition(saleConditionId);
+                saleCondition.rentId = saleId;
+                saleCondition.rent = saleId;
+            }
+
+            saleCondition.ftTokenId = ftTokenId.toString();
+            saleCondition.price = price.toString();
+
+            if (saleCondition.ftTokenId == "near") {
+                const stats = getOrCreateStatisticSystem();
+
+                stats.marketRentNearTotal++;
+                stats.marketRentNearSum = BigInt.fromString(stats.marketRentNearSum)
+                    .plus(BigInt.fromString(saleCondition.price))
+                    .toString();
+
+                if (
+                    BigInt.fromString(stats.marketRentNearFloor).gt(
+                        BigInt.fromString(saleCondition.price)
+                    )
+                ) {
+                    stats.marketRentNearFloor = saleCondition.price;
+
+                    stats.save();
+                }
+            }
+
+            saleCondition.save();
+
+            //
+            getOrCreateAccount(ownerId.toString());
         } else if (method == "rent_claim") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");

@@ -15,13 +15,13 @@ type Statistic @entity {
     nftTotal: Int!
 
     marketSaleTotal: Int!
-    marketSaleNearFloor: BigInt!
-    marketSaleNearSum: BigInt!
+    marketSaleNearFloor: String!
+    marketSaleNearSum: String!
     marketSaleNearTotal: Int!
 
     marketRentTotal: Int!
-    marketRentNearFloor: BigInt!
-    marketRentNearSum: BigInt!
+    marketRentNearFloor: String!
+    marketRentNearSum: String!
     marketRentNearTotal: Int!
 
     accountTotal: Int!
@@ -81,7 +81,7 @@ type MarketRent @entity {
 type MarketRentCondition @entity {
     id: ID!
     ftTokenId: ID!
-    price: BigInt!
+    price: String!
 
     rent: MarketRent!
     rentId: ID!
@@ -103,7 +103,7 @@ type MarketSale @entity {
 type MarketSaleCondition @entity {
     id: ID!
     ftTokenId: ID!
-    price: BigInt!
+    price: String!
 
     sale: MarketSale!
     saleId: ID!

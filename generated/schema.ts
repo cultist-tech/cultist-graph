@@ -21,12 +21,12 @@ export class Statistic extends Entity {
     this.set("nftBurnTotal", Value.fromI32(0));
     this.set("nftTotal", Value.fromI32(0));
     this.set("marketSaleTotal", Value.fromI32(0));
-    this.set("marketSaleNearFloor", Value.fromBigInt(BigInt.zero()));
-    this.set("marketSaleNearSum", Value.fromBigInt(BigInt.zero()));
+    this.set("marketSaleNearFloor", Value.fromString(""));
+    this.set("marketSaleNearSum", Value.fromString(""));
     this.set("marketSaleNearTotal", Value.fromI32(0));
     this.set("marketRentTotal", Value.fromI32(0));
-    this.set("marketRentNearFloor", Value.fromBigInt(BigInt.zero()));
-    this.set("marketRentNearSum", Value.fromBigInt(BigInt.zero()));
+    this.set("marketRentNearFloor", Value.fromString(""));
+    this.set("marketRentNearSum", Value.fromString(""));
     this.set("marketRentNearTotal", Value.fromI32(0));
     this.set("accountTotal", Value.fromI32(0));
   }
@@ -102,22 +102,22 @@ export class Statistic extends Entity {
     this.set("marketSaleTotal", Value.fromI32(value));
   }
 
-  get marketSaleNearFloor(): BigInt {
+  get marketSaleNearFloor(): string {
     let value = this.get("marketSaleNearFloor");
-    return value!.toBigInt();
+    return value!.toString();
   }
 
-  set marketSaleNearFloor(value: BigInt) {
-    this.set("marketSaleNearFloor", Value.fromBigInt(value));
+  set marketSaleNearFloor(value: string) {
+    this.set("marketSaleNearFloor", Value.fromString(value));
   }
 
-  get marketSaleNearSum(): BigInt {
+  get marketSaleNearSum(): string {
     let value = this.get("marketSaleNearSum");
-    return value!.toBigInt();
+    return value!.toString();
   }
 
-  set marketSaleNearSum(value: BigInt) {
-    this.set("marketSaleNearSum", Value.fromBigInt(value));
+  set marketSaleNearSum(value: string) {
+    this.set("marketSaleNearSum", Value.fromString(value));
   }
 
   get marketSaleNearTotal(): i32 {
@@ -138,22 +138,22 @@ export class Statistic extends Entity {
     this.set("marketRentTotal", Value.fromI32(value));
   }
 
-  get marketRentNearFloor(): BigInt {
+  get marketRentNearFloor(): string {
     let value = this.get("marketRentNearFloor");
-    return value!.toBigInt();
+    return value!.toString();
   }
 
-  set marketRentNearFloor(value: BigInt) {
-    this.set("marketRentNearFloor", Value.fromBigInt(value));
+  set marketRentNearFloor(value: string) {
+    this.set("marketRentNearFloor", Value.fromString(value));
   }
 
-  get marketRentNearSum(): BigInt {
+  get marketRentNearSum(): string {
     let value = this.get("marketRentNearSum");
-    return value!.toBigInt();
+    return value!.toString();
   }
 
-  set marketRentNearSum(value: BigInt) {
-    this.set("marketRentNearSum", Value.fromBigInt(value));
+  set marketRentNearSum(value: string) {
+    this.set("marketRentNearSum", Value.fromString(value));
   }
 
   get marketRentNearTotal(): i32 {
@@ -624,7 +624,7 @@ export class MarketRentCondition extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("ftTokenId", Value.fromString(""));
-    this.set("price", Value.fromBigInt(BigInt.zero()));
+    this.set("price", Value.fromString(""));
     this.set("rent", Value.fromString(""));
     this.set("rentId", Value.fromString(""));
   }
@@ -666,13 +666,13 @@ export class MarketRentCondition extends Entity {
     this.set("ftTokenId", Value.fromString(value));
   }
 
-  get price(): BigInt {
+  get price(): string {
     let value = this.get("price");
-    return value!.toBigInt();
+    return value!.toString();
   }
 
-  set price(value: BigInt) {
-    this.set("price", Value.fromBigInt(value));
+  set price(value: string) {
+    this.set("price", Value.fromString(value));
   }
 
   get rent(): string {
@@ -813,7 +813,7 @@ export class MarketSaleCondition extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("ftTokenId", Value.fromString(""));
-    this.set("price", Value.fromBigInt(BigInt.zero()));
+    this.set("price", Value.fromString(""));
     this.set("sale", Value.fromString(""));
     this.set("saleId", Value.fromString(""));
   }
@@ -855,13 +855,13 @@ export class MarketSaleCondition extends Entity {
     this.set("ftTokenId", Value.fromString(value));
   }
 
-  get price(): BigInt {
+  get price(): string {
     let value = this.get("price");
-    return value!.toBigInt();
+    return value!.toString();
   }
 
-  set price(value: BigInt) {
-    this.set("price", Value.fromBigInt(value));
+  set price(value: string) {
+    this.set("price", Value.fromString(value));
   }
 
   get sale(): string {

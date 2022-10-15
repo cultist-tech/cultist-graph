@@ -1,4 +1,4 @@
-import { JSONValue } from "@graphprotocol/graph-ts/index";
+import { JSONValue, BigInt } from "@graphprotocol/graph-ts/index";
 import { MarketRentCondition } from "../../generated/schema";
 import { getOrCreateStatisticSystem } from "../statistic/statistic";
 
@@ -14,15 +14,21 @@ export function saveMarketRentConditions(rentId: string, obj: JSONValue): void {
         saleCondition.rent = rentId.toString();
         saleCondition.rentId = rentId.toString();
         saleCondition.ftTokenId = row.key;
-        saleCondition.price = row.value.toBigInt();
+        saleCondition.price = row.value.toString();
 
         if (saleCondition.ftTokenId == "near") {
             const stats = getOrCreateStatisticSystem();
 
             stats.marketRentNearTotal++;
-            stats.marketRentNearSum = stats.marketRentNearSum.plus(saleCondition.price);
+            stats.marketRentNearSum = BigInt.fromString(stats.marketRentNearSum)
+                .plus(BigInt.fromString(saleCondition.price))
+                .toString();
 
-            if (stats.marketRentNearFloor.gt(saleCondition.price)) {
+            if (
+                BigInt.fromString(stats.marketRentNearFloor).gt(
+                    BigInt.fromString(saleCondition.price)
+                )
+            ) {
                 stats.marketRentNearFloor = saleCondition.price;
 
                 stats.save();

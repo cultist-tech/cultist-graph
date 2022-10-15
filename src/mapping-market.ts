@@ -6,6 +6,7 @@ import { createAccount, getAccount, getOrCreateAccount } from "./account/account
 import { getOrCreateStatisticSystem } from "./statistic/statistic";
 import { saveMarketSaleConditions } from "./market-sale/condition";
 import { removeMarketSale } from "./market-sale";
+import { BigInt } from "@graphprotocol/graph-ts/index";
 
 export function handleMarket(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -109,7 +110,26 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             }
 
             saleCondition.ftTokenId = ftTokenId.toString();
-            saleCondition.price = price.toBigInt();
+            saleCondition.price = price.toString();
+
+            if (saleCondition.ftTokenId == "near") {
+                const stats = getOrCreateStatisticSystem();
+
+                stats.marketSaleNearTotal++;
+                stats.marketSaleNearSum = BigInt.fromString(stats.marketSaleNearSum)
+                    .plus(BigInt.fromString(saleCondition.price))
+                    .toString();
+
+                if (
+                    BigInt.fromString(stats.marketSaleNearFloor).gt(
+                        BigInt.fromString(saleCondition.price)
+                    )
+                ) {
+                    stats.marketSaleNearFloor = saleCondition.price;
+
+                    stats.save();
+                }
+            }
 
             saleCondition.save();
 

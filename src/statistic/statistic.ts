@@ -19,14 +19,14 @@ export function createStatistic(id: string): Statistic {
     row.nftBurnTotal = 0 as i32;
 
     row.marketSaleTotal = 0 as i32;
-    row.marketSaleNearFloor = BigInt.zero();
     row.marketSaleNearTotal = 0 as i32;
-    row.marketSaleNearSum = BigInt.zero();
+    row.marketSaleNearFloor = "0";
+    row.marketSaleNearSum = "0";
 
     row.marketRentTotal = 0 as i32;
-    row.marketRentNearFloor = BigInt.zero();
     row.marketRentNearTotal = 0 as i32;
-    row.marketRentNearSum = BigInt.zero();
+    row.marketRentNearFloor = "0";
+    row.marketRentNearSum = "0";
 
     row.accountTotal = 0 as i32;
 

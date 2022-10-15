@@ -14,15 +14,21 @@ export function saveMarketSaleConditions(saleId: string, obj: JSONValue): void {
         saleCondition.saleId = saleId.toString();
         saleCondition.sale = saleId.toString();
         saleCondition.ftTokenId = row.key;
-        saleCondition.price = row.value.toBigInt();
+        saleCondition.price = row.value.toString();
 
         if (saleCondition.ftTokenId == "near") {
             const stats = getOrCreateStatisticSystem();
 
             stats.marketSaleNearTotal++;
-            stats.marketSaleNearSum = stats.marketSaleNearSum.plus(saleCondition.price);
+            stats.marketSaleNearSum = BigInt.fromString(stats.marketSaleNearSum)
+                .plus(BigInt.fromString(saleCondition.price))
+                .toString();
 
-            if (stats.marketSaleNearFloor.gt(saleCondition.price)) {
+            if (
+                BigInt.fromString(stats.marketSaleNearFloor).gt(
+                    BigInt.fromString(saleCondition.price)
+                )
+            ) {
                 stats.marketSaleNearFloor = saleCondition.price;
 
                 stats.save();
