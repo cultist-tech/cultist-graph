@@ -814,6 +814,33 @@ export class Account extends Entity {
   set id(value: string) {
     this.set("id", Value.fromString(value));
   }
+
+  get tokens(): Array<string> {
+    let value = this.get("tokens");
+    return value!.toStringArray();
+  }
+
+  set tokens(value: Array<string>) {
+    this.set("tokens", Value.fromStringArray(value));
+  }
+
+  get marketSales(): Array<string> {
+    let value = this.get("marketSales");
+    return value!.toStringArray();
+  }
+
+  set marketSales(value: Array<string>) {
+    this.set("marketSales", Value.fromStringArray(value));
+  }
+
+  get marketRents(): Array<string> {
+    let value = this.get("marketRents");
+    return value!.toStringArray();
+  }
+
+  set marketRents(value: Array<string>) {
+    this.set("marketRents", Value.fromStringArray(value));
+  }
 }
 
 export class FtBalance extends Entity {
@@ -824,6 +851,7 @@ export class FtBalance extends Entity {
     this.set("contractId", Value.fromString(""));
     this.set("accountId", Value.fromString(""));
     this.set("balance", Value.fromBigInt(BigInt.zero()));
+    this.set("owner", Value.fromString(""));
   }
 
   save(): void {
@@ -877,5 +905,14 @@ export class FtBalance extends Entity {
 
   set balance(value: BigInt) {
     this.set("balance", Value.fromBigInt(value));
+  }
+
+  get owner(): string {
+    let value = this.get("owner");
+    return value!.toString();
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
   }
 }

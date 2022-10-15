@@ -109,4 +109,5 @@ type FtBalance @entity {
     accountId: ID!
 
     balance: BigInt!
+    owner: Account!
 }

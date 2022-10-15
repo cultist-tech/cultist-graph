@@ -52,11 +52,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             getOrCreateAccount(old_owner_id.toString());
             getOrCreateAccount(new_owner_id.toString());
 
-            const senderBalanceId = contractId + "||" + old_owner_id.toString();
-            const receiverBalanceId = contractId + "||" + new_owner_id.toString();
-
-            const senderBalance = getOrCreateFtBalance(senderBalanceId, contractId);
-            const receiverBalance = getOrCreateFtBalance(receiverBalanceId, contractId);
+            const senderBalance = getOrCreateFtBalance(old_owner_id.toString(), contractId);
+            const receiverBalance = getOrCreateFtBalance(new_owner_id.toString(), contractId);
 
             senderBalance.balance = senderBalance.balance.minus(
                 BigInt.fromString(amount.toString())
@@ -89,9 +86,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             getOrCreateAccount(account_id.toString());
 
-            const receiverBalanceId = contractId + "||" + account_id.toString();
-
-            const receiverBalance = getOrCreateFtBalance(receiverBalanceId, contractId);
+            const receiverBalance = getOrCreateFtBalance(account_id.toString(), contractId);
 
             receiverBalance.balance = receiverBalance.balance.plus(
                 BigInt.fromString(amount.toString())
@@ -110,9 +105,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
           getOrCreateAccount(account_id.toString());
 
-          const receiverBalanceId = contractId + "||" + account_id.toString();
-
-          const receiverBalance = getOrCreateFtBalance(receiverBalanceId, contractId);
+          const receiverBalance = getOrCreateFtBalance(account_id.toString(), contractId);
 
           receiverBalance.balance = receiverBalance.balance.minus(
             BigInt.fromString(amount.toString())

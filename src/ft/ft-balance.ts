@@ -1,21 +1,25 @@
 import { FtBalance } from "../../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 
-export function getOrCreateFtBalance(id: string, contractId: string): FtBalance {
+export function getOrCreateFtBalance(accountId: string, contractId: string): FtBalance {
+  const id = contractId + "||" + accountId;
   const ftBalance = FtBalance.load(id.toString());
 
   if (ftBalance) {
     return ftBalance;
   }
 
-  return createFtBalance(id, contractId);
+  return createFtBalance(accountId, contractId);
 }
 
-export function createFtBalance(id: string, contractId: string): FtBalance {
+export function createFtBalance(accountId: string, contractId: string): FtBalance {
+  const id = contractId + "||" + accountId;
   const ftBalance = new FtBalance(id.toString());
 
   ftBalance.balance = BigInt.zero();
   ftBalance.contractId = contractId;
+  ftBalance.accountId = accountId;
+  ftBalance.owner = accountId;
 
   ftBalance.save();
 
