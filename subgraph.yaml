@@ -1,0 +1,75 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+features:
+  - ipfsOnEthereumContracts
+  - fullTextSearch
+dataSources:
+  - kind: near
+    name: nft
+    network: near-testnet
+    source:
+      account: "mfight-nft_v2.testnet"
+      startBlock: 92200000
+    mapping:
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mapping-nft.ts
+      entities:
+        - Token
+        - Account
+        - Metadata
+      receiptHandlers:
+        - handler: handleNft
+
+  - kind: near
+    name: rent
+    network: near-testnet
+    source:
+      account: "mfight-rent.testnet"
+      startBlock: 78300000
+    mapping:
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mapping-rent.ts
+      entities:
+        - Account
+        - MarketRent
+        - MarketRentCondition
+      receiptHandlers:
+        - handler: handleRent
+
+  - kind: near
+    name: market
+    network: near-testnet
+    source:
+      account: "mfight-market.testnet"
+      startBlock: 80100000
+    mapping:
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mapping-market.ts
+      entities:
+        - Account
+        - MarketSale
+        - MarketSaleCondition
+        - Market
+      receiptHandlers:
+        - handler: handleMarket
+
+  - kind: near
+    name: ft
+    network: near-testnet
+    source:
+      account: "mfight-ft.testnet"
+      startBlock: 83358000
+    mapping:
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mapping-ft.ts
+      entities:
+        - Account
+        - FtBalance
+      receiptHandlers:
+        - handler: handleFt
+
