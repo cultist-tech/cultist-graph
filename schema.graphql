@@ -8,9 +8,23 @@ type _Schema_
 
 type Statistic @entity {
     id: ID!
-    tokenTotal: Int!
+
+    nftTransferTotal: Int!
+    nftPayTotal: Int!
+    nftBurnTotal: Int!
+    nftTotal: Int!
+
     marketSaleTotal: Int!
+    marketSaleNearFloor: BigInt!
+    marketSaleNearSum: BigInt!
+    marketSaleNearTotal: Int!
+
     marketRentTotal: Int!
+    marketRentNearFloor: BigInt!
+    marketRentNearSum: BigInt!
+    marketRentNearTotal: Int!
+
+    accountTotal: Int!
 }
 
 type Token @entity {
@@ -67,7 +81,7 @@ type MarketRent @entity {
 type MarketRentCondition @entity {
     id: ID!
     ftTokenId: ID!
-    price: String!
+    price: BigInt!
 
     rent: MarketRent!
     rentId: ID!
@@ -89,7 +103,7 @@ type MarketSale @entity {
 type MarketSaleCondition @entity {
     id: ID!
     ftTokenId: ID!
-    price: String!
+    price: BigInt!
 
     sale: MarketSale!
     saleId: ID!

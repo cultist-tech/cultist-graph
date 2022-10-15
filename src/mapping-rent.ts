@@ -6,6 +6,7 @@ import { getOrCreateAccount } from "./account/account";
 import { BigDecimal } from "@graphprotocol/graph-ts/index";
 import { getOrCreateStatisticSystem } from "./statistic/statistic";
 import { saveMarketRentConditions } from "./market-rent/condition";
+import { getMarketSaleId, removeMarketSale } from "./market-sale";
 
 export function handleRent(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -142,8 +143,17 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             rent.save();
 
+            // clear
+            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
+            removeMarketSale(saleId);
+
             // acc
             getOrCreateAccount(receiverId.toString());
+
+            //
+            const stats = getOrCreateStatisticSystem();
+            stats.marketRentTotal--;
+            stats.save();
         } else if (method == "rent_claim") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");

@@ -16,9 +16,19 @@ export class Statistic extends Entity {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("tokenTotal", Value.fromI32(0));
+    this.set("nftTransferTotal", Value.fromI32(0));
+    this.set("nftPayTotal", Value.fromI32(0));
+    this.set("nftBurnTotal", Value.fromI32(0));
+    this.set("nftTotal", Value.fromI32(0));
     this.set("marketSaleTotal", Value.fromI32(0));
+    this.set("marketSaleNearFloor", Value.fromBigInt(BigInt.zero()));
+    this.set("marketSaleNearSum", Value.fromBigInt(BigInt.zero()));
+    this.set("marketSaleNearTotal", Value.fromI32(0));
     this.set("marketRentTotal", Value.fromI32(0));
+    this.set("marketRentNearFloor", Value.fromBigInt(BigInt.zero()));
+    this.set("marketRentNearSum", Value.fromBigInt(BigInt.zero()));
+    this.set("marketRentNearTotal", Value.fromI32(0));
+    this.set("accountTotal", Value.fromI32(0));
   }
 
   save(): void {
@@ -47,13 +57,40 @@ export class Statistic extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get tokenTotal(): i32 {
-    let value = this.get("tokenTotal");
+  get nftTransferTotal(): i32 {
+    let value = this.get("nftTransferTotal");
     return value!.toI32();
   }
 
-  set tokenTotal(value: i32) {
-    this.set("tokenTotal", Value.fromI32(value));
+  set nftTransferTotal(value: i32) {
+    this.set("nftTransferTotal", Value.fromI32(value));
+  }
+
+  get nftPayTotal(): i32 {
+    let value = this.get("nftPayTotal");
+    return value!.toI32();
+  }
+
+  set nftPayTotal(value: i32) {
+    this.set("nftPayTotal", Value.fromI32(value));
+  }
+
+  get nftBurnTotal(): i32 {
+    let value = this.get("nftBurnTotal");
+    return value!.toI32();
+  }
+
+  set nftBurnTotal(value: i32) {
+    this.set("nftBurnTotal", Value.fromI32(value));
+  }
+
+  get nftTotal(): i32 {
+    let value = this.get("nftTotal");
+    return value!.toI32();
+  }
+
+  set nftTotal(value: i32) {
+    this.set("nftTotal", Value.fromI32(value));
   }
 
   get marketSaleTotal(): i32 {
@@ -65,6 +102,33 @@ export class Statistic extends Entity {
     this.set("marketSaleTotal", Value.fromI32(value));
   }
 
+  get marketSaleNearFloor(): BigInt {
+    let value = this.get("marketSaleNearFloor");
+    return value!.toBigInt();
+  }
+
+  set marketSaleNearFloor(value: BigInt) {
+    this.set("marketSaleNearFloor", Value.fromBigInt(value));
+  }
+
+  get marketSaleNearSum(): BigInt {
+    let value = this.get("marketSaleNearSum");
+    return value!.toBigInt();
+  }
+
+  set marketSaleNearSum(value: BigInt) {
+    this.set("marketSaleNearSum", Value.fromBigInt(value));
+  }
+
+  get marketSaleNearTotal(): i32 {
+    let value = this.get("marketSaleNearTotal");
+    return value!.toI32();
+  }
+
+  set marketSaleNearTotal(value: i32) {
+    this.set("marketSaleNearTotal", Value.fromI32(value));
+  }
+
   get marketRentTotal(): i32 {
     let value = this.get("marketRentTotal");
     return value!.toI32();
@@ -72,6 +136,42 @@ export class Statistic extends Entity {
 
   set marketRentTotal(value: i32) {
     this.set("marketRentTotal", Value.fromI32(value));
+  }
+
+  get marketRentNearFloor(): BigInt {
+    let value = this.get("marketRentNearFloor");
+    return value!.toBigInt();
+  }
+
+  set marketRentNearFloor(value: BigInt) {
+    this.set("marketRentNearFloor", Value.fromBigInt(value));
+  }
+
+  get marketRentNearSum(): BigInt {
+    let value = this.get("marketRentNearSum");
+    return value!.toBigInt();
+  }
+
+  set marketRentNearSum(value: BigInt) {
+    this.set("marketRentNearSum", Value.fromBigInt(value));
+  }
+
+  get marketRentNearTotal(): i32 {
+    let value = this.get("marketRentNearTotal");
+    return value!.toI32();
+  }
+
+  set marketRentNearTotal(value: i32) {
+    this.set("marketRentNearTotal", Value.fromI32(value));
+  }
+
+  get accountTotal(): i32 {
+    let value = this.get("accountTotal");
+    return value!.toI32();
+  }
+
+  set accountTotal(value: i32) {
+    this.set("accountTotal", Value.fromI32(value));
   }
 }
 
@@ -524,7 +624,7 @@ export class MarketRentCondition extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("ftTokenId", Value.fromString(""));
-    this.set("price", Value.fromString(""));
+    this.set("price", Value.fromBigInt(BigInt.zero()));
     this.set("rent", Value.fromString(""));
     this.set("rentId", Value.fromString(""));
   }
@@ -566,13 +666,13 @@ export class MarketRentCondition extends Entity {
     this.set("ftTokenId", Value.fromString(value));
   }
 
-  get price(): string {
+  get price(): BigInt {
     let value = this.get("price");
-    return value!.toString();
+    return value!.toBigInt();
   }
 
-  set price(value: string) {
-    this.set("price", Value.fromString(value));
+  set price(value: BigInt) {
+    this.set("price", Value.fromBigInt(value));
   }
 
   get rent(): string {
@@ -713,7 +813,7 @@ export class MarketSaleCondition extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("ftTokenId", Value.fromString(""));
-    this.set("price", Value.fromString(""));
+    this.set("price", Value.fromBigInt(BigInt.zero()));
     this.set("sale", Value.fromString(""));
     this.set("saleId", Value.fromString(""));
   }
@@ -755,13 +855,13 @@ export class MarketSaleCondition extends Entity {
     this.set("ftTokenId", Value.fromString(value));
   }
 
-  get price(): string {
+  get price(): BigInt {
     let value = this.get("price");
-    return value!.toString();
+    return value!.toBigInt();
   }
 
-  set price(value: string) {
-    this.set("price", Value.fromString(value));
+  set price(value: BigInt) {
+    this.set("price", Value.fromBigInt(value));
   }
 
   get sale(): string {

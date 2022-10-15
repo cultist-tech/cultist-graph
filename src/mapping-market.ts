@@ -2,9 +2,10 @@ import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
 import { MarketSale, MarketSaleCondition, Account } from "../generated/schema";
 import { parseEvent } from "./utils";
-import { getOrCreateAccount } from "./account/account";
+import { createAccount, getAccount, getOrCreateAccount } from "./account/account";
 import { getOrCreateStatisticSystem } from "./statistic/statistic";
 import { saveMarketSaleConditions } from "./market-sale/condition";
+import { removeMarketSale } from "./market-sale";
 
 export function handleMarket(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -77,11 +78,10 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             sale.save();
 
-            // acc
-            const account = getOrCreateAccount(ownerId.toString());
-            account.save();
+            //
+            getOrCreateAccount(ownerId.toString());
 
-            // stats
+            //
             const stats = getOrCreateStatisticSystem();
             stats.marketSaleTotal++;
             stats.save();
@@ -109,9 +109,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             }
 
             saleCondition.ftTokenId = ftTokenId.toString();
-            saleCondition.price = price.toString();
+            saleCondition.price = price.toBigInt();
 
             saleCondition.save();
+
+            //
+            getOrCreateAccount(ownerId.toString());
         } else if (method == "market_remove_sale") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -129,17 +132,18 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
+            removeMarketSale(saleId);
+
+            //
             getOrCreateAccount(ownerId.toString());
 
-            store.remove("MarketSale", saleId.toString());
-
-            // stats
+            //
             const stats = getOrCreateStatisticSystem();
             stats.marketSaleTotal--;
             stats.save();
         } else if (method == "market_offer") {
             const tokenId = data.get("token_id");
-            const accountId = data.get("owner_id");
+            const ownerId = data.get("owner_id");
             const receiverId = data.get("receiver_id");
             const nftContractId = data.get("nft_contract_id");
             const payout = data.get("payout");
@@ -148,7 +152,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (
                 !tokenId ||
-                !accountId ||
+                !ownerId ||
                 !receiverId ||
                 !nftContractId ||
                 !payout ||
@@ -168,10 +172,10 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             store.remove("MarketSale", saleId.toString());
 
-            // acc
-            getOrCreateAccount(accountId.toString());
+            //
+            getOrCreateAccount(ownerId.toString());
 
-            // stats
+            //
             const stats = getOrCreateStatisticSystem();
             stats.marketSaleTotal--;
             stats.save();

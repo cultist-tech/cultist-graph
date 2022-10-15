@@ -49,9 +49,6 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            getOrCreateAccount(old_owner_id.toString());
-            getOrCreateAccount(new_owner_id.toString());
-
             const senderBalance = getOrCreateFtBalance(old_owner_id.toString(), contractId);
             const receiverBalance = getOrCreateFtBalance(new_owner_id.toString(), contractId);
 
@@ -74,6 +71,10 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             senderBalance.save();
             receiverBalance.save();
+
+            // acc
+            getOrCreateAccount(old_owner_id.toString());
+            getOrCreateAccount(new_owner_id.toString());
         } else if (method == "ft_mint") {
             const amount = data.get("amount");
             const account_id = data.get("owner_id");
@@ -84,8 +85,6 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            getOrCreateAccount(account_id.toString());
-
             const receiverBalance = getOrCreateFtBalance(account_id.toString(), contractId);
 
             receiverBalance.balance = receiverBalance.balance.plus(
@@ -93,25 +92,29 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             );
 
             receiverBalance.save();
+
+            // acc
+            getOrCreateAccount(account_id.toString());
         } else if (method == "ft_burn") {
-          const amount = data.get("amount");
-          const account_id = data.get("owner_id");
-          const memo = data.get("memo");
+            const amount = data.get("amount");
+            const account_id = data.get("owner_id");
+            const memo = data.get("memo");
 
-          if (!account_id || !amount) {
-            log.error("[ft_mint] - invalid args", []);
-            return;
-          }
+            if (!account_id || !amount) {
+                log.error("[ft_mint] - invalid args", []);
+                return;
+            }
 
-          getOrCreateAccount(account_id.toString());
+            const receiverBalance = getOrCreateFtBalance(account_id.toString(), contractId);
 
-          const receiverBalance = getOrCreateFtBalance(account_id.toString(), contractId);
+            receiverBalance.balance = receiverBalance.balance.minus(
+                BigInt.fromString(amount.toString())
+            );
 
-          receiverBalance.balance = receiverBalance.balance.minus(
-            BigInt.fromString(amount.toString())
-          );
+            receiverBalance.save();
 
-          receiverBalance.save();
+            // acc
+            getOrCreateAccount(account_id.toString());
         }
     }
 }
