@@ -351,8 +351,8 @@ export class TokenMetadata extends Entity {
     }
   }
 
-  get decsription(): string | null {
-    let value = this.get("decsription");
+  get description(): string | null {
+    let value = this.get("description");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -360,11 +360,11 @@ export class TokenMetadata extends Entity {
     }
   }
 
-  set decsription(value: string | null) {
+  set description(value: string | null) {
     if (!value) {
-      this.unset("decsription");
+      this.unset("description");
     } else {
-      this.set("decsription", Value.fromString(<string>value));
+      this.set("description", Value.fromString(<string>value));
     }
   }
 
