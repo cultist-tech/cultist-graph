@@ -40,10 +40,14 @@ type Token @entity {
     #
 
     ownerId: String!
-    tokenMetadataId: String
+    tokenMetadataId: String!
+    rentId: ID
+    saleId: ID
 
     owner: Account!
-    tokenMetadata: TokenMetadata
+    tokenMetadata: TokenMetadata!
+    rent: MarketRent
+    sale: MarketSale
     royalty: [TokenRoyalty!]! @derivedFrom(field: "token")
 }
 type TokenMetadata @entity {

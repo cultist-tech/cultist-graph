@@ -1,6 +1,6 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import { MarketRent, MarketRentCondition } from "../../generated/schema";
+import {MarketRent, MarketRentCondition, Token} from "../../generated/schema";
 import { parseEvent } from "../utils";
 import { getOrCreateAccount } from "../api/account";
 import { BigDecimal } from "@graphprotocol/graph-ts/index";
@@ -13,6 +13,7 @@ import {
     updateRemoveMarketRentStats,
 } from "./helpers";
 import { getMarketSaleConditionId } from "../market-sale/helpers";
+import {getTokenId} from "../nft/helpers";
 
 export function handleRent(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -82,6 +83,15 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             rent.save();
 
+            // token
+            const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
+            const token = Token.load(tokenContractId);
+
+            if (token) {
+                token.rent = rentId;
+                token.rentId = rentId
+            }
+
             // acc
             getOrCreateAccount(accountId.toString(), stats);
 
@@ -111,6 +121,15 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             }
 
             removeMarketRent(rentId);
+
+            // token
+            const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
+            const token = Token.load(tokenContractId);
+
+            if (token) {
+                token.rent = null;
+                token.rentId = null
+            }
 
             // acc
             getOrCreateAccount(accountId.toString(), stats);
@@ -239,6 +258,15 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             }
 
             removeMarketRent(rentId);
+
+            // token
+            const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
+            const token = Token.load(tokenContractId);
+
+            if (token) {
+                token.rent = null;
+                token.rentId = null
+            }
 
             // acc
             getOrCreateAccount(ownerId.toString(), stats);

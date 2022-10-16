@@ -193,7 +193,9 @@ export class Token extends Entity {
     this.set("tokenId", Value.fromString(""));
     this.set("createdAt", Value.fromI32(0));
     this.set("ownerId", Value.fromString(""));
+    this.set("tokenMetadataId", Value.fromString(""));
     this.set("owner", Value.fromString(""));
+    this.set("tokenMetadata", Value.fromString(""));
   }
 
   save(): void {
@@ -267,8 +269,17 @@ export class Token extends Entity {
     this.set("ownerId", Value.fromString(value));
   }
 
-  get tokenMetadataId(): string | null {
+  get tokenMetadataId(): string {
     let value = this.get("tokenMetadataId");
+    return value!.toString();
+  }
+
+  set tokenMetadataId(value: string) {
+    this.set("tokenMetadataId", Value.fromString(value));
+  }
+
+  get rentId(): string | null {
+    let value = this.get("rentId");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -276,11 +287,28 @@ export class Token extends Entity {
     }
   }
 
-  set tokenMetadataId(value: string | null) {
+  set rentId(value: string | null) {
     if (!value) {
-      this.unset("tokenMetadataId");
+      this.unset("rentId");
     } else {
-      this.set("tokenMetadataId", Value.fromString(<string>value));
+      this.set("rentId", Value.fromString(<string>value));
+    }
+  }
+
+  get saleId(): string | null {
+    let value = this.get("saleId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set saleId(value: string | null) {
+    if (!value) {
+      this.unset("saleId");
+    } else {
+      this.set("saleId", Value.fromString(<string>value));
     }
   }
 
@@ -293,8 +321,17 @@ export class Token extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
-  get tokenMetadata(): string | null {
+  get tokenMetadata(): string {
     let value = this.get("tokenMetadata");
+    return value!.toString();
+  }
+
+  set tokenMetadata(value: string) {
+    this.set("tokenMetadata", Value.fromString(value));
+  }
+
+  get rent(): string | null {
+    let value = this.get("rent");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -302,11 +339,28 @@ export class Token extends Entity {
     }
   }
 
-  set tokenMetadata(value: string | null) {
+  set rent(value: string | null) {
     if (!value) {
-      this.unset("tokenMetadata");
+      this.unset("rent");
     } else {
-      this.set("tokenMetadata", Value.fromString(<string>value));
+      this.set("rent", Value.fromString(<string>value));
+    }
+  }
+
+  get sale(): string | null {
+    let value = this.get("sale");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set sale(value: string | null) {
+    if (!value) {
+      this.unset("sale");
+    } else {
+      this.set("sale", Value.fromString(<string>value));
     }
   }
 
