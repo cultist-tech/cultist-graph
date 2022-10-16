@@ -47,7 +47,7 @@ export class TokenMapper {
         const tokenId = getTokenId(this.contractId, tokenIdRaw.toString());
         const token = new Token(tokenId);
 
-        token.tokenId = tokenId;
+        token.tokenId = tokenIdRaw.toString();
         token.ownerId = ownerId.toString();
         token.owner = ownerId.toString();
         token.bindToOwner = bindToOwner && !bindToOwner.isNull() ? bindToOwner.toBool() : false;
@@ -191,6 +191,9 @@ export class TokenMapper {
             log.error("[nft_mint] - invalid args", []);
             return;
         }
+
+        const tokenIdRaw = tokenIds.toArray()[0].toString();
+        const tokenId = getTokenId(this.contractId, tokenIdRaw.toString());
 
         // acc
         getOrCreateAccount(receiverId.toString(), this.stats);

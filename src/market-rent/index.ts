@@ -1,7 +1,7 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
 import {MarketRent, MarketRentCondition, Token} from "../../generated/schema";
-import { parseEvent } from "../utils";
+import {getReceiptDate, parseEvent} from "../utils";
 import { getOrCreateAccount } from "../api/account";
 import { BigDecimal } from "@graphprotocol/graph-ts/index";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
@@ -28,7 +28,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     }
 
     const outcome = receiptWithOutcome.outcome;
-    const timestamp = (receiptWithOutcome.block.header.timestampNanosec / 1_000_000) as i32;
+    const timestamp = getReceiptDate(receiptWithOutcome);
 
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
         const ev = parseEvent(outcome.logs[logIndex]);
@@ -52,7 +52,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
         stats.transactionTotal++;
 
         if (method == "rent_add") {
-            const tokenId = data.get("token_id");
+            const tokenIdRaw = data.get("token_id");
             const contractId = data.get("contract_id");
             const accountId = data.get("owner_id");
             const minTime = data.get("min_time");
@@ -60,15 +60,17 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const createdAt = data.get("created_at");
             const saleConditions = data.get("sale_conditions");
 
-            if (!tokenId || !accountId || !minTime || !maxTime || !createdAt || !contractId) {
+            if (!tokenIdRaw || !accountId || !minTime || !maxTime || !createdAt || !contractId) {
                 log.error("[rent_add] - invalid args", []);
                 return;
             }
 
+            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
+
             const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
 
             const rent = new MarketRent(rentId.toString());
-            rent.tokenId = tokenId.toString();
+            rent.tokenId = tokenIdRaw.toString();
             rent.token = tokenId.toString();
             rent.ownerId = accountId.toString();
             rent.owner = accountId.toString();
@@ -104,14 +106,16 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.marketRentTotal++;
             senderStats.save();
         } else if (method == "rent_remove") {
-            const tokenId = data.get("token_id");
+            const tokenIdRaw = data.get("token_id");
             const accountId = data.get("account_id");
             const contractId = data.get("contract_id");
 
-            if (!tokenId || !accountId || !contractId) {
+            if (!tokenIdRaw || !accountId || !contractId) {
                 log.error("[rent_remove] - invalid args", []);
                 return;
             }
+
+            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
 
             const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
             const rent = MarketRent.load(rentId.toString());
@@ -144,7 +148,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.marketRentTotal--;
             senderStats.save();
         } else if (method == "rent_pay") {
-            const tokenId = data.get("token_id");
+            const tokenIdRaw = data.get("token_id");
             const accountId = data.get("owner_id");
             const contractId = data.get("contract_id");
             const receiverId = data.get("receiver_id");
@@ -153,7 +157,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const rawPrice = data.get("price");
 
             if (
-                !tokenId ||
+                !tokenIdRaw ||
                 !accountId ||
                 !receiverId ||
                 !time ||
@@ -164,6 +168,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 log.error("[rent_pay] - invalid args", []);
                 return;
             }
+
+            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
 
             const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
             const rent = MarketRent.load(rentId.toString());
@@ -194,7 +200,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.marketRentTotal--;
             senderStats.save();
         } else if (method == "rent_update") {
-            const tokenId = data.get("token_id");
+            const tokenIdRaw = data.get("token_id");
             const ownerId = data.get("owner_id");
             const contractId = data.get("contract_id");
             const minTime = data.get("min_time");
@@ -202,10 +208,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const ftTokenId = data.get("ft_token_id");
             const price = data.get("price");
 
-            if (!tokenId || !ownerId || !contractId || !ftTokenId || !price) {
+            if (!tokenIdRaw || !ownerId || !contractId || !ftTokenId || !price) {
                 log.error("[market_update_sale] - invalid args", []);
                 return;
             }
+
+            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
 
             const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
             const saleConditionId = getMarketSaleConditionId(rentId, ftTokenId.toString());
@@ -241,14 +249,16 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.transactionTotal++;
             senderStats.save();
         } else if (method == "rent_claim") {
-            const tokenId = data.get("token_id");
+            const tokenIdRaw = data.get("token_id");
             const ownerId = data.get("owner_id");
             const renterId = data.get("renter_id");
             const contractId = data.get("contract_id");
 
-            if (!tokenId || !ownerId || !renterId || !contractId) {
+            if (!tokenIdRaw || !ownerId || !renterId || !contractId) {
                 return;
             }
+
+            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
 
             const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
             const rent = MarketRent.load(rentId.toString());

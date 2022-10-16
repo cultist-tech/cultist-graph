@@ -1,5 +1,4 @@
 import { Account, Statistic } from "../../generated/schema";
-import { getOrCreateStatisticSystem } from "./statistic";
 
 export function getOrCreateAccount(id: string, stats: Statistic): Account {
     const account = Account.load(id.toString());

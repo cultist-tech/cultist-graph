@@ -1,5 +1,5 @@
 import { near } from "@graphprotocol/graph-ts";
-import { parseEvent } from "../utils";
+import {getReceiptDate, parseEvent} from "../utils";
 import { TokenMapper } from "./api";
 
 export function handleNft(receipt: near.ReceiptWithOutcome): void {
@@ -19,7 +19,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     // const methodName = functionCall.methodName
     const outcome = receiptWithOutcome.outcome;
     const contractId = receiptWithOutcome.receipt.receiverId;
-    const timestamp = receiptWithOutcome.block.header.timestampNanosec / 1_000_000 as i32;
+    const timestamp = getReceiptDate(receiptWithOutcome);
 
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
         const ev = parseEvent(outcome.logs[logIndex]);
