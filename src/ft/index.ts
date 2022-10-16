@@ -1,8 +1,9 @@
 import { near, BigInt } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import { parseEvent } from "./utils";
-import { getOrCreateAccount } from "./account/account";
-import { getOrCreateFtBalance } from "./ft/ft-balance";
+import { parseEvent } from "../utils";
+import { getOrCreateAccount } from "../api/account";
+import { getOrCreateFtBalance } from "./helpers";
+import { getOrCreateStatisticSystem } from "../api/statistic";
 
 export function handleFt(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -37,6 +38,9 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
         const data = eventData.toObject();
         const method = eventMethod.toString();
+
+        const stats = getOrCreateStatisticSystem();
+        stats.transactionTotal++;
 
         if (method == "ft_transfer") {
             const amount = data.get("amount");
@@ -75,6 +79,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             // acc
             getOrCreateAccount(old_owner_id.toString());
             getOrCreateAccount(new_owner_id.toString());
+
+            //
         } else if (method == "ft_mint") {
             const amount = data.get("amount");
             const account_id = data.get("owner_id");
@@ -116,5 +122,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             // acc
             getOrCreateAccount(account_id.toString());
         }
+
+        stats.save();
     }
 }

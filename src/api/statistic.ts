@@ -29,6 +29,7 @@ export function createStatistic(id: string): Statistic {
     row.marketRentNearSum = "0";
 
     row.accountTotal = 0 as i32;
+    row.transactionTotal = 0 as i32;
 
     row.save();
 

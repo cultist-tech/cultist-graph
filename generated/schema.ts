@@ -29,6 +29,7 @@ export class Statistic extends Entity {
     this.set("marketRentNearSum", Value.fromString(""));
     this.set("marketRentNearTotal", Value.fromI32(0));
     this.set("accountTotal", Value.fromI32(0));
+    this.set("transactionTotal", Value.fromI32(0));
   }
 
   save(): void {
@@ -172,6 +173,15 @@ export class Statistic extends Entity {
 
   set accountTotal(value: i32) {
     this.set("accountTotal", Value.fromI32(value));
+  }
+
+  get transactionTotal(): i32 {
+    let value = this.get("transactionTotal");
+    return value!.toI32();
+  }
+
+  set transactionTotal(value: i32) {
+    this.set("transactionTotal", Value.fromI32(value));
   }
 }
 

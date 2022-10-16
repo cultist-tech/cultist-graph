@@ -1,12 +1,12 @@
 import { near, store, BigDecimal } from "@graphprotocol/graph-ts";
-import { Token, Account, TokenMetadata } from "../generated/schema";
+import { Token, TokenMetadata } from "../../generated/schema";
 import { log } from "@graphprotocol/graph-ts";
-import { parseEvent } from "./utils";
-import { getOrCreateAccount } from "./account/account";
-import { saveTokenRoyalties } from "./nft/royalty";
-import { convertRarity } from "./nft/rarity";
-import { getOrCreateStatisticSystem } from "./statistic/statistic";
-import { getMarketSaleId, removeMarketSale } from "./market-sale";
+import { parseEvent } from "../utils";
+import { getOrCreateAccount } from "../api/account";
+import { convertRarity, saveTokenRoyalties } from "./helpers";
+import { getOrCreateStatisticSystem } from "../api/statistic";
+import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
+import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
 
 export function handleNft(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -43,6 +43,9 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
         const data = eventData.toObject();
         const method = eventMethod.toString();
+
+        const stats = getOrCreateStatisticSystem();
+        stats.transactionTotal++;
 
         if (method == "nft_create") {
             const rawToken = data.get("token");
@@ -113,9 +116,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             getOrCreateAccount(ownerId.toString());
 
             // stats
-            const stats = getOrCreateStatisticSystem();
             stats.nftTotal++;
-            stats.save();
         } else if (method == "nft_transfer") {
             const tokenIds = data.get("token_ids");
             const senderId = data.get("old_owner_id");
@@ -140,16 +141,16 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // clear
             const saleId = getMarketSaleId(contractId, tokenId.toString());
+            const rentId = getMarketRentId(contractId, tokenId.toString());
             removeMarketSale(saleId);
+            removeMarketRent(rentId);
 
             // acc
             getOrCreateAccount(senderId.toString());
             getOrCreateAccount(receiverId.toString());
 
             // stats
-            const stats = getOrCreateStatisticSystem();
             stats.nftTransferTotal++;
-            stats.save();
         } else if (method == "nft_burn") {
             const tokenIds = data.get("token_ids");
             const senderId = data.get("owner_id");
@@ -171,16 +172,16 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // clear
             const saleId = getMarketSaleId(contractId, tokenId.toString());
+            const rentId = getMarketRentId(contractId, tokenId.toString());
             removeMarketSale(saleId);
+            removeMarketRent(rentId);
 
             // acc
             getOrCreateAccount(senderId.toString());
 
             // stats
-            const stats = getOrCreateStatisticSystem();
             stats.nftTotal--;
             stats.nftBurnTotal++;
-            stats.save();
         } else if (method == "nft_mint") {
             const tokenIds = data.get("token_ids");
             const receiverId = data.get("owner_id");
@@ -212,9 +213,9 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             getOrCreateAccount(receiverId.toString());
 
             // stats
-            const stats = getOrCreateStatisticSystem();
             stats.nftPayTotal++;
-            stats.save();
         }
+
+        stats.save();
     }
 }

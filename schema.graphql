@@ -25,6 +25,7 @@ type Statistic @entity {
     marketRentNearTotal: Int!
 
     accountTotal: Int!
+    transactionTotal: Int!
 }
 
 type Token @entity {

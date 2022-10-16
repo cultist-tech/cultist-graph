@@ -14,7 +14,7 @@ dataSources:
     mapping:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mapping-nft.ts
+      file: ./src/nft/index.ts
       entities:
         - Token
         - Account
@@ -31,7 +31,7 @@ dataSources:
     mapping:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mapping-rent.ts
+      file: ./src/market-rent/index.ts
       entities:
         - Account
         - MarketRent
@@ -48,7 +48,7 @@ dataSources:
     mapping:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mapping-market.ts
+      file: ./src/market-sale/index.ts
       entities:
         - Account
         - MarketSale
@@ -66,7 +66,7 @@ dataSources:
     mapping:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mapping-ft.ts
+      file: ./src/ft/index.ts
       entities:
         - Account
         - FtBalance

@@ -1,12 +1,11 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import { Account, MarketRent, MarketRentCondition, MarketSaleCondition } from "../generated/schema";
-import { parseEvent } from "./utils";
-import { getOrCreateAccount } from "./account/account";
+import { MarketRent, MarketRentCondition } from "../../generated/schema";
+import { parseEvent } from "../utils";
+import { getOrCreateAccount } from "../api/account";
 import { BigDecimal, BigInt } from "@graphprotocol/graph-ts/index";
-import { getOrCreateStatisticSystem } from "./statistic/statistic";
-import { saveMarketRentConditions } from "./market-rent/condition";
-import { getMarketSaleId, removeMarketSale } from "./market-sale";
+import { getOrCreateStatisticSystem } from "../api/statistic";
+import { saveMarketRentConditions } from "./helpers";
 
 export function handleRent(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -21,8 +20,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     }
 
     const outcome = receiptWithOutcome.outcome;
-  const contractId = receiptWithOutcome.receipt.receiverId;
-  const timestamp = (receiptWithOutcome.block.header.timestampNanosec / 1_000_000) as i32;
+    const contractId = receiptWithOutcome.receipt.receiverId;
+    const timestamp = (receiptWithOutcome.block.header.timestampNanosec / 1_000_000) as i32;
 
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
         const ev = parseEvent(outcome.logs[logIndex]);
@@ -41,6 +40,9 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
         const data = eventData.toObject();
         const method = eventMethod.toString();
+
+        const stats = getOrCreateStatisticSystem();
+        stats.transactionTotal++;
 
         if (method == "rent_add") {
             const tokenId = data.get("token_id");
@@ -78,9 +80,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             getOrCreateAccount(accountId.toString());
 
             // stats
-            const stats = getOrCreateStatisticSystem();
             stats.marketRentTotal++;
-            stats.save();
         } else if (method == "rent_remove") {
             const tokenId = data.get("token_id");
             const accountId = data.get("account_id");
@@ -104,9 +104,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             getOrCreateAccount(accountId.toString());
 
             // stats
-            const stats = getOrCreateStatisticSystem();
             stats.marketRentTotal--;
-            stats.save();
         } else if (method == "rent_pay") {
             const tokenId = data.get("token_id");
             const accountId = data.get("owner_id");
@@ -145,17 +143,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             rent.save();
 
-            // clear
-            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
-            removeMarketSale(saleId);
-
             // acc
             getOrCreateAccount(receiverId.toString());
 
             //
-            const stats = getOrCreateStatisticSystem();
             stats.marketRentTotal--;
-            stats.save();
         } else if (method == "rent_update") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -235,5 +227,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             // acc
             getOrCreateAccount(ownerId.toString());
         }
+
+        stats.save();
     }
 }

@@ -1,6 +1,15 @@
-import { JSONValue, BigInt } from "@graphprotocol/graph-ts/index";
+import {JSONValue, BigInt, store, log} from "@graphprotocol/graph-ts/index";
 import { MarketRentCondition } from "../../generated/schema";
-import { getOrCreateStatisticSystem } from "../statistic/statistic";
+import { getOrCreateStatisticSystem } from "../api/statistic";
+
+export function getMarketRentId(contractId: string, tokenId: string): string {
+  return contractId + "||" + tokenId;
+}
+export function removeMarketRent(rentId: string): void {
+  store.remove("MarketRent", rentId.toString());
+
+  log.error("[market_rent_removed]: ", [rentId.toString()]);
+}
 
 export function saveMarketRentConditions(rentId: string, obj: JSONValue): void {
     const royaltyObj = obj.toObject();
