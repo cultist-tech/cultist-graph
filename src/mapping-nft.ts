@@ -169,6 +169,10 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             store.remove("Token", tokenId.toString());
 
+            // clear
+            const saleId = getMarketSaleId(contractId, tokenId.toString());
+            removeMarketSale(saleId);
+
             // acc
             getOrCreateAccount(senderId.toString());
 

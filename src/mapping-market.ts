@@ -21,6 +21,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     }
 
     const outcome = receiptWithOutcome.outcome;
+    const contractId = receiptWithOutcome.receipt.receiverId;
+    const timestamp = (receiptWithOutcome.block.header.timestampNanosec / 1_000_000) as i32;
 
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
         const ev = parseEvent(outcome.logs[logIndex]);
@@ -53,10 +55,9 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const contractId = saleObj.get("nft_contract_id");
             const tokenId = saleObj.get("token_id");
             const saleConditions = saleObj.get("sale_conditions");
-            const createdAt = saleObj.get("created_at");
             const isAuction = saleObj.get("is_auction");
 
-            if (!ownerId || !ownerId || !contractId || !tokenId || !saleConditions || !createdAt) {
+            if (!ownerId || !ownerId || !contractId || !tokenId || !saleConditions) {
                 log.error("[market_create_sale] - invalid args", []);
                 return;
             }
@@ -70,7 +71,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             sale.ownerId = ownerId.toString();
             sale.owner = ownerId.toString();
             sale.contractId = contractId.toString();
-            sale.createdAt = createdAt.toU64() as i32;
+            sale.createdAt = timestamp;
             sale.isAuction = isAuction ? isAuction.toBool() : false;
 
             if (saleConditions && !saleConditions.isNull()) {

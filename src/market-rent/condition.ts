@@ -16,7 +16,7 @@ export function saveMarketRentConditions(rentId: string, obj: JSONValue): void {
         saleCondition.ftTokenId = row.key;
         saleCondition.price = row.value.toString();
 
-        if (saleCondition.ftTokenId == "near") {
+        if (saleCondition.ftTokenId === "near") {
             const stats = getOrCreateStatisticSystem();
 
             stats.marketRentNearTotal++;

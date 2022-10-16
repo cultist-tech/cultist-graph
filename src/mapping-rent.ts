@@ -21,6 +21,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     }
 
     const outcome = receiptWithOutcome.outcome;
+  const contractId = receiptWithOutcome.receipt.receiverId;
+  const timestamp = (receiptWithOutcome.block.header.timestampNanosec / 1_000_000) as i32;
 
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
         const ev = parseEvent(outcome.logs[logIndex]);
@@ -63,7 +65,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             rent.owner = accountId.toString();
             rent.minTime = minTime.toU64() as i32;
             rent.maxTime = maxTime.toU64() as i32;
-            rent.createdAt = createdAt.toU64() as i32;
+            rent.createdAt = timestamp;
             rent.contractId = contractId.toString();
 
             if (saleConditions && !saleConditions.isNull()) {
