@@ -19,6 +19,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     // const methodName = functionCall.methodName
     const outcome = receiptWithOutcome.outcome;
     const contractId = receiptWithOutcome.receipt.receiverId;
+    const timestamp = receiptWithOutcome.block.header.timestampNanosec / 1_000_000 as i32;
 
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
         const ev = parseEvent(outcome.logs[logIndex]);
@@ -38,7 +39,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
         const data = eventData.toObject();
         const method = eventMethod.toString();
 
-        const tokenMapper = new TokenMapper(contractId);
+        const tokenMapper = new TokenMapper(contractId, timestamp);
 
         if (method == "nft_create") {
             tokenMapper.create(data);

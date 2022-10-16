@@ -35,6 +35,8 @@ type Token @entity {
     rarity: Int
     bindToOwner: Boolean
 
+    createdAt: Int!
+
     #
 
     ownerId: String!

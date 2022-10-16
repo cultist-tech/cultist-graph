@@ -191,6 +191,7 @@ export class Token extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("tokenId", Value.fromString(""));
+    this.set("createdAt", Value.fromI32(0));
     this.set("ownerId", Value.fromString(""));
     this.set("owner", Value.fromString(""));
   }
@@ -246,6 +247,15 @@ export class Token extends Entity {
 
   set bindToOwner(value: boolean) {
     this.set("bindToOwner", Value.fromBoolean(value));
+  }
+
+  get createdAt(): i32 {
+    let value = this.get("createdAt");
+    return value!.toI32();
+  }
+
+  set createdAt(value: i32) {
+    this.set("createdAt", Value.fromI32(value));
   }
 
   get ownerId(): string {
@@ -950,6 +960,15 @@ export class Account extends Entity {
 
   set marketRents(value: Array<string>) {
     this.set("marketRents", Value.fromStringArray(value));
+  }
+
+  get ftBalances(): Array<string> {
+    let value = this.get("ftBalances");
+    return value!.toStringArray();
+  }
+
+  set ftBalances(value: Array<string>) {
+    this.set("ftBalances", Value.fromStringArray(value));
   }
 }
 

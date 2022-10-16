@@ -9,10 +9,12 @@ import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
 export class TokenMapper {
     protected stats: Statistic;
     protected contractId: string;
+    protected createdAt: i32;
 
-    constructor(contractId: string) {
+    constructor(contractId: string, timestamp: i32) {
         this.stats = getOrCreateStatisticSystem();
         this.contractId = contractId;
+        this.createdAt = timestamp;
 
         this.stats.transactionTotal++;
     }
@@ -49,6 +51,7 @@ export class TokenMapper {
         token.ownerId = ownerId.toString();
         token.owner = ownerId.toString();
         token.bindToOwner = bindToOwner && !bindToOwner.isNull() ? bindToOwner.toBool() : false;
+        token.createdAt = this.createdAt;
 
         if (rarity && !rarity.isNull()) {
             token.rarity = convertRarity(rarity);
