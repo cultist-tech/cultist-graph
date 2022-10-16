@@ -4,7 +4,7 @@ import { log } from "@graphprotocol/graph-ts";
 import { parseEvent } from "../utils";
 import { getOrCreateAccount } from "../api/account";
 import { convertRarity, saveTokenRoyalties } from "./helpers";
-import { getOrCreateStatisticSystem } from "../api/statistic";
+import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
 import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
 
@@ -117,6 +117,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // stats
             stats.nftTotal++;
+
+            // stats acc
+            const accStats = getOrCreateStatistic(ownerId.toString());
+            accStats.nftTotal++;
+            accStats.transactionTotal++;
+            accStats.save();
         } else if (method == "nft_transfer") {
             const tokenIds = data.get("token_ids");
             const senderId = data.get("old_owner_id");
@@ -151,6 +157,16 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // stats
             stats.nftTransferTotal++;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(senderId.toString());
+            senderStats.nftTotal--;
+            senderStats.transactionTotal++;
+            senderStats.save();
+            const receiverStats = getOrCreateStatistic(receiverId.toString());
+            receiverStats.nftTotal++;
+            receiverStats.transactionTotal++;
+            receiverStats.save();
         } else if (method == "nft_burn") {
             const tokenIds = data.get("token_ids");
             const senderId = data.get("owner_id");
@@ -182,6 +198,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             // stats
             stats.nftTotal--;
             stats.nftBurnTotal++;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(senderId.toString());
+            senderStats.nftTotal--;
+            senderStats.transactionTotal++;
+            senderStats.save();
         } else if (method == "nft_mint") {
             const tokenIds = data.get("token_ids");
             const receiverId = data.get("owner_id");
@@ -193,6 +215,10 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // acc
             getOrCreateAccount(receiverId.toString());
+
+            const senderStats = getOrCreateStatistic(receiverId.toString());
+            senderStats.transactionTotal++;
+            senderStats.save();
         } else if (method == "nft_transfer_payout") {
             const tokenId = data.get("token_id");
             const senderId = data.get("sender_id");
@@ -214,6 +240,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // stats
             stats.nftPayTotal++;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(senderId.toString());
+            senderStats.transactionTotal++;
+            senderStats.save();
         }
 
         stats.save();

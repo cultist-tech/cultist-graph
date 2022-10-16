@@ -1,5 +1,4 @@
 import { Statistic } from "../../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
 
 export function getOrCreateStatistic(id: string): Statistic {
     const row = Statistic.load(id);
@@ -37,11 +36,6 @@ export function createStatistic(id: string): Statistic {
 }
 export function getOrCreateStatisticSystem(): Statistic {
     const id = "_";
-    const row = Statistic.load(id);
 
-    if (row) {
-        return row;
-    }
-
-    return createStatistic(id);
+    return getOrCreateStatistic(id);
 }

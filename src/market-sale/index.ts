@@ -3,8 +3,8 @@ import { log } from "@graphprotocol/graph-ts";
 import { MarketSale, MarketSaleCondition, Account } from "../../generated/schema";
 import { parseEvent } from "../utils";
 import { createAccount, getAccount, getOrCreateAccount } from "../api/account";
-import { getOrCreateStatisticSystem } from "../api/statistic";
-import { saveMarketSaleConditions, removeMarketSale } from "./helpers";
+import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
+import { saveMarketSaleConditions, removeMarketSale, updateMarketSaleStats } from "./helpers";
 import { BigInt } from "@graphprotocol/graph-ts/index";
 
 export function handleMarket(receipt: near.ReceiptWithOutcome): void {
@@ -77,16 +77,22 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             sale.isAuction = isAuction ? isAuction.toBool() : false;
 
             if (saleConditions && !saleConditions.isNull()) {
-                saveMarketSaleConditions(saleId, saleConditions);
+                saveMarketSaleConditions(saleId, ownerId.toString(), saleConditions);
             }
 
             sale.save();
 
-            //
+            // acc
             getOrCreateAccount(ownerId.toString());
 
             // stats
             stats.marketSaleTotal++;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(ownerId.toString());
+            senderStats.marketSaleTotal++;
+            senderStats.transactionTotal++;
+            senderStats.save();
         } else if (method == "market_update_sale") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -113,25 +119,17 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             saleCondition.ftTokenId = ftTokenId.toString();
             saleCondition.price = price.toString();
 
-            if (saleCondition.ftTokenId == "near") {
-                stats.marketSaleNearTotal++;
-                stats.marketSaleNearSum = BigInt.fromString(stats.marketSaleNearSum)
-                    .plus(BigInt.fromString(saleCondition.price))
-                    .toString();
-
-                if (
-                    BigInt.fromString(stats.marketSaleNearFloor).gt(
-                        BigInt.fromString(saleCondition.price)
-                    )
-                ) {
-                    stats.marketSaleNearFloor = saleCondition.price;
-                }
-            }
+            updateMarketSaleStats(saleId, ownerId.toString(), saleCondition);
 
             saleCondition.save();
 
-            //
+            // acc
             getOrCreateAccount(ownerId.toString());
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(ownerId.toString());
+            senderStats.transactionTotal++;
+            senderStats.save();
         } else if (method == "market_remove_sale") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -151,11 +149,17 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             removeMarketSale(saleId);
 
-            //
+            // acc
             getOrCreateAccount(ownerId.toString());
 
             // stats
             stats.marketSaleTotal--;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(ownerId.toString());
+            senderStats.transactionTotal++;
+            senderStats.marketSaleTotal--;
+            senderStats.save();
         } else if (method == "market_offer") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -192,6 +196,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // stats
             stats.marketSaleTotal--;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(ownerId.toString());
+            senderStats.transactionTotal++;
+            senderStats.marketSaleTotal--;
+            senderStats.save();
         }
 
         stats.save();

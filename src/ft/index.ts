@@ -3,7 +3,7 @@ import { log } from "@graphprotocol/graph-ts";
 import { parseEvent } from "../utils";
 import { getOrCreateAccount } from "../api/account";
 import { getOrCreateFtBalance } from "./helpers";
-import { getOrCreateStatisticSystem } from "../api/statistic";
+import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 
 export function handleFt(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -80,7 +80,10 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             getOrCreateAccount(old_owner_id.toString());
             getOrCreateAccount(new_owner_id.toString());
 
-            //
+            // stats acc
+            const senderStats = getOrCreateStatistic(old_owner_id.toString());
+            senderStats.transactionTotal++;
+            senderStats.save();
         } else if (method == "ft_mint") {
             const amount = data.get("amount");
             const account_id = data.get("owner_id");
@@ -101,6 +104,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // acc
             getOrCreateAccount(account_id.toString());
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(account_id.toString());
+            senderStats.transactionTotal++;
+            senderStats.save();
         } else if (method == "ft_burn") {
             const amount = data.get("amount");
             const account_id = data.get("owner_id");
@@ -121,6 +129,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // acc
             getOrCreateAccount(account_id.toString());
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(account_id.toString());
+            senderStats.transactionTotal++;
+            senderStats.save();
         }
 
         stats.save();

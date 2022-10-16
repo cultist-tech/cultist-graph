@@ -4,8 +4,8 @@ import { MarketRent, MarketRentCondition } from "../../generated/schema";
 import { parseEvent } from "../utils";
 import { getOrCreateAccount } from "../api/account";
 import { BigDecimal, BigInt } from "@graphprotocol/graph-ts/index";
-import { getOrCreateStatisticSystem } from "../api/statistic";
-import { saveMarketRentConditions } from "./helpers";
+import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
+import { saveMarketRentConditions, updateMarketRentStats } from "./helpers";
 
 export function handleRent(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -71,7 +71,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             rent.contractId = contractId.toString();
 
             if (saleConditions && !saleConditions.isNull()) {
-                saveMarketRentConditions(rentId, saleConditions);
+                saveMarketRentConditions(rentId, accountId.toString(), saleConditions);
             }
 
             rent.save();
@@ -81,6 +81,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // stats
             stats.marketRentTotal++;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(accountId.toString());
+            senderStats.transactionTotal++;
+            senderStats.marketRentTotal++;
+            senderStats.save();
         } else if (method == "rent_remove") {
             const tokenId = data.get("token_id");
             const accountId = data.get("account_id");
@@ -105,6 +111,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // stats
             stats.marketRentTotal--;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(accountId.toString());
+            senderStats.transactionTotal++;
+            senderStats.marketRentTotal--;
+            senderStats.save();
         } else if (method == "rent_pay") {
             const tokenId = data.get("token_id");
             const accountId = data.get("owner_id");
@@ -146,8 +158,14 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             // acc
             getOrCreateAccount(receiverId.toString());
 
-            //
+            // stats
             stats.marketRentTotal--;
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(receiverId.toString());
+            senderStats.transactionTotal++;
+            senderStats.marketRentTotal--;
+            senderStats.save();
         } else if (method == "rent_update") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -162,12 +180,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            const saleId = contractId.toString() + "||" + tokenId.toString();
-            const saleConditionId = saleId + "||" + ftTokenId.toString();
+            const rentId = contractId.toString() + "||" + tokenId.toString();
+            const saleConditionId = rentId + "||" + ftTokenId.toString();
 
-            const sale = MarketRent.load(saleId);
+            const rent = MarketRent.load(rentId);
 
-            if (!sale) {
+            if (!rent) {
                 return;
             }
 
@@ -175,36 +193,24 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (!saleCondition) {
                 saleCondition = new MarketRentCondition(saleConditionId);
-                saleCondition.rentId = saleId;
-                saleCondition.rent = saleId;
+                saleCondition.rentId = rentId;
+                saleCondition.rent = rentId;
             }
 
             saleCondition.ftTokenId = ftTokenId.toString();
             saleCondition.price = price.toString();
 
-            if (saleCondition.ftTokenId == "near") {
-                const stats = getOrCreateStatisticSystem();
-
-                stats.marketRentNearTotal++;
-                stats.marketRentNearSum = BigInt.fromString(stats.marketRentNearSum)
-                    .plus(BigInt.fromString(saleCondition.price))
-                    .toString();
-
-                if (
-                    BigInt.fromString(stats.marketRentNearFloor).gt(
-                        BigInt.fromString(saleCondition.price)
-                    )
-                ) {
-                    stats.marketRentNearFloor = saleCondition.price;
-
-                    stats.save();
-                }
-            }
+            updateMarketRentStats(rentId, ownerId.toString(), saleCondition);
 
             saleCondition.save();
 
             //
             getOrCreateAccount(ownerId.toString());
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(ownerId.toString());
+            senderStats.transactionTotal++;
+            senderStats.save();
         } else if (method == "rent_claim") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -226,6 +232,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // acc
             getOrCreateAccount(ownerId.toString());
+
+            // stats acc
+            const senderStats = getOrCreateStatistic(ownerId.toString());
+            senderStats.transactionTotal++;
+            senderStats.save();
         }
 
         stats.save();
