@@ -77,8 +77,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             receiverBalance.save();
 
             // acc
-            getOrCreateAccount(old_owner_id.toString());
-            getOrCreateAccount(new_owner_id.toString());
+            getOrCreateAccount(old_owner_id.toString(), stats);
+            getOrCreateAccount(new_owner_id.toString(), stats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(old_owner_id.toString());
@@ -103,7 +103,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             receiverBalance.save();
 
             // acc
-            getOrCreateAccount(account_id.toString());
+            getOrCreateAccount(account_id.toString(), stats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(account_id.toString());
@@ -128,7 +128,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             receiverBalance.save();
 
             // acc
-            getOrCreateAccount(account_id.toString());
+            getOrCreateAccount(account_id.toString(), stats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(account_id.toString());

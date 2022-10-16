@@ -4,7 +4,14 @@ import { MarketSale, MarketSaleCondition, Account } from "../../generated/schema
 import { parseEvent } from "../utils";
 import { createAccount, getAccount, getOrCreateAccount } from "../api/account";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
-import { saveMarketSaleConditions, removeMarketSale, updateMarketSaleStats } from "./helpers";
+import {
+    saveMarketSaleConditions,
+    removeMarketSale,
+    updateCreateMarketSaleStats,
+    updateRemoveMarketSaleStats,
+    getMarketSaleId,
+    getMarketSaleConditionId,
+} from "./helpers";
 import { BigInt } from "@graphprotocol/graph-ts/index";
 
 export function handleMarket(receipt: near.ReceiptWithOutcome): void {
@@ -20,7 +27,6 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     }
 
     const outcome = receiptWithOutcome.outcome;
-    const contractId = receiptWithOutcome.receipt.receiverId;
     const timestamp = (receiptWithOutcome.block.header.timestampNanosec / 1_000_000) as i32;
 
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
@@ -64,7 +70,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            const saleId = contractId.toString() + "||" + tokenId.toString();
+            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
 
             const sale = new MarketSale(saleId);
 
@@ -77,13 +83,13 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             sale.isAuction = isAuction ? isAuction.toBool() : false;
 
             if (saleConditions && !saleConditions.isNull()) {
-                saveMarketSaleConditions(saleId, ownerId.toString(), saleConditions);
+                saveMarketSaleConditions(stats, saleId, ownerId.toString(), saleConditions);
             }
 
             sale.save();
 
             // acc
-            getOrCreateAccount(ownerId.toString());
+            getOrCreateAccount(ownerId.toString(), stats);
 
             // stats
             stats.marketSaleTotal++;
@@ -96,17 +102,20 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
         } else if (method == "market_update_sale") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
-            const nftContractId = data.get("nft_contract_id");
+            const contractId = data.get("nft_contract_id");
             const ftTokenId = data.get("ft_token_id");
             const price = data.get("price");
 
-            if (!tokenId || !ownerId || !nftContractId || !ftTokenId || !price) {
+            if (!tokenId || !ownerId || !contractId || !ftTokenId || !price) {
                 log.error("[market_update_sale] - invalid args", []);
                 return;
             }
 
-            const saleId = nftContractId.toString() + "||" + tokenId.toString();
-            const saleConditionId = saleId + "||" + ftTokenId.toString();
+            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
+            const saleConditionId = getMarketSaleConditionId(
+                saleId.toString(),
+                ftTokenId.toString()
+            );
 
             let saleCondition = MarketSaleCondition.load(saleConditionId);
 
@@ -119,12 +128,15 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             saleCondition.ftTokenId = ftTokenId.toString();
             saleCondition.price = price.toString();
 
-            updateMarketSaleStats(saleId, ownerId.toString(), saleCondition);
-
             saleCondition.save();
 
             // acc
-            getOrCreateAccount(ownerId.toString());
+            getOrCreateAccount(ownerId.toString(), stats);
+
+            // stats
+            if (ftTokenId.toString() == "near") {
+                updateCreateMarketSaleStats(stats, saleId, ownerId.toString(), saleCondition);
+            }
 
             // stats acc
             const senderStats = getOrCreateStatistic(ownerId.toString());
@@ -133,14 +145,14 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
         } else if (method == "market_remove_sale") {
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
-            const nftContractId = data.get("nft_contract_id");
+            const contractId = data.get("nft_contract_id");
 
-            if (!tokenId || !ownerId || !nftContractId) {
+            if (!tokenId || !ownerId || !contractId) {
                 log.error("[market_remove_sale] - invalid args", []);
                 return;
             }
 
-            const saleId = nftContractId.toString() + "||" + tokenId.toString();
+            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
             const sale = MarketSale.load(saleId);
 
             if (!sale) {
@@ -150,10 +162,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             removeMarketSale(saleId);
 
             // acc
-            getOrCreateAccount(ownerId.toString());
+            getOrCreateAccount(ownerId.toString(), stats);
 
             // stats
             stats.marketSaleTotal--;
+            updateRemoveMarketSaleStats(stats, saleId, ownerId.toString());
 
             // stats acc
             const senderStats = getOrCreateStatistic(ownerId.toString());
@@ -164,7 +177,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const tokenId = data.get("token_id");
             const ownerId = data.get("owner_id");
             const receiverId = data.get("receiver_id");
-            const nftContractId = data.get("nft_contract_id");
+            const contractId = data.get("nft_contract_id");
             const payout = data.get("payout");
             const ftTokenId = data.get("ft_token_id");
             const price = data.get("price");
@@ -173,7 +186,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 !tokenId ||
                 !ownerId ||
                 !receiverId ||
-                !nftContractId ||
+                !contractId ||
                 !payout ||
                 !ftTokenId ||
                 !price
@@ -182,17 +195,17 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            const saleId = nftContractId.toString() + "||" + tokenId.toString();
+            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
             const sale = MarketSale.load(saleId);
 
             if (!sale) {
                 return;
             }
 
-            store.remove("MarketSale", saleId.toString());
+            removeMarketSale(saleId.toString());
 
             // acc
-            getOrCreateAccount(ownerId.toString());
+            getOrCreateAccount(ownerId.toString(), stats);
 
             // stats
             stats.marketSaleTotal--;

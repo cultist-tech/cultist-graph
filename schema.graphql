@@ -47,7 +47,7 @@ type Token @entity {
 type TokenMetadata @entity {
     id: ID!
     title: String
-  description: String
+    description: String
     media: String
 
     #
@@ -116,6 +116,7 @@ type Account @entity {
     tokens: [Token!]! @derivedFrom(field: "owner")
     marketSales: [MarketSale!]! @derivedFrom(field: "owner")
     marketRents: [MarketRent!]! @derivedFrom(field: "owner")
+    ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
 }
 
 type FtBalance @entity {

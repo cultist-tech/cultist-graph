@@ -1,5 +1,13 @@
-import { JSONValue } from "@graphprotocol/graph-ts/index";
+import { JSONValue, store } from "@graphprotocol/graph-ts/index";
 import { TokenRoyalty } from "../../generated/schema";
+
+export function getTokenId(contractId: string, tokenId: string): string {
+    return contractId + "||" + tokenId;
+}
+
+export function removeToken(id: string): void {
+    store.remove("Token", id);
+}
 
 export function convertRarity(rarityValue: JSONValue): i32 {
     const rarity = rarityValue.toString();

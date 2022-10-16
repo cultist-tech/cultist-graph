@@ -1,8 +1,12 @@
 import { FtBalance } from "../../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 
+export function getFtBalanceId(contractId: string, accountId: string): string {
+    return contractId + "||" + accountId;
+}
+
 export function getOrCreateFtBalance(accountId: string, contractId: string): FtBalance {
-    const id = contractId + "||" + accountId;
+    const id = getFtBalanceId(contractId, accountId);
     const ftBalance = FtBalance.load(id.toString());
 
     if (ftBalance) {
@@ -13,7 +17,7 @@ export function getOrCreateFtBalance(accountId: string, contractId: string): FtB
 }
 
 export function createFtBalance(accountId: string, contractId: string): FtBalance {
-    const id = contractId + "||" + accountId;
+    const id = getFtBalanceId(contractId, accountId);
     const ftBalance = new FtBalance(id.toString());
 
     ftBalance.balance = BigInt.zero();

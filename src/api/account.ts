@@ -1,22 +1,20 @@
-import { Account } from "../../generated/schema";
+import { Account, Statistic } from "../../generated/schema";
 import { getOrCreateStatisticSystem } from "./statistic";
 
-export function getOrCreateAccount(id: string): Account {
+export function getOrCreateAccount(id: string, stats: Statistic): Account {
     const account = Account.load(id.toString());
 
     if (account) {
         return account;
     }
 
-    return createAccount(id);
+    return createAccount(id, stats);
 }
 
-export function createAccount(id: string): Account {
+export function createAccount(id: string, stats: Statistic): Account {
     const account = new Account(id.toString());
 
-    const stats = getOrCreateStatisticSystem();
     stats.accountTotal++;
-    stats.save();
 
     // account.totalMints = 0 as i32;
     // account.totalSales = 0 as i32;

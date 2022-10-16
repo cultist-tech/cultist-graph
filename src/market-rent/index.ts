@@ -3,9 +3,16 @@ import { log } from "@graphprotocol/graph-ts";
 import { MarketRent, MarketRentCondition } from "../../generated/schema";
 import { parseEvent } from "../utils";
 import { getOrCreateAccount } from "../api/account";
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts/index";
+import { BigDecimal } from "@graphprotocol/graph-ts/index";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
-import { saveMarketRentConditions, updateMarketRentStats } from "./helpers";
+import {
+    getMarketRentId,
+    removeMarketRent,
+    saveMarketRentConditions,
+    updateCreateMarketRentStats,
+    updateRemoveMarketRentStats,
+} from "./helpers";
+import { getMarketSaleConditionId } from "../market-sale/helpers";
 
 export function handleRent(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -20,7 +27,6 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     }
 
     const outcome = receiptWithOutcome.outcome;
-    const contractId = receiptWithOutcome.receipt.receiverId;
     const timestamp = (receiptWithOutcome.block.header.timestampNanosec / 1_000_000) as i32;
 
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
@@ -58,7 +64,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            const rentId = contractId.toString() + "||" + tokenId.toString();
+            const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
 
             const rent = new MarketRent(rentId.toString());
             rent.tokenId = tokenId.toString();
@@ -71,13 +77,13 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             rent.contractId = contractId.toString();
 
             if (saleConditions && !saleConditions.isNull()) {
-                saveMarketRentConditions(rentId, accountId.toString(), saleConditions);
+                saveMarketRentConditions(stats, rentId, accountId.toString(), saleConditions);
             }
 
             rent.save();
 
             // acc
-            getOrCreateAccount(accountId.toString());
+            getOrCreateAccount(accountId.toString(), stats);
 
             // stats
             stats.marketRentTotal++;
@@ -97,20 +103,21 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            const rentId = contractId.toString() + "||" + tokenId.toString();
+            const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
             const rent = MarketRent.load(rentId.toString());
 
             if (!rent) {
                 return;
             }
 
-            store.remove("MarketRent", rentId.toString());
+            removeMarketRent(rentId);
 
             // acc
-            getOrCreateAccount(accountId.toString());
+            getOrCreateAccount(accountId.toString(), stats);
 
             // stats
             stats.marketRentTotal--;
+            updateRemoveMarketRentStats(stats, rentId, accountId.toString());
 
             // stats acc
             const senderStats = getOrCreateStatistic(accountId.toString());
@@ -139,7 +146,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            const rentId = contractId.toString() + "||" + tokenId.toString();
+            const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
             const rent = MarketRent.load(rentId.toString());
 
             if (!rent) {
@@ -156,10 +163,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             rent.save();
 
             // acc
-            getOrCreateAccount(receiverId.toString());
+            getOrCreateAccount(receiverId.toString(), stats);
 
             // stats
             stats.marketRentTotal--;
+            updateRemoveMarketRentStats(stats, rentId, accountId.toString());
 
             // stats acc
             const senderStats = getOrCreateStatistic(receiverId.toString());
@@ -180,8 +188,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            const rentId = contractId.toString() + "||" + tokenId.toString();
-            const saleConditionId = rentId + "||" + ftTokenId.toString();
+            const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
+            const saleConditionId = getMarketSaleConditionId(rentId, ftTokenId.toString());
 
             const rent = MarketRent.load(rentId);
 
@@ -200,12 +208,14 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             saleCondition.ftTokenId = ftTokenId.toString();
             saleCondition.price = price.toString();
 
-            updateMarketRentStats(rentId, ownerId.toString(), saleCondition);
+            if (ftTokenId.toString() == "near") {
+                updateCreateMarketRentStats(stats, rentId, ownerId.toString(), saleCondition);
+            }
 
             saleCondition.save();
 
-            //
-            getOrCreateAccount(ownerId.toString());
+            // acc
+            getOrCreateAccount(ownerId.toString(), stats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(ownerId.toString());
@@ -221,17 +231,17 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 return;
             }
 
-            const rentId = contractId.toString() + "||" + tokenId.toString();
+            const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
             const rent = MarketRent.load(rentId.toString());
 
             if (!rent) {
                 return;
             }
 
-            store.remove("MarketRent", tokenId.toString());
+            removeMarketRent(rentId);
 
             // acc
-            getOrCreateAccount(ownerId.toString());
+            getOrCreateAccount(ownerId.toString(), stats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(ownerId.toString());
