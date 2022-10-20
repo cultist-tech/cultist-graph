@@ -185,6 +185,75 @@ export class Statistic extends Entity {
   }
 }
 
+export class Account extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Account entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Account entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Account", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Account | null {
+    return changetype<Account | null>(store.get("Account", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get tokens(): Array<string> {
+    let value = this.get("tokens");
+    return value!.toStringArray();
+  }
+
+  set tokens(value: Array<string>) {
+    this.set("tokens", Value.fromStringArray(value));
+  }
+
+  get marketSales(): Array<string> {
+    let value = this.get("marketSales");
+    return value!.toStringArray();
+  }
+
+  set marketSales(value: Array<string>) {
+    this.set("marketSales", Value.fromStringArray(value));
+  }
+
+  get marketRents(): Array<string> {
+    let value = this.get("marketRents");
+    return value!.toStringArray();
+  }
+
+  set marketRents(value: Array<string>) {
+    this.set("marketRents", Value.fromStringArray(value));
+  }
+
+  get ftBalances(): Array<string> {
+    let value = this.get("ftBalances");
+    return value!.toStringArray();
+  }
+
+  set ftBalances(value: Array<string>) {
+    this.set("ftBalances", Value.fromStringArray(value));
+  }
+}
+
 export class Token extends Entity {
   constructor(id: string) {
     super();
@@ -258,6 +327,15 @@ export class Token extends Entity {
 
   set createdAt(value: i32) {
     this.set("createdAt", Value.fromI32(value));
+  }
+
+  get revealAt(): i32 {
+    let value = this.get("revealAt");
+    return value!.toI32();
+  }
+
+  set revealAt(value: i32) {
+    this.set("revealAt", Value.fromI32(value));
   }
 
   get ownerId(): string {
@@ -957,75 +1035,6 @@ export class MarketSaleCondition extends Entity {
   }
 }
 
-export class Account extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Account entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save Account entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("Account", id.toString(), this);
-    }
-  }
-
-  static load(id: string): Account | null {
-    return changetype<Account | null>(store.get("Account", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get tokens(): Array<string> {
-    let value = this.get("tokens");
-    return value!.toStringArray();
-  }
-
-  set tokens(value: Array<string>) {
-    this.set("tokens", Value.fromStringArray(value));
-  }
-
-  get marketSales(): Array<string> {
-    let value = this.get("marketSales");
-    return value!.toStringArray();
-  }
-
-  set marketSales(value: Array<string>) {
-    this.set("marketSales", Value.fromStringArray(value));
-  }
-
-  get marketRents(): Array<string> {
-    let value = this.get("marketRents");
-    return value!.toStringArray();
-  }
-
-  set marketRents(value: Array<string>) {
-    this.set("marketRents", Value.fromStringArray(value));
-  }
-
-  get ftBalances(): Array<string> {
-    let value = this.get("ftBalances");
-    return value!.toStringArray();
-  }
-
-  set ftBalances(value: Array<string>) {
-    this.set("ftBalances", Value.fromStringArray(value));
-  }
-}
-
 export class FtBalance extends Entity {
   constructor(id: string) {
     super();
@@ -1097,5 +1106,73 @@ export class FtBalance extends Entity {
 
   set owner(value: string) {
     this.set("owner", Value.fromString(value));
+  }
+}
+
+export class NftIdo extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save NftIdo entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save NftIdo entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("NftIdo", id.toString(), this);
+    }
+  }
+
+  static load(id: string): NftIdo | null {
+    return changetype<NftIdo | null>(store.get("NftIdo", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+}
+
+export class NftFractionation extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save NftFractionation entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save NftFractionation entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("NftFractionation", id.toString(), this);
+    }
+  }
+
+  static load(id: string): NftFractionation | null {
+    return changetype<NftFractionation | null>(
+      store.get("NftFractionation", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
   }
 }

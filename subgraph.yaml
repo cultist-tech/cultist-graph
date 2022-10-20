@@ -73,3 +73,32 @@ dataSources:
       receiptHandlers:
         - handler: handleFt
 
+  - kind: near
+    name: nftIdo
+    network: near-testnet
+    source:
+      account: "dev-1662469297409-44927151264122"
+      startBlock: 83358000
+    mapping:
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/nft-ido/index.ts
+      entities:
+        - Account
+      receiptHandlers:
+        - handler: handleNftIdo
+
+  - kind: near
+    name: nftFractionation
+    network: near-testnet
+    source:
+      account: "dev-1661195421024-21796573573897"
+      startBlock: 83358000
+    mapping:
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/nft-fractionation/index.ts
+      entities:
+        - Account
+      receiptHandlers:
+        - handler: handleNftFractionation

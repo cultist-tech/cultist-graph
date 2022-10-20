@@ -38,6 +38,7 @@ export class TokenMapper {
         const rarity = tokenData.get("rarity");
         const royalty = tokenData.get("royalty");
         const bindToOwner = tokenData.get("bind_to_owner");
+        const revealAt = tokenData.get("reveal_at");
 
         if (!tokenIdRaw || !ownerId) {
             log.error("[nft_create] - invalid token args", []);
@@ -53,6 +54,9 @@ export class TokenMapper {
         token.bindToOwner = bindToOwner && !bindToOwner.isNull() ? bindToOwner.toBool() : false;
         token.createdAt = this.createdAt;
 
+        if (revealAt && !revealAt.isNull()) {
+            token.revealAt = revealAt.toU64() as i32;
+        }
         if (rarity && !rarity.isNull()) {
             token.rarity = convertRarity(rarity);
         }

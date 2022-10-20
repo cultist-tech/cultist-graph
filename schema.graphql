@@ -28,6 +28,17 @@ type Statistic @entity {
     transactionTotal: Int!
 }
 
+type Account @entity {
+    id: ID!
+
+    tokens: [Token!]! @derivedFrom(field: "owner")
+    marketSales: [MarketSale!]! @derivedFrom(field: "owner")
+    marketRents: [MarketRent!]! @derivedFrom(field: "owner")
+    ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
+}
+
+#
+
 type Token @entity {
     id: ID!
     tokenId: String!
@@ -36,6 +47,7 @@ type Token @entity {
     bindToOwner: Boolean
 
     createdAt: Int!
+    revealAt: Int
 
     #
 
@@ -69,6 +81,8 @@ type TokenRoyalty @entity {
     token: Token!
 }
 
+#
+
 type MarketRent @entity {
     id: ID!
     contractId: ID!
@@ -94,6 +108,8 @@ type MarketRentCondition @entity {
     rentId: ID!
 }
 
+#
+
 type MarketSale @entity {
     id: ID!
     ownerId: ID!
@@ -116,14 +132,7 @@ type MarketSaleCondition @entity {
     saleId: ID!
 }
 
-type Account @entity {
-    id: ID!
-
-    tokens: [Token!]! @derivedFrom(field: "owner")
-    marketSales: [MarketSale!]! @derivedFrom(field: "owner")
-    marketRents: [MarketRent!]! @derivedFrom(field: "owner")
-    ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
-}
+#
 
 type FtBalance @entity {
     id: ID!
@@ -132,4 +141,16 @@ type FtBalance @entity {
 
     balance: BigInt!
     owner: Account!
+}
+
+#
+
+type NftIdo @entity {
+    id: ID!
+}
+
+#
+
+type NftFractionation @entity {
+    id: ID!
 }
