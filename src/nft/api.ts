@@ -1,10 +1,10 @@
-import { Statistic, Token, TokenMetadata } from "../../generated/schema";
-import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
-import { log, JSONValue, TypedMap, BigDecimal } from "@graphprotocol/graph-ts/index";
-import { convertRarity, getTokenId, removeToken, saveTokenRoyalties } from "./helpers";
-import { getOrCreateAccount } from "../api/account";
-import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
-import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
+import {Statistic, Token, TokenMetadata} from "../../generated/schema";
+import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
+import {BigDecimal, JSONValue, JSONValueKind, log, TypedMap} from "@graphprotocol/graph-ts/index";
+import {convertStringRarity, getTokenId, removeToken, saveTokenRoyalties} from "./helpers";
+import {getOrCreateAccount} from "../api/account";
+import {getMarketSaleId, removeMarketSale} from "../market-sale/helpers";
+import {getMarketRentId, removeMarketRent} from "../market-rent/helpers";
 
 export class TokenMapper {
     protected stats: Statistic;
@@ -58,7 +58,11 @@ export class TokenMapper {
             token.revealAt = revealAt.toU64() as i32;
         }
         if (rarity && !rarity.isNull()) {
-            token.rarity = convertRarity(rarity);
+            if (rarity.kind === JSONValueKind.STRING) {
+                token.rarity = convertStringRarity(rarity);
+            } else {
+                token.rarity = rarity.toU64() as i32;
+            }
         }
 
         if (metadata && !metadata.isNull()) {

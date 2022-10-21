@@ -12,7 +12,7 @@ dataSources:
       account: "mfight-nft_v2.testnet"
       startBlock: 92200000
     mapping:
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/nft/index.ts
       entities:
@@ -29,7 +29,7 @@ dataSources:
       account: "mfight-rent.testnet"
       startBlock: 78300000
     mapping:
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/market-rent/index.ts
       entities:
@@ -46,7 +46,7 @@ dataSources:
       account: "mfight-market.testnet"
       startBlock: 80100000
     mapping:
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/market-sale/index.ts
       entities:
@@ -64,7 +64,7 @@ dataSources:
       account: "mfight-ft.testnet"
       startBlock: 83358000
     mapping:
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/ft/index.ts
       entities:
@@ -80,7 +80,7 @@ dataSources:
       account: "dev-1662469297409-44927151264122"
       startBlock: 83358000
     mapping:
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/nft-ido/index.ts
       entities:
@@ -95,7 +95,7 @@ dataSources:
       account: "dev-1661195421024-21796573573897"
       startBlock: 83358000
     mapping:
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/nft-fractionation/index.ts
       entities:

@@ -9,7 +9,7 @@ export function removeToken(id: string): void {
     store.remove("Token", id);
 }
 
-export function convertRarity(rarityValue: JSONValue): i32 {
+export function convertStringRarity(rarityValue: JSONValue): i32 {
     const rarity = rarityValue.toString();
 
     if (rarity == "Common") {
@@ -24,9 +24,9 @@ export function convertRarity(rarityValue: JSONValue): i32 {
         return 4 as i32;
     } else if (rarity == "Artefact") {
         return 5 as i32;
+    } else {
+        return 0 as i32;
     }
-
-    return rarityValue.toI64() as i32;
 }
 
 export function saveTokenRoyalties(tokenId: string, obj: JSONValue): void {
