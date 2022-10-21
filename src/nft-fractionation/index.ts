@@ -36,12 +36,16 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
         const data = eventData.toObject();
         const method = eventMethod.toString();
 
-        const tokenMapper = new NftFractionationMapper(contractId, timestamp);
+        const mapper = new NftFractionationMapper(contractId, timestamp);
 
-        // if (method == "nft_create") {
-        //     tokenMapper.create(data);
-        // }
+        if (method == "fractionation_create") {
+            mapper.onCreate(data);
+        } else if (method == 'fractionation_complete') {
+            mapper.onCompete(data);
+        } else if (method == 'fractionation_process') {
+            mapper.onProcess(data);
+        }
 
-        tokenMapper.end();
+        mapper.end();
     }
 }

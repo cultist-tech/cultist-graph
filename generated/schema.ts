@@ -390,6 +390,40 @@ export class Token extends Entity {
     }
   }
 
+  get fractionationId(): string | null {
+    let value = this.get("fractionationId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set fractionationId(value: string | null) {
+    if (!value) {
+      this.unset("fractionationId");
+    } else {
+      this.set("fractionationId", Value.fromString(<string>value));
+    }
+  }
+
+  get nftIdoId(): string | null {
+    let value = this.get("nftIdoId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nftIdoId(value: string | null) {
+    if (!value) {
+      this.unset("nftIdoId");
+    } else {
+      this.set("nftIdoId", Value.fromString(<string>value));
+    }
+  }
+
   get owner(): string {
     let value = this.get("owner");
     return value!.toString();
@@ -439,6 +473,40 @@ export class Token extends Entity {
       this.unset("sale");
     } else {
       this.set("sale", Value.fromString(<string>value));
+    }
+  }
+
+  get fractionation(): string | null {
+    let value = this.get("fractionation");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set fractionation(value: string | null) {
+    if (!value) {
+      this.unset("fractionation");
+    } else {
+      this.set("fractionation", Value.fromString(<string>value));
+    }
+  }
+
+  get nftIdo(): string | null {
+    let value = this.get("nftIdo");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nftIdo(value: string | null) {
+    if (!value) {
+      this.unset("nftIdo");
+    } else {
+      this.set("nftIdo", Value.fromString(<string>value));
     }
   }
 
@@ -1113,6 +1181,17 @@ export class NftIdo extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
+
+    this.set("idoId", Value.fromString(""));
+    this.set("contractId", Value.fromString(""));
+    this.set("name", Value.fromString(""));
+    this.set("price", Value.fromString(""));
+    this.set("buyMax", Value.fromI32(0));
+    this.set("perTransactionMin", Value.fromI32(0));
+    this.set("perTransactionMax", Value.fromI32(0));
+    this.set("amountReady", Value.fromI32(0));
+    this.set("notMinted", Value.fromI32(0));
+    this.set("locked", Value.fromBoolean(false));
   }
 
   save(): void {
@@ -1140,12 +1219,168 @@ export class NftIdo extends Entity {
   set id(value: string) {
     this.set("id", Value.fromString(value));
   }
+
+  get idoId(): string {
+    let value = this.get("idoId");
+    return value!.toString();
+  }
+
+  set idoId(value: string) {
+    this.set("idoId", Value.fromString(value));
+  }
+
+  get contractId(): string {
+    let value = this.get("contractId");
+    return value!.toString();
+  }
+
+  set contractId(value: string) {
+    this.set("contractId", Value.fromString(value));
+  }
+
+  get name(): string {
+    let value = this.get("name");
+    return value!.toString();
+  }
+
+  set name(value: string) {
+    this.set("name", Value.fromString(value));
+  }
+
+  get media(): string | null {
+    let value = this.get("media");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set media(value: string | null) {
+    if (!value) {
+      this.unset("media");
+    } else {
+      this.set("media", Value.fromString(<string>value));
+    }
+  }
+
+  get amount(): i32 {
+    let value = this.get("amount");
+    return value!.toI32();
+  }
+
+  set amount(value: i32) {
+    this.set("amount", Value.fromI32(value));
+  }
+
+  get price(): string {
+    let value = this.get("price");
+    return value!.toString();
+  }
+
+  set price(value: string) {
+    this.set("price", Value.fromString(value));
+  }
+
+  get buyMax(): i32 {
+    let value = this.get("buyMax");
+    return value!.toI32();
+  }
+
+  set buyMax(value: i32) {
+    this.set("buyMax", Value.fromI32(value));
+  }
+
+  get perTransactionMin(): i32 {
+    let value = this.get("perTransactionMin");
+    return value!.toI32();
+  }
+
+  set perTransactionMin(value: i32) {
+    this.set("perTransactionMin", Value.fromI32(value));
+  }
+
+  get perTransactionMax(): i32 {
+    let value = this.get("perTransactionMax");
+    return value!.toI32();
+  }
+
+  set perTransactionMax(value: i32) {
+    this.set("perTransactionMax", Value.fromI32(value));
+  }
+
+  get amountReady(): i32 {
+    let value = this.get("amountReady");
+    return value!.toI32();
+  }
+
+  set amountReady(value: i32) {
+    this.set("amountReady", Value.fromI32(value));
+  }
+
+  get notMinted(): i32 {
+    let value = this.get("notMinted");
+    return value!.toI32();
+  }
+
+  set notMinted(value: i32) {
+    this.set("notMinted", Value.fromI32(value));
+  }
+
+  get locked(): boolean {
+    let value = this.get("locked");
+    return value!.toBoolean();
+  }
+
+  set locked(value: boolean) {
+    this.set("locked", Value.fromBoolean(value));
+  }
+
+  get startDate(): i32 {
+    let value = this.get("startDate");
+    return value!.toI32();
+  }
+
+  set startDate(value: i32) {
+    this.set("startDate", Value.fromI32(value));
+  }
+
+  get ftToken(): string | null {
+    let value = this.get("ftToken");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set ftToken(value: string | null) {
+    if (!value) {
+      this.unset("ftToken");
+    } else {
+      this.set("ftToken", Value.fromString(<string>value));
+    }
+  }
+
+  get tokens(): Array<string> {
+    let value = this.get("tokens");
+    return value!.toStringArray();
+  }
+
+  set tokens(value: Array<string>) {
+    this.set("tokens", Value.fromStringArray(value));
+  }
 }
 
 export class NftFractionation extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
+
+    this.set("contractId", Value.fromString(""));
+    this.set("tokenId", Value.fromString(""));
+    this.set("createdAt", Value.fromI32(0));
+    this.set("token", Value.fromString(""));
   }
 
   save(): void {
@@ -1174,5 +1409,76 @@ export class NftFractionation extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get contractId(): string {
+    let value = this.get("contractId");
+    return value!.toString();
+  }
+
+  set contractId(value: string) {
+    this.set("contractId", Value.fromString(value));
+  }
+
+  get tokenId(): string {
+    let value = this.get("tokenId");
+    return value!.toString();
+  }
+
+  set tokenId(value: string) {
+    this.set("tokenId", Value.fromString(value));
+  }
+
+  get createdAt(): i32 {
+    let value = this.get("createdAt");
+    return value!.toI32();
+  }
+
+  set createdAt(value: i32) {
+    this.set("createdAt", Value.fromI32(value));
+  }
+
+  get competedAt(): i32 {
+    let value = this.get("competedAt");
+    return value!.toI32();
+  }
+
+  set competedAt(value: i32) {
+    this.set("competedAt", Value.fromI32(value));
+  }
+
+  get competedBy(): string | null {
+    let value = this.get("competedBy");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set competedBy(value: string | null) {
+    if (!value) {
+      this.unset("competedBy");
+    } else {
+      this.set("competedBy", Value.fromString(<string>value));
+    }
+  }
+
+  get token(): string {
+    let value = this.get("token");
+    return value!.toString();
+  }
+
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
+  }
+
+  get tokens(): Array<string> {
+    let value = this.get("tokens");
+    return value!.toStringArray();
+  }
+
+  set tokens(value: Array<string>) {
+    this.set("tokens", Value.fromStringArray(value));
   }
 }

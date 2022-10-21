@@ -38,9 +38,19 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
         const tokenMapper = new NftIdoMapper(contractId, timestamp);
 
-        // if (method == "nft_create") {
-        //     tokenMapper.create(data);
-        // }
+        if (method == "ido_create") {
+            tokenMapper.onCreate(data);
+        } else if (method == "ido_update") {
+            tokenMapper.onUpdate(data);
+        } else if (method == "ido_start") {
+            tokenMapper.onStart(data);
+        } else if (method == "ido_pause") {
+            tokenMapper.onPause(data);
+        } else if (method == "ido_add_token") {
+            tokenMapper.onAddToken(data);
+        } else if (method == "ido_buy_token") {
+            tokenMapper.onBuyToken(data);
+        }
 
         tokenMapper.end();
     }

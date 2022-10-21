@@ -246,4 +246,15 @@ export class TokenMapper {
     }
 
     // private
+
+    public get(contractNftId: string): Token {
+        const nft = Token.load(contractNftId);
+
+        if (!nft) {
+            log.error('not found token {}', [contractNftId]);
+            throw new Error('Not found token');
+        }
+
+        return nft;
+    }
 }

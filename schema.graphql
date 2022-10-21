@@ -37,7 +37,7 @@ type Account @entity {
     ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
 }
 
-#
+# nft
 
 type Token @entity {
     id: ID!
@@ -51,15 +51,20 @@ type Token @entity {
 
     #
 
-    ownerId: String!
-    tokenMetadataId: String!
+    ownerId: ID!
+    tokenMetadataId: ID!
     rentId: ID
     saleId: ID
+    fractionationId: ID
+    nftIdoId: ID
 
     owner: Account!
     tokenMetadata: TokenMetadata!
     rent: MarketRent
     sale: MarketSale
+    fractionation: NftFractionation
+    nftIdo: NftIdo
+
     royalty: [TokenRoyalty!]! @derivedFrom(field: "token")
 }
 type TokenMetadata @entity {
@@ -81,7 +86,7 @@ type TokenRoyalty @entity {
     token: Token!
 }
 
-#
+# rent
 
 type MarketRent @entity {
     id: ID!
@@ -108,7 +113,7 @@ type MarketRentCondition @entity {
     rentId: ID!
 }
 
-#
+# market
 
 type MarketSale @entity {
     id: ID!
@@ -132,7 +137,7 @@ type MarketSaleCondition @entity {
     saleId: ID!
 }
 
-#
+# ft
 
 type FtBalance @entity {
     id: ID!
@@ -143,14 +148,43 @@ type FtBalance @entity {
     owner: Account!
 }
 
-#
+# nft-ido
 
 type NftIdo @entity {
     id: ID!
+
+    idoId: ID!
+    contractId: ID!
+
+    name: String!
+    media: String
+    amount: Int
+    price: String!
+    buyMax: Int!
+    perTransactionMin: Int!
+    perTransactionMax: Int!
+
+    amountReady: Int!
+    notMinted: Int!
+    locked: Boolean!
+    startDate: Int
+    ftToken: String
+
+    tokens: [Token!]! @derivedFrom(field: "nftIdo")
 }
 
-#
+# nft-fractionation
 
 type NftFractionation @entity {
     id: ID!
+
+    contractId: ID!
+    tokenId: ID!
+
+    createdAt: Int!
+    competedAt: Int
+    competedBy: ID
+
+    token: Token!
+    tokens: [Token!]! @derivedFrom(field: "fractionation")
 }
