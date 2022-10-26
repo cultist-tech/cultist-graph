@@ -1,4 +1,4 @@
-import {Statistic, Token, TokenMetadata} from "../../generated/schema";
+import {NftContract, Statistic, Token, TokenMetadata} from "../../generated/schema";
 import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
 import {BigDecimal, JSONValue, JSONValueKind, log, TypedMap} from "@graphprotocol/graph-ts/index";
 import {convertStringRarity, getTokenId, removeToken, saveTokenRoyalties} from "./helpers";
@@ -8,15 +8,25 @@ import {getMarketRentId, removeMarketRent} from "../market-rent/helpers";
 
 export class TokenMapper {
     protected stats: Statistic;
+    protected contractStats: Statistic;
     protected contractId: string;
     protected createdAt: i32;
 
     constructor(contractId: string, timestamp: i32) {
         this.stats = getOrCreateStatisticSystem();
+        this.contractStats = getOrCreateStatistic(contractId);
         this.contractId = contractId;
         this.createdAt = timestamp;
 
+        let nftContract = NftContract.load(contractId);
+
+        if (!nftContract) {
+            nftContract = new NftContract(contractId);
+            nftContract.save();
+        }
+
         this.stats.transactionTotal++;
+        this.contractStats.transactionTotal++;
     }
 
     public create(data: TypedMap<string, JSONValue>): void {
@@ -91,16 +101,21 @@ export class TokenMapper {
         token.save();
 
         // acc
-        getOrCreateAccount(ownerId.toString(), this.stats);
+        getOrCreateAccount(ownerId.toString(), this.stats, this.contractStats);
 
         // stats
         this.stats.nftTotal++;
+        this.contractStats.nftTotal++;
 
         // stats acc
         const accStats = getOrCreateStatistic(ownerId.toString());
         accStats.nftTotal++;
         accStats.transactionTotal++;
         accStats.save();
+    }
+
+    public test(func: () => void): void {
+
     }
 
     public transfer(data: TypedMap<string, JSONValue>): void {
@@ -134,11 +149,12 @@ export class TokenMapper {
         removeMarketRent(rentId);
 
         // acc
-        getOrCreateAccount(senderId.toString(), this.stats);
-        getOrCreateAccount(receiverId.toString(), this.stats);
+        getOrCreateAccount(senderId.toString(), this.stats, this.contractStats);
+        getOrCreateAccount(receiverId.toString(), this.stats, this.contractStats);
 
         // stats
         this.stats.nftTransferTotal++;
+        this.contractStats.nftTransferTotal++;
 
         // stats acc
         const senderStats = getOrCreateStatistic(senderId.toString());
@@ -178,11 +194,13 @@ export class TokenMapper {
         removeMarketRent(rentId);
 
         // acc
-        getOrCreateAccount(senderId.toString(), this.stats);
+        getOrCreateAccount(senderId.toString(), this.stats, this.contractStats);
 
         // stats
         this.stats.nftTotal--;
         this.stats.nftBurnTotal++;
+        this.contractStats.nftTotal--;
+        this.contractStats.nftBurnTotal++;
 
         // stats acc
         const senderStats = getOrCreateStatistic(senderId.toString());
@@ -204,7 +222,7 @@ export class TokenMapper {
         const tokenId = getTokenId(this.contractId, tokenIdRaw.toString());
 
         // acc
-        getOrCreateAccount(receiverId.toString(), this.stats);
+        getOrCreateAccount(receiverId.toString(), this.stats, this.contractStats);
 
         const senderStats = getOrCreateStatistic(receiverId.toString());
         senderStats.transactionTotal++;
@@ -229,11 +247,12 @@ export class TokenMapper {
         );
 
         // acc
-        getOrCreateAccount(senderId.toString(), this.stats);
-        getOrCreateAccount(receiverId.toString(), this.stats);
+        getOrCreateAccount(senderId.toString(), this.stats, this.contractStats);
+        getOrCreateAccount(receiverId.toString(), this.stats, this.contractStats);
 
         // stats
         this.stats.nftPayTotal++;
+        this.contractStats.nftPayTotal++;
 
         // stats acc
         const senderStats = getOrCreateStatistic(senderId.toString());
@@ -243,6 +262,7 @@ export class TokenMapper {
 
     public end(): void {
         this.stats.save();
+        this.contractStats.save();
     }
 
     // private

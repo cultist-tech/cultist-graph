@@ -28,6 +28,20 @@ export class NftFractionationMapper {
             return;
         }
 
+        const entriesArr = entries.toArray();
+
+        for(let i = 0; i < entriesArr.length; i++) {
+            const entryId = entriesArr[i];
+            const contractTokenId = getTokenId(contractId.toString(), entryId.toString());
+
+            const token = Token.load(contractTokenId);
+
+            if (!token) {
+                log.error('[fractionation] - not found token', []);
+                return;
+            }
+        }
+
         const contractTokenId = getTokenId(contractId.toString(), tokenId.toString());
         const contractFractionationId = getTokenNftFractionationId(contractId.toString(), tokenId.toString());
         const fractionation = new NftFractionation(contractFractionationId);
@@ -44,8 +58,6 @@ export class NftFractionationMapper {
         this.addFractionationMain(contractTokenId, contractFractionationId);
 
         //
-
-        const entriesArr = entries.toArray();
 
         for(let i = 0; i < entriesArr.length; i++) {
             const entryId = entriesArr[i];

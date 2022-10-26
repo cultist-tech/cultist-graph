@@ -1,6 +1,6 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import {MarketSale, MarketSaleCondition, Account, Token} from "../../generated/schema";
+import {MarketSale, MarketSaleCondition, Account, Token, Statistic} from "../../generated/schema";
 import {getReceiptDate, parseEvent} from "../utils";
 import { createAccount, getAccount, getOrCreateAccount } from "../api/account";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
@@ -98,8 +98,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 token.saleId = saleId
             }
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(ownerId.toString(), stats);
+            getOrCreateAccount(ownerId.toString(), stats, contractStats);
 
             // stats
             stats.marketSaleTotal++;
@@ -109,6 +112,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.marketSaleTotal++;
             senderStats.transactionTotal++;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "market_update_sale") {
             const tokenIdRaw = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -142,8 +147,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             saleCondition.save();
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(ownerId.toString(), stats);
+            getOrCreateAccount(ownerId.toString(), stats, contractStats);
 
             // stats
             if (ftTokenId.toString() == "near") {
@@ -154,6 +162,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const senderStats = getOrCreateStatistic(ownerId.toString());
             senderStats.transactionTotal++;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "market_remove_sale") {
             const tokenIdRaw = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -184,8 +194,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 token.saleId = null
             }
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(ownerId.toString(), stats);
+            getOrCreateAccount(ownerId.toString(), stats, contractStats);
 
             // stats
             stats.marketSaleTotal--;
@@ -196,6 +209,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.transactionTotal++;
             senderStats.marketSaleTotal--;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "market_offer") {
             const tokenIdRaw = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -238,8 +253,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 token.saleId = null
             }
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(ownerId.toString(), stats);
+            getOrCreateAccount(ownerId.toString(), stats, contractStats);
 
             // stats
             stats.marketSaleTotal--;
@@ -249,6 +267,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.transactionTotal++;
             senderStats.marketSaleTotal--;
             senderStats.save();
+
+            contractStats.save();
         }
 
         stats.save();

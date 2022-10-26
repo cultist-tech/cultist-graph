@@ -94,8 +94,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 token.rentId = rentId
             }
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(accountId.toString(), stats);
+            getOrCreateAccount(accountId.toString(), stats, contractStats);
 
             // stats
             stats.marketRentTotal++;
@@ -105,6 +108,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.transactionTotal++;
             senderStats.marketRentTotal++;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "rent_remove") {
             const tokenIdRaw = data.get("token_id");
             const accountId = data.get("account_id");
@@ -135,8 +140,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 token.rentId = null
             }
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(accountId.toString(), stats);
+            getOrCreateAccount(accountId.toString(), stats, contractStats);
 
             // stats
             stats.marketRentTotal--;
@@ -147,6 +155,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.transactionTotal++;
             senderStats.marketRentTotal--;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "rent_pay") {
             const tokenIdRaw = data.get("token_id");
             const accountId = data.get("owner_id");
@@ -187,8 +197,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             rent.save();
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(receiverId.toString(), stats);
+            getOrCreateAccount(receiverId.toString(), stats, contractStats);
 
             // stats
             stats.marketRentTotal--;
@@ -199,6 +212,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.transactionTotal++;
             senderStats.marketRentTotal--;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "rent_update") {
             const tokenIdRaw = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -241,13 +256,18 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             saleCondition.save();
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(ownerId.toString(), stats);
+            getOrCreateAccount(ownerId.toString(), stats, contractStats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(ownerId.toString());
             senderStats.transactionTotal++;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "rent_claim") {
             const tokenIdRaw = data.get("token_id");
             const ownerId = data.get("owner_id");
@@ -278,13 +298,18 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 token.rentId = null
             }
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(ownerId.toString(), stats);
+            getOrCreateAccount(ownerId.toString(), stats, contractStats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(ownerId.toString());
             senderStats.transactionTotal++;
             senderStats.save();
+
+            contractStats.save()
         }
 
         stats.save();

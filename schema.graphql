@@ -37,6 +37,10 @@ type Account @entity {
     ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
 }
 
+type NftContract @entity {
+    id: ID!
+}
+
 # nft
 
 type Token @entity {

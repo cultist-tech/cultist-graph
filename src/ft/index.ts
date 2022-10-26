@@ -77,14 +77,19 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderBalance.save();
             receiverBalance.save();
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(old_owner_id.toString(), stats);
-            getOrCreateAccount(new_owner_id.toString(), stats);
+            getOrCreateAccount(old_owner_id.toString(), stats, contractStats);
+            getOrCreateAccount(new_owner_id.toString(), stats, contractStats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(old_owner_id.toString());
             senderStats.transactionTotal++;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "ft_mint") {
             const amount = data.get("amount");
             const account_id = data.get("owner_id");
@@ -103,13 +108,18 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             receiverBalance.save();
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(account_id.toString(), stats);
+            getOrCreateAccount(account_id.toString(), stats, contractStats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(account_id.toString());
             senderStats.transactionTotal++;
             senderStats.save();
+
+            contractStats.save();
         } else if (method == "ft_burn") {
             const amount = data.get("amount");
             const account_id = data.get("owner_id");
@@ -128,13 +138,18 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             receiverBalance.save();
 
+            //
+            const contractStats = getOrCreateStatistic(contractId.toString());
+
             // acc
-            getOrCreateAccount(account_id.toString(), stats);
+            getOrCreateAccount(account_id.toString(), stats, contractStats);
 
             // stats acc
             const senderStats = getOrCreateStatistic(account_id.toString());
             senderStats.transactionTotal++;
             senderStats.save();
+
+            contractStats.save();
         }
 
         stats.save();
