@@ -102,3 +102,18 @@ dataSources:
         - Account
       receiptHandlers:
         - handler: handleNftFractionation
+
+  - kind: near
+    name: referral
+    network: near-testnet
+    source:
+      account: "dev-1666974818415-25168152940996"
+      startBlock: 83358000
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/referral/index.ts
+      entities:
+        - ReferralProgram
+      receiptHandlers:
+        - handler: handleReferral

@@ -192,3 +192,16 @@ type NftFractionation @entity {
     token: Token!
     tokens: [Token!]! @derivedFrom(field: "fractionation")
 }
+
+# referral
+
+type ReferralProgram @entity {
+    id: ID!
+
+    contractId: ID!
+    influencerId: ID!
+    programId: ID!
+
+    count: Int!
+}
+
