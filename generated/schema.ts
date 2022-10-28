@@ -1589,3 +1589,77 @@ export class ReferralProgram extends Entity {
     this.set("count", Value.fromI32(value));
   }
 }
+
+export class Referral extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("contractId", Value.fromString(""));
+    this.set("influencerId", Value.fromString(""));
+    this.set("programId", Value.fromString(""));
+    this.set("accountId", Value.fromString(""));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Referral entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Referral entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Referral", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Referral | null {
+    return changetype<Referral | null>(store.get("Referral", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get contractId(): string {
+    let value = this.get("contractId");
+    return value!.toString();
+  }
+
+  set contractId(value: string) {
+    this.set("contractId", Value.fromString(value));
+  }
+
+  get influencerId(): string {
+    let value = this.get("influencerId");
+    return value!.toString();
+  }
+
+  set influencerId(value: string) {
+    this.set("influencerId", Value.fromString(value));
+  }
+
+  get programId(): string {
+    let value = this.get("programId");
+    return value!.toString();
+  }
+
+  set programId(value: string) {
+    this.set("programId", Value.fromString(value));
+  }
+
+  get accountId(): string {
+    let value = this.get("accountId");
+    return value!.toString();
+  }
+
+  set accountId(value: string) {
+    this.set("accountId", Value.fromString(value));
+  }
+}

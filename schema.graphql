@@ -205,3 +205,11 @@ type ReferralProgram @entity {
     count: Int!
 }
 
+type Referral @entity {
+    id: ID!
+
+    contractId: ID!
+    influencerId: ID!
+    programId: ID!
+    accountId: ID!
+}

@@ -1,5 +1,9 @@
 import { ReferralProgram } from "../../generated/schema";
 
+export function getReferralId(contractId: string, accountId: string, programId: string): string {
+    return contractId + '|||' + accountId + '||' + programId;
+}
+
 export function getReferralProgramId(contractId: string, influencerId: string, programId: string): string {
     return contractId + '||' + influencerId + '||' + programId;
 }
@@ -28,3 +32,4 @@ export function createReferralProgram(contractId: string, influencerId: string, 
 
     return program;
 }
+
