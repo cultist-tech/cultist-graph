@@ -204,8 +204,10 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             getOrCreateAccount(ownerId.toString(), stats, contractStats);
 
             // stats
-            stats.marketSaleTotal--;
-            updateRemoveMarketSaleStats(stats, saleId, ownerId.toString());
+            if (stats.marketSaleTotal > 0) {
+                stats.marketSaleTotal--;
+                updateRemoveMarketSaleStats(stats, saleId, ownerId.toString());
+            }
 
             // stats acc
             const senderStats = getOrCreateStatistic(ownerId.toString());
