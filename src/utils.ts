@@ -1,11 +1,11 @@
 import { json, JSONValue, log, TypedMap } from "@graphprotocol/graph-ts";
-import {near} from "@graphprotocol/graph-ts/index";
+import { BigInt, near } from "@graphprotocol/graph-ts/index";
 
 function convertNanoSec(time: u64): i32 {
     return time as i32;
 }
 export function getReceiptDate(receiptWithOutcome: near.ReceiptWithOutcome): i32 {
-    return (convertNanoSec(receiptWithOutcome.block.header.timestampNanosec));
+    return convertNanoSec(receiptWithOutcome.block.header.timestampNanosec);
 }
 
 export function parseEvent(logData: string): TypedMap<string, JSONValue> {
@@ -25,4 +25,7 @@ export function parseEvent(logData: string): TypedMap<string, JSONValue> {
     const jsonObject = jsonData.value.toObject();
 
     return jsonObject;
+}
+export function sumBigInt(one: string, two: string): string {
+    return BigInt.fromString(one).plus(BigInt.fromString(two)).toString();
 }

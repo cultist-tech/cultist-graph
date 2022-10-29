@@ -1,5 +1,5 @@
 import { near } from "@graphprotocol/graph-ts";
-import {getReceiptDate, parseEvent} from "../utils";
+import { getReceiptDate, parseEvent } from "../utils";
 import { NftIdoMapper } from "./api";
 
 export function handleNftIdo(receipt: near.ReceiptWithOutcome): void {

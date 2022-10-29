@@ -1,8 +1,8 @@
-import {NftIdo, Statistic, Token} from "../../generated/schema";
+import { NftIdo, Statistic, Token } from "../../generated/schema";
 import { getOrCreateStatisticSystem } from "../api/statistic";
 import { JSONValue, log, TypedMap } from "@graphprotocol/graph-ts/index";
- import { getNftIdoId } from "./helpers";
-import {getTokenId} from "../nft/helpers";
+import { getNftIdoId } from "./helpers";
+import { getTokenId } from "../nft/helpers";
 
 export class NftIdoMapper {
     protected stats: Statistic;
@@ -18,7 +18,7 @@ export class NftIdoMapper {
     }
 
     public onCreate(raw: TypedMap<string, JSONValue>): void {
-        const rawEl = raw.get('ido');
+        const rawEl = raw.get("ido");
 
         if (!rawEl) {
             return;
@@ -26,16 +26,25 @@ export class NftIdoMapper {
 
         const obj = rawEl.toObject();
 
-        const contractId = obj.get('contract_id');
-        const idoId = obj.get('ido_id');
-        const name = obj.get('name');
-        const amount = obj.get('amount');
-        const price = obj.get('price');
-        const buyMax = obj.get('buy_max');
-        const perTransactionMin = obj.get('per_transaction_min');
-        const perTransactionMax = obj.get('per_transaction_max');
+        const contractId = obj.get("contract_id");
+        const idoId = obj.get("ido_id");
+        const name = obj.get("name");
+        const amount = obj.get("amount");
+        const price = obj.get("price");
+        const buyMax = obj.get("buy_max");
+        const perTransactionMin = obj.get("per_transaction_min");
+        const perTransactionMax = obj.get("per_transaction_max");
 
-        if (!contractId || !idoId || !name || !amount || !price || !buyMax || !perTransactionMax || !perTransactionMin) {
+        if (
+            !contractId ||
+            !idoId ||
+            !name ||
+            !amount ||
+            !price ||
+            !buyMax ||
+            !perTransactionMax ||
+            !perTransactionMin
+        ) {
             log.error("[ido_create] - invalid args", []);
             return;
         }
@@ -59,12 +68,12 @@ export class NftIdoMapper {
     }
 
     public onUpdate(obj: TypedMap<string, JSONValue>): void {
-        const contractId = obj.get('contract_id');
-        const idoId = obj.get('ido_id');
-        const date = obj.get('date');
-        const buyMax = obj.get('buy_max');
-        const perTransactionMin = obj.get('per_transaction_min');
-        const perTransactionMax = obj.get('per_transaction_max');
+        const contractId = obj.get("contract_id");
+        const idoId = obj.get("ido_id");
+        const date = obj.get("date");
+        const buyMax = obj.get("buy_max");
+        const perTransactionMin = obj.get("per_transaction_min");
+        const perTransactionMax = obj.get("per_transaction_max");
 
         if (!contractId || !idoId || !date || !buyMax || !perTransactionMin || !perTransactionMax) {
             log.error("[ido_update] - invalid args", []);
@@ -83,9 +92,9 @@ export class NftIdoMapper {
     }
 
     public onStart(obj: TypedMap<string, JSONValue>): void {
-        const contractId = obj.get('contract_id');
-        const idoId = obj.get('ido_id');
-        const date = obj.get('date');
+        const contractId = obj.get("contract_id");
+        const idoId = obj.get("ido_id");
+        const date = obj.get("date");
 
         if (!contractId || !idoId || !date) {
             log.error("[ido_start] - invalid args", []);
@@ -101,9 +110,9 @@ export class NftIdoMapper {
     }
 
     public onPause(obj: TypedMap<string, JSONValue>): void {
-        const contractId = obj.get('contract_id');
-        const idoId = obj.get('ido_id');
-        const pause = obj.get('pause');
+        const contractId = obj.get("contract_id");
+        const idoId = obj.get("ido_id");
+        const pause = obj.get("pause");
 
         if (!contractId || !idoId || !pause) {
             log.error("[ido_pause] - invalid args", []);
@@ -119,9 +128,9 @@ export class NftIdoMapper {
     }
 
     public onAddToken(obj: TypedMap<string, JSONValue>): void {
-        const contractId = obj.get('contract_id');
-        const idoId = obj.get('ido_id');
-        const tokenId = obj.get('token_id');
+        const contractId = obj.get("contract_id");
+        const idoId = obj.get("ido_id");
+        const tokenId = obj.get("token_id");
 
         if (!contractId || !idoId || !tokenId) {
             log.error("[ido_add_token] - invalid args", []);
@@ -147,10 +156,10 @@ export class NftIdoMapper {
     }
 
     public onBuyToken(obj: TypedMap<string, JSONValue>): void {
-        const contractId = obj.get('contract_id');
-        const idoId = obj.get('ido_id');
-        const tokenId = obj.get('token_id');
-        const receiverId = obj.get('receiver_id');
+        const contractId = obj.get("contract_id");
+        const idoId = obj.get("ido_id");
+        const tokenId = obj.get("token_id");
+        const receiverId = obj.get("receiver_id");
 
         if (!contractId || !idoId || !tokenId || !receiverId) {
             log.error("[ido_buy_token] - invalid args", []);
@@ -187,7 +196,7 @@ export class NftIdoMapper {
         if (!nftIdo) {
             log.error("[ido_pause] - not found", []);
 
-            throw new Error('Not found');
+            throw new Error("Not found");
         }
 
         return nftIdo;

@@ -37,6 +37,15 @@ type Account @entity {
     ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
 }
 
+type AccountRoyalty @entity {
+    id: ID!
+
+    accountId: ID!
+    account: Account!
+    ftTokenId: ID!
+    amount: String!
+}
+
 type NftContract @entity {
     id: ID!
 }
@@ -203,6 +212,29 @@ type ReferralProgram @entity {
     programId: ID!
 
     count: Int!
+
+    contract: ReferralContract!
+    influencer: ReferralInfluencer!
+}
+
+type ReferralContract @entity {
+    id: ID!
+
+    contractId: ID!
+
+    count: Int!
+
+    programs: [ReferralProgram!]! @derivedFrom(field: "contract")
+}
+
+type ReferralInfluencer @entity {
+    id: ID!
+
+    influencerId: ID!
+
+    count: Int!
+
+    programs: [ReferralProgram!]! @derivedFrom(field: "influencer")
 }
 
 type Referral @entity {
@@ -212,4 +244,9 @@ type Referral @entity {
     influencerId: ID!
     programId: ID!
     accountId: ID!
+
+    contract: ReferralContract!
+    influencer: ReferralInfluencer!
+    program: ReferralProgram!
+    account: Account!
 }

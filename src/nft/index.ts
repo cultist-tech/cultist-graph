@@ -1,5 +1,5 @@
 import { near } from "@graphprotocol/graph-ts";
-import {getReceiptDate, parseEvent} from "../utils";
+import { getReceiptDate, parseEvent } from "../utils";
 import { TokenMapper } from "./api";
 
 export function handleNft(receipt: near.ReceiptWithOutcome): void {

@@ -1,10 +1,11 @@
-import {NftContract, Statistic, Token, TokenMetadata} from "../../generated/schema";
-import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
-import {BigDecimal, JSONValue, JSONValueKind, log, TypedMap} from "@graphprotocol/graph-ts/index";
-import {convertStringRarity, getTokenId, removeToken, saveTokenRoyalties} from "./helpers";
-import {getOrCreateAccount} from "../api/account";
-import {getMarketSaleId, removeMarketSale} from "../market-sale/helpers";
-import {getMarketRentId, removeMarketRent} from "../market-rent/helpers";
+import { NftContract, Statistic, Token, TokenMetadata } from "../../generated/schema";
+import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
+import { BigDecimal, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
+import { convertStringRarity, getTokenId, removeToken, saveTokenRoyalties } from "./helpers";
+import { getOrCreateAccount } from "../api/account";
+import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
+import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
+import { getOrCreateAccountRoyalty } from "../api/account-royalty";
 
 export class TokenMapper {
     protected stats: Statistic;
@@ -114,9 +115,7 @@ export class TokenMapper {
         accStats.save();
     }
 
-    public test(func: () => void): void {
-
-    }
+    public test(func: () => void): void {}
 
     public transfer(data: TypedMap<string, JSONValue>): void {
         const tokenIds = data.get("token_ids");
@@ -242,10 +241,6 @@ export class TokenMapper {
 
         const tokenId = getTokenId(this.contractId.toString(), tokenIdRaw.toString());
 
-        let price = BigDecimal.fromString(balance.toString()).div(
-            BigDecimal.fromString("1000000000000000000000000")
-        );
-
         // acc
         getOrCreateAccount(senderId.toString(), this.stats, this.contractStats);
         getOrCreateAccount(receiverId.toString(), this.stats, this.contractStats);
@@ -271,8 +266,8 @@ export class TokenMapper {
         const nft = Token.load(contractNftId);
 
         if (!nft) {
-            log.error('not found token {}', [contractNftId]);
-            throw new Error('Not found token');
+            log.error("not found token {}", [contractNftId]);
+            throw new Error("Not found token");
         }
 
         return nft;

@@ -1,7 +1,7 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import {MarketSale, MarketSaleCondition, Account, Token, Statistic} from "../../generated/schema";
-import {getReceiptDate, parseEvent} from "../utils";
+import { MarketSale, MarketSaleCondition, Account, Token, Statistic } from "../../generated/schema";
+import { getReceiptDate, parseEvent, sumBigInt } from "../utils";
 import { createAccount, getAccount, getOrCreateAccount } from "../api/account";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import {
@@ -12,7 +12,9 @@ import {
     getMarketSaleId,
     getMarketSaleConditionId,
 } from "./helpers";
-import {getTokenId} from "../nft/helpers";
+import { getTokenId } from "../nft/helpers";
+import { getOrCreateAccountRoyalty } from "../api/account-royalty";
+import { SaleMapper } from "./api";
 
 export function handleMarket(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -46,6 +48,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
         const data = eventData.toObject();
         const method = eventMethod.toString();
+        const api = new SaleMapper();
 
         const stats = getOrCreateStatisticSystem();
         stats.transactionTotal++;
@@ -95,7 +98,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = saleId;
-                token.saleId = saleId
+                token.saleId = saleId;
             }
 
             //
@@ -191,7 +194,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = null;
-                token.saleId = null
+                token.saleId = null;
             }
 
             //
@@ -213,26 +216,28 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             contractStats.save();
         } else if (method == "market_offer") {
             const tokenIdRaw = data.get("token_id");
-            const ownerId = data.get("owner_id");
+            const ownerIdJson = data.get("owner_id");
             const receiverId = data.get("receiver_id");
             const contractId = data.get("nft_contract_id");
             const payout = data.get("payout");
-            const ftTokenId = data.get("ft_token_id");
+            const ftTokenIdJson = data.get("ft_token_id");
             const price = data.get("price");
 
             if (
                 !tokenIdRaw ||
-                !ownerId ||
+                !ownerIdJson ||
                 !receiverId ||
                 !contractId ||
                 !payout ||
-                !ftTokenId ||
+                !ftTokenIdJson ||
                 !price
             ) {
                 log.error("[market_offer] - invalid args", []);
                 return;
             }
 
+            const ftTokenId = ftTokenIdJson.toString();
+            const ownerId = ownerIdJson.toString();
             const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
 
             const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
@@ -250,8 +255,12 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = null;
-                token.saleId = null
+                token.saleId = null;
             }
+
+            // royalty
+
+            api.saveRoyalty(payout, ftTokenId, ownerId);
 
             //
             const contractStats = getOrCreateStatistic(contractId.toString());

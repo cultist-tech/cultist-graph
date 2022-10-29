@@ -1,6 +1,6 @@
 import { near, BigInt } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import {getReceiptDate, parseEvent} from "../utils";
+import { getReceiptDate, parseEvent } from "../utils";
 import { getOrCreateAccount } from "../api/account";
 import { getOrCreateFtBalance } from "./helpers";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";

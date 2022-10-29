@@ -1,5 +1,5 @@
 import { near } from "@graphprotocol/graph-ts";
-import {getReceiptDate, parseEvent} from "../utils";
+import { getReceiptDate, parseEvent } from "../utils";
 import { NftFractionationMapper } from "./api";
 
 export function handleNftFractionation(receipt: near.ReceiptWithOutcome): void {
@@ -40,9 +40,9 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
         if (method == "fractionation_create") {
             mapper.onCreate(data);
-        } else if (method == 'fractionation_complete') {
+        } else if (method == "fractionation_complete") {
             mapper.onCompete(data);
-        } else if (method == 'fractionation_process') {
+        } else if (method == "fractionation_process") {
             mapper.onProcess(data);
         }
 

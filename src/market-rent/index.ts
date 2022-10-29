@@ -1,7 +1,7 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import {MarketRent, MarketRentCondition, Token} from "../../generated/schema";
-import {getReceiptDate, parseEvent} from "../utils";
+import { MarketRent, MarketRentCondition, Token } from "../../generated/schema";
+import { getReceiptDate, parseEvent } from "../utils";
 import { getOrCreateAccount } from "../api/account";
 import { BigDecimal } from "@graphprotocol/graph-ts/index";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
@@ -13,7 +13,7 @@ import {
     updateRemoveMarketRentStats,
 } from "./helpers";
 import { getMarketSaleConditionId } from "../market-sale/helpers";
-import {getTokenId} from "../nft/helpers";
+import { getTokenId } from "../nft/helpers";
 
 export function handleRent(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -91,7 +91,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.rent = rentId;
-                token.rentId = rentId
+                token.rentId = rentId;
             }
 
             //
@@ -137,7 +137,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.rent = null;
-                token.rentId = null
+                token.rentId = null;
             }
 
             //
@@ -295,7 +295,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.rent = null;
-                token.rentId = null
+                token.rentId = null;
             }
 
             //
@@ -309,7 +309,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             senderStats.transactionTotal++;
             senderStats.save();
 
-            contractStats.save()
+            contractStats.save();
         }
 
         stats.save();
