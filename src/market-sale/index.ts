@@ -1,7 +1,7 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import { MarketSale, MarketSaleCondition, Account, Token, Statistic } from "../../generated/schema";
-import { getReceiptDate, parseEvent, sumBigInt } from "../utils";
+import {MarketSale, MarketSaleCondition, Account, Token, Statistic} from "../../generated/schema";
+import {getReceiptDate, parseEvent, sumBigInt} from "../utils";
 import { createAccount, getAccount, getOrCreateAccount } from "../api/account";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import {
@@ -12,9 +12,9 @@ import {
     getMarketSaleId,
     getMarketSaleConditionId,
 } from "./helpers";
-import { getTokenId } from "../nft/helpers";
-import { getOrCreateAccountRoyalty } from "../api/account-royalty";
-import { SaleMapper } from "./api";
+import {getTokenId} from "../nft/helpers";
+import {getOrCreateAccountRoyalty} from "../api/account-royalty";
+import {SaleMapper} from "./api";
 
 export function handleMarket(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -98,7 +98,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = saleId;
-                token.saleId = saleId;
+                token.saleId = saleId
             }
 
             //
@@ -194,7 +194,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = null;
-                token.saleId = null;
+                token.saleId = null
             }
 
             //
@@ -219,7 +219,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const ownerIdJson = data.get("owner_id");
             const receiverId = data.get("receiver_id");
             const contractId = data.get("nft_contract_id");
-            const payout = data.get("payout");
+            const payoutJson = data.get("payout");
             const ftTokenIdJson = data.get("ft_token_id");
             const price = data.get("price");
 
@@ -228,7 +228,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
                 !ownerIdJson ||
                 !receiverId ||
                 !contractId ||
-                !payout ||
+                !payoutJson ||
                 !ftTokenIdJson ||
                 !price
             ) {
@@ -255,12 +255,14 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = null;
-                token.saleId = null;
+                token.saleId = null
             }
 
             // royalty
 
-            api.saveRoyalty(payout, ftTokenId, ownerId);
+            if (payoutJson) {
+                api.saveRoyalty(payoutJson.toObject(), ftTokenId, ownerId)
+            }
 
             //
             const contractStats = getOrCreateStatistic(contractId.toString());
