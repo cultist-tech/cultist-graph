@@ -289,12 +289,29 @@ type Referral @entity {
     account: Account!
 }
 
-type ReferralProgramProfit @entity {
+type ReferralProgramVolume @entity {
     id: ID!
 
     contractId: ID!
     influencerId: ID!
 
+    ftTokenId: ID!
+    amount: String!
+}
+
+type ReferralContractVolume @entity {
+    id: ID!
+
+    contractId: ID!
+
+    ftTokenId: ID!
+    amount: String!
+}
+
+type ReferralInfluencerVolume @entity {
+    id: ID!
+
+    influencerId: ID!
 
     ftTokenId: ID!
     amount: String!

@@ -263,6 +263,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             // royalty
 
             if (payoutJson) {
+                log.info('TEST_DEBUG payout exists', []);
                 api.saveRoyalty(payoutJson.toObject(), ftTokenId, ownerId);
             }
 

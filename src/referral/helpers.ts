@@ -1,6 +1,7 @@
 import {
     ReferralContract,
     ReferralContractInfluencer,
+    ReferralContractVolume,
     ReferralInfluencer,
     ReferralInfluencerContract,
     ReferralProgram,
@@ -32,6 +33,14 @@ export function getReferralInfluencerContractId(influencerId: string, contractId
 
 export function getReferralContractInfluencerId(influencerId: string, contractId: string): string {
     return contractId + "||" + influencerId;
+}
+
+export function getReferralContractVolumeId(contractId: string, ftTokenId: string): string {
+    return contractId + "||" + ftTokenId;
+}
+
+export function getReferralInfluencerVolumeId(contractId: string, ftTokenId: string): string {
+    return contractId + "||" + ftTokenId;
 }
 
 //
@@ -158,6 +167,40 @@ export function createReferralContractInfluencer(
     contract.programsCount = 1 as i32;
     contract.referralsCount = 0 as i32;
     contract.activeReferralsCount = 0 as i32;
+
+    contract.save();
+
+    return contract;
+}
+
+//
+
+export function getOrCreateReferralContractVolume(
+    contractId: string,
+    ftTokenId: string,
+): ReferralContractVolume {
+    const id = getReferralContractVolumeId(contractId, ftTokenId);
+    const contract = ReferralContractVolume.load(id);
+
+    if (contract) {
+        contract.save();
+
+        return contract;
+    }
+
+    return createReferralContractVolume(contractId, ftTokenId);
+}
+
+export function createReferralContractVolume(
+    contractId: string,
+    ftTokenId: string,
+): ReferralContractVolume {
+    const id = getReferralContractVolumeId(contractId, ftTokenId);
+    const contract = new ReferralContractVolume(id);
+
+    contract.contractId = contractId;
+    contract.ftTokenId = ftTokenId;
+    contract.amount = '0';
 
     contract.save();
 

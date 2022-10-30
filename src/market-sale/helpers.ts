@@ -65,7 +65,7 @@ export function updateRemoveMarketSaleStats(
     const saleConditionId = getMarketSaleConditionId(saleId, "near");
     const saleCondition = MarketSaleCondition.load(saleConditionId);
 
-    if (saleCondition) {
+    if (saleCondition && stats.marketSaleNearTotal > 0) {
         stats.marketSaleNearTotal--;
         stats.marketSaleNearSum = BigInt.fromString(stats.marketSaleNearSum)
             .minus(BigInt.fromString(saleCondition.price))
