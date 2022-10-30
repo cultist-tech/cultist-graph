@@ -1033,6 +1033,7 @@ export class MarketSale extends Entity {
     this.set("createdAt", Value.fromI32(0));
     this.set("owner", Value.fromString(""));
     this.set("token", Value.fromString(""));
+    this.set("isDeleted", Value.fromBoolean(false));
   }
 
   save(): void {
@@ -1122,6 +1123,15 @@ export class MarketSale extends Entity {
 
   set token(value: string) {
     this.set("token", Value.fromString(value));
+  }
+
+  get isDeleted(): boolean {
+    let value = this.get("isDeleted");
+    return value!.toBoolean();
+  }
+
+  set isDeleted(value: boolean) {
+    this.set("isDeleted", Value.fromBoolean(value));
   }
 
   get conditions(): Array<string> {

@@ -139,6 +139,7 @@ type MarketSale @entity {
 
     owner: Account!
     token: Token!
+    isDeleted: Boolean!
     conditions: [MarketSaleCondition!]! @derivedFrom(field: "sale")
 }
 type MarketSaleCondition @entity {
