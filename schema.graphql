@@ -316,3 +316,18 @@ type ReferralInfluencerVolume @entity {
     ftTokenId: ID!
     amount: String!
 }
+
+# logger
+
+type Log @entity {
+    id: ID!
+
+    key: String!
+    message: String!
+}
+
+type LogStats @entity {
+    id: ID!
+
+    count: Int!
+}

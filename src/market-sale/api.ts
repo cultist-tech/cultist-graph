@@ -11,13 +11,19 @@ export class SaleMapper {
         for (let i = 0; i < payout.entries.length; i++) {
             const row = payout.entries[i];
             const payoutAccount = row.key;
-            const payoutValue = row.value.toString();
 
-            // if (payoutAccount != ownerId) {
-            const royalty = getOrCreateAccountRoyalty(payoutAccount, ftTokenId);
-            royalty.amount = sumBigInt(royalty.amount, payoutValue);
-            royalty.save();
-            // }
+            if (payoutAccount == 'payout') {
+                this.saveRoyalty(row.value.toObject(), ftTokenId, ownerId);
+                return;
+            } else {
+                const payoutValue = row.value.toString();
+
+                // if (payoutAccount != ownerId) {
+                const royalty = getOrCreateAccountRoyalty(payoutAccount, ftTokenId);
+                royalty.amount = sumBigInt(royalty.amount, payoutValue);
+                royalty.save();
+                // }
+            }
         }
     }
 }

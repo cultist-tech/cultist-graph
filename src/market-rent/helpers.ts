@@ -13,7 +13,7 @@ export function getMarketRentConditionId(rentId: string, tokenId: string): strin
 export function removeMarketRent(rentId: string): void {
     store.remove("MarketRent", rentId.toString());
 
-    log.error("[market_rent_removed]: ", [rentId.toString()]);
+    log.warning("[market_rent_removed]: ", [rentId.toString()]);
 }
 
 export function saveMarketRentConditions(

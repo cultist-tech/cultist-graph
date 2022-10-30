@@ -13,7 +13,6 @@ import {
     getMarketSaleConditionId,
 } from "./helpers";
 import { getTokenId } from "../nft/helpers";
-import { getOrCreateAccountRoyalty } from "../api/account-royalty";
 import { SaleMapper } from "./api";
 
 export function handleMarket(receipt: near.ReceiptWithOutcome): void {
@@ -64,22 +63,22 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const saleObj = saleStr.toObject();
             const ownerId = saleObj.get("owner_id");
             const contractId = saleObj.get("nft_contract_id");
-            const tokenIdRaw = saleObj.get("token_id");
+            const tokenIdJson = saleObj.get("token_id");
             const saleConditions = saleObj.get("sale_conditions");
             const isAuction = saleObj.get("is_auction");
 
-            if (!ownerId || !ownerId || !contractId || !tokenIdRaw || !saleConditions) {
+            if (!ownerId || !ownerId || !contractId || !tokenIdJson || !saleConditions) {
                 log.error("[market_create_sale] - invalid args", []);
                 return;
             }
 
-            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
-            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
+            const contractTokenId = getTokenId(contractId.toString(), tokenIdJson.toString());
+            const contractSaleId = getMarketSaleId(contractId.toString(), tokenIdJson.toString());
 
-            const sale = new MarketSale(saleId);
+            const sale = new MarketSale(contractSaleId);
 
-            sale.tokenId = tokenIdRaw.toString();
-            sale.token = tokenId.toString();
+            sale.tokenId = contractTokenId;
+            sale.token = contractTokenId;
             sale.ownerId = ownerId.toString();
             sale.owner = ownerId.toString();
             sale.contractId = contractId.toString();
@@ -87,18 +86,17 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             sale.isAuction = isAuction ? isAuction.toBool() : false;
 
             if (saleConditions && !saleConditions.isNull()) {
-                saveMarketSaleConditions(stats, saleId, ownerId.toString(), saleConditions);
+                saveMarketSaleConditions(stats, contractSaleId, ownerId.toString(), saleConditions);
             }
 
             sale.save();
 
             // token
-            const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
-            const token = Token.load(tokenContractId);
+            const token = Token.load(contractTokenId);
 
             if (token) {
-                token.sale = saleId;
-                token.saleId = saleId;
+                token.sale = contractSaleId;
+                token.saleId = contractSaleId;
             }
 
             //
@@ -118,22 +116,21 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             contractStats.save();
         } else if (method == "market_update_sale") {
-            const tokenIdRaw = data.get("token_id");
+            const tokenIdJson = data.get("token_id");
             const ownerId = data.get("owner_id");
             const contractId = data.get("nft_contract_id");
             const ftTokenId = data.get("ft_token_id");
             const price = data.get("price");
 
-            if (!tokenIdRaw || !ownerId || !contractId || !ftTokenId || !price) {
+            if (!tokenIdJson || !ownerId || !contractId || !ftTokenId || !price) {
                 log.error("[market_update_sale] - invalid args", []);
                 return;
             }
 
-            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
+            const contractSaleId = getMarketSaleId(contractId.toString(), tokenIdJson.toString());
 
-            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
             const saleConditionId = getMarketSaleConditionId(
-                saleId.toString(),
+                contractSaleId,
                 ftTokenId.toString()
             );
 
@@ -141,8 +138,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (!saleCondition) {
                 saleCondition = new MarketSaleCondition(saleConditionId);
-                saleCondition.saleId = saleId;
-                saleCondition.sale = saleId;
+                saleCondition.saleId = contractSaleId;
+                saleCondition.sale = contractSaleId;
             }
 
             saleCondition.ftTokenId = ftTokenId.toString();
@@ -158,7 +155,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // stats
             if (ftTokenId.toString() == "near") {
-                updateCreateMarketSaleStats(stats, saleId, ownerId.toString(), saleCondition);
+                updateCreateMarketSaleStats(stats, contractSaleId, ownerId.toString(), saleCondition);
             }
 
             // stats acc
@@ -168,28 +165,27 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             contractStats.save();
         } else if (method == "market_remove_sale") {
-            const tokenIdRaw = data.get("token_id");
+            const tokenIdJson = data.get("token_id");
             const ownerId = data.get("owner_id");
             const contractId = data.get("nft_contract_id");
 
-            if (!tokenIdRaw || !ownerId || !contractId) {
+            if (!tokenIdJson || !ownerId || !contractId) {
                 log.error("[market_remove_sale] - invalid args", []);
                 return;
             }
 
-            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
+            const tokenContractId = getTokenId(contractId.toString(), tokenIdJson.toString());
+            const contractSaleId = getMarketSaleId(contractId.toString(), tokenIdJson.toString());
 
-            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
-            const sale = MarketSale.load(saleId);
+            const sale = MarketSale.load(contractSaleId);
 
             if (!sale) {
                 return;
             }
 
-            removeMarketSale(saleId);
+            removeMarketSale(contractSaleId);
 
             // token
-            const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
             const token = Token.load(tokenContractId);
 
             if (token) {
@@ -206,7 +202,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             // stats
             if (stats.marketSaleTotal > 0) {
                 stats.marketSaleTotal--;
-                updateRemoveMarketSaleStats(stats, saleId, ownerId.toString());
+                updateRemoveMarketSaleStats(stats, contractSaleId, ownerId.toString());
             }
 
             // stats acc
@@ -217,7 +213,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             contractStats.save();
         } else if (method == "market_offer") {
-            const tokenIdRaw = data.get("token_id");
+            const tokenIdJson = data.get("token_id");
             const ownerIdJson = data.get("owner_id");
             const receiverId = data.get("receiver_id");
             const contractId = data.get("nft_contract_id");
@@ -225,8 +221,10 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const ftTokenIdJson = data.get("ft_token_id");
             const price = data.get("price");
 
+            log.info('TEST_DEBUG market_offer', []);
+
             if (
-                !tokenIdRaw ||
+                !tokenIdJson ||
                 !ownerIdJson ||
                 !receiverId ||
                 !contractId ||
@@ -240,19 +238,19 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             const ftTokenId = ftTokenIdJson.toString();
             const ownerId = ownerIdJson.toString();
-            const tokenId = getTokenId(contractId.toString(), tokenIdRaw.toString());
+            const tokenContractId = getTokenId(contractId.toString(), tokenIdJson.toString());
+            const contractSaleId = getMarketSaleId(contractId.toString(), tokenIdJson.toString());
 
-            const saleId = getMarketSaleId(contractId.toString(), tokenId.toString());
-            const sale = MarketSale.load(saleId);
+            const sale = MarketSale.load(contractSaleId);
 
             if (!sale) {
+                log.error("[market_offer] - not found sale", []);
                 return;
             }
 
-            removeMarketSale(saleId.toString());
+            removeMarketSale(contractSaleId);
 
             // token
-            const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
             const token = Token.load(tokenContractId);
 
             if (token) {
@@ -263,11 +261,11 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             // royalty
 
             if (payoutJson) {
-                log.info('TEST_DEBUG payout exists', []);
+                log.info('TEST_DEBUG payout market_offer', []);
                 api.saveRoyalty(payoutJson.toObject(), ftTokenId, ownerId);
             }
 
-            //
+            // contract stats
             const contractStats = getOrCreateStatistic(contractId.toString());
 
             // acc

@@ -123,7 +123,6 @@ export class ReferralService {
         const referralId = getReferralId(
             contract_id.toString(),
             account_id.toString(),
-            program_id.toString()
         );
         let referral = Referral.load(referralId);
 
