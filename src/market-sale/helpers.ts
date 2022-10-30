@@ -13,7 +13,7 @@ export function getMarketSaleConditionId(saleId: string, ftTokenId: string): str
 export function removeMarketSale(saleId: string): void {
     store.remove("MarketSale", saleId.toString());
 
-    log.error("[market_sale_removed]: ", [saleId.toString()]);
+    log.info("[market_sale_removed]: ", [saleId.toString()]);
 }
 
 export function saveMarketSaleConditions(

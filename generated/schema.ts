@@ -2225,3 +2225,82 @@ export class Referral extends Entity {
     this.set("account", Value.fromString(value));
   }
 }
+
+export class ReferralProgramProfit extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("contractId", Value.fromString(""));
+    this.set("influencerId", Value.fromString(""));
+    this.set("ftTokenId", Value.fromString(""));
+    this.set("amount", Value.fromString(""));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save ReferralProgramProfit entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save ReferralProgramProfit entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("ReferralProgramProfit", id.toString(), this);
+    }
+  }
+
+  static load(id: string): ReferralProgramProfit | null {
+    return changetype<ReferralProgramProfit | null>(
+      store.get("ReferralProgramProfit", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get contractId(): string {
+    let value = this.get("contractId");
+    return value!.toString();
+  }
+
+  set contractId(value: string) {
+    this.set("contractId", Value.fromString(value));
+  }
+
+  get influencerId(): string {
+    let value = this.get("influencerId");
+    return value!.toString();
+  }
+
+  set influencerId(value: string) {
+    this.set("influencerId", Value.fromString(value));
+  }
+
+  get ftTokenId(): string {
+    let value = this.get("ftTokenId");
+    return value!.toString();
+  }
+
+  set ftTokenId(value: string) {
+    this.set("ftTokenId", Value.fromString(value));
+  }
+
+  get amount(): string {
+    let value = this.get("amount");
+    return value!.toString();
+  }
+
+  set amount(value: string) {
+    this.set("amount", Value.fromString(value));
+  }
+}

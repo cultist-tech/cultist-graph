@@ -1,6 +1,6 @@
 import { near } from "@graphprotocol/graph-ts";
 import { getReceiptDate, parseEvent } from "../utils";
-import { ReferralMapper } from "./api";
+import { ReferralService } from "./api";
 
 export function handleReferral(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -35,7 +35,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
         const data = eventData.toObject();
         const method = eventMethod.toString();
 
-        const api = new ReferralMapper(timestamp);
+        const api = new ReferralService(timestamp);
         api.handle(method, data);
     }
 }

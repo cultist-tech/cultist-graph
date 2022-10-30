@@ -13,11 +13,11 @@ export class SaleMapper {
             const payoutAccount = row.key;
             const payoutValue = row.value.toString();
 
-            if (payoutAccount != ownerId) {
-                const royalty = getOrCreateAccountRoyalty(payoutAccount, ftTokenId);
-                royalty.amount = sumBigInt(royalty.amount, payoutValue);
-                royalty.save();
-            }
+            // if (payoutAccount != ownerId) {
+            const royalty = getOrCreateAccountRoyalty(payoutAccount, ftTokenId);
+            royalty.amount = sumBigInt(royalty.amount, payoutValue);
+            royalty.save();
+            // }
         }
     }
 }

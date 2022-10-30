@@ -2,7 +2,7 @@ import { json, JSONValue, log, TypedMap } from "@graphprotocol/graph-ts";
 import { BigInt, near } from "@graphprotocol/graph-ts/index";
 
 function convertNanoSec(time: u64): i32 {
-    return time as i32;
+    return time / 1_000_000 as i32;
 }
 export function getReceiptDate(receiptWithOutcome: near.ReceiptWithOutcome): i32 {
     return convertNanoSec(receiptWithOutcome.block.header.timestampNanosec);

@@ -20,7 +20,7 @@ import {
 } from "./helpers";
 import { getOrCreateAccount } from "../api/account";
 
-export class ReferralMapper {
+export class ReferralService {
     protected stats: Statistic;
     protected createdAt: i32;
 
@@ -30,6 +30,10 @@ export class ReferralMapper {
 
         this.stats.transactionTotal++;
     }
+
+    //
+
+    //
 
     public handle(method: string, data: TypedMap<string, JSONValue>): void {
         if (method == "program_create") {
@@ -41,7 +45,7 @@ export class ReferralMapper {
         this.end();
     }
 
-    public onProgramCreate(data: TypedMap<string, JSONValue>): void {
+    protected onProgramCreate(data: TypedMap<string, JSONValue>): void {
         const contract_id = data.get("contract_id");
         const influencer_id = data.get("influencer_id");
         const program_id = data.get("program_id");
@@ -102,7 +106,7 @@ export class ReferralMapper {
         getOrCreateAccount(influencer_id.toString(), this.stats, contractStats);
     }
 
-    public onReferralAccept(data: TypedMap<string, JSONValue>): void {
+    protected onReferralAccept(data: TypedMap<string, JSONValue>): void {
         const contract_id = data.get("contract_id");
         const influencer_id = data.get("influencer_id");
         const program_id = data.get("program_id");
@@ -186,7 +190,7 @@ export class ReferralMapper {
         referral.save();
     }
 
-    public end(): void {
+    protected end(): void {
         this.stats.save();
     }
 }
