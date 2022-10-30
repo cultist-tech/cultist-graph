@@ -1,7 +1,7 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import {MarketSale, MarketSaleCondition, Account, Token, Statistic} from "../../generated/schema";
-import {getReceiptDate, parseEvent, sumBigInt} from "../utils";
+import { MarketSale, MarketSaleCondition, Account, Token, Statistic } from "../../generated/schema";
+import { getReceiptDate, parseEvent, sumBigInt } from "../utils";
 import { createAccount, getAccount, getOrCreateAccount } from "../api/account";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import {
@@ -12,9 +12,9 @@ import {
     getMarketSaleId,
     getMarketSaleConditionId,
 } from "./helpers";
-import {getTokenId} from "../nft/helpers";
-import {getOrCreateAccountRoyalty} from "../api/account-royalty";
-import {SaleMapper} from "./api";
+import { getTokenId } from "../nft/helpers";
+import { getOrCreateAccountRoyalty } from "../api/account-royalty";
+import { SaleMapper } from "./api";
 
 export function handleMarket(receipt: near.ReceiptWithOutcome): void {
     const actions = receipt.receipt.actions;
@@ -98,7 +98,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = saleId;
-                token.saleId = saleId
+                token.saleId = saleId;
             }
 
             //
@@ -194,7 +194,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = null;
-                token.saleId = null
+                token.saleId = null;
             }
 
             //
@@ -257,13 +257,13 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             if (token) {
                 token.sale = null;
-                token.saleId = null
+                token.saleId = null;
             }
 
             // royalty
 
             if (payoutJson) {
-                api.saveRoyalty(payoutJson.toObject(), ftTokenId, ownerId)
+                api.saveRoyalty(payoutJson.toObject(), ftTokenId, ownerId);
             }
 
             //

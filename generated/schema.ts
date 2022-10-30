@@ -1598,7 +1598,11 @@ export class ReferralProgram extends Entity {
     this.set("contractId", Value.fromString(""));
     this.set("influencerId", Value.fromString(""));
     this.set("programId", Value.fromString(""));
-    this.set("count", Value.fromI32(0));
+    this.set("code", Value.fromString(""));
+    this.set("royalty_percent", Value.fromI32(0));
+    this.set("referralsCount", Value.fromI32(0));
+    this.set("activeReferralsCount", Value.fromI32(0));
+    this.set("createdAt", Value.fromI32(0));
     this.set("contract", Value.fromString(""));
     this.set("influencer", Value.fromString(""));
   }
@@ -1656,13 +1660,49 @@ export class ReferralProgram extends Entity {
     this.set("programId", Value.fromString(value));
   }
 
-  get count(): i32 {
-    let value = this.get("count");
+  get code(): string {
+    let value = this.get("code");
+    return value!.toString();
+  }
+
+  set code(value: string) {
+    this.set("code", Value.fromString(value));
+  }
+
+  get royalty_percent(): i32 {
+    let value = this.get("royalty_percent");
     return value!.toI32();
   }
 
-  set count(value: i32) {
-    this.set("count", Value.fromI32(value));
+  set royalty_percent(value: i32) {
+    this.set("royalty_percent", Value.fromI32(value));
+  }
+
+  get referralsCount(): i32 {
+    let value = this.get("referralsCount");
+    return value!.toI32();
+  }
+
+  set referralsCount(value: i32) {
+    this.set("referralsCount", Value.fromI32(value));
+  }
+
+  get activeReferralsCount(): i32 {
+    let value = this.get("activeReferralsCount");
+    return value!.toI32();
+  }
+
+  set activeReferralsCount(value: i32) {
+    this.set("activeReferralsCount", Value.fromI32(value));
+  }
+
+  get createdAt(): i32 {
+    let value = this.get("createdAt");
+    return value!.toI32();
+  }
+
+  set createdAt(value: i32) {
+    this.set("createdAt", Value.fromI32(value));
   }
 
   get contract(): string {
@@ -1690,7 +1730,10 @@ export class ReferralContract extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("contractId", Value.fromString(""));
-    this.set("count", Value.fromI32(0));
+    this.set("programsCount", Value.fromI32(0));
+    this.set("referralsCount", Value.fromI32(0));
+    this.set("activeReferralsCount", Value.fromI32(0));
+    this.set("influencersCount", Value.fromI32(0));
   }
 
   save(): void {
@@ -1730,13 +1773,40 @@ export class ReferralContract extends Entity {
     this.set("contractId", Value.fromString(value));
   }
 
-  get count(): i32 {
-    let value = this.get("count");
+  get programsCount(): i32 {
+    let value = this.get("programsCount");
     return value!.toI32();
   }
 
-  set count(value: i32) {
-    this.set("count", Value.fromI32(value));
+  set programsCount(value: i32) {
+    this.set("programsCount", Value.fromI32(value));
+  }
+
+  get referralsCount(): i32 {
+    let value = this.get("referralsCount");
+    return value!.toI32();
+  }
+
+  set referralsCount(value: i32) {
+    this.set("referralsCount", Value.fromI32(value));
+  }
+
+  get activeReferralsCount(): i32 {
+    let value = this.get("activeReferralsCount");
+    return value!.toI32();
+  }
+
+  set activeReferralsCount(value: i32) {
+    this.set("activeReferralsCount", Value.fromI32(value));
+  }
+
+  get influencersCount(): i32 {
+    let value = this.get("influencersCount");
+    return value!.toI32();
+  }
+
+  set influencersCount(value: i32) {
+    this.set("influencersCount", Value.fromI32(value));
   }
 
   get programs(): Array<string> {
@@ -1749,13 +1819,115 @@ export class ReferralContract extends Entity {
   }
 }
 
+export class ReferralContractInfluencer extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("contractId", Value.fromString(""));
+    this.set("influencerId", Value.fromString(""));
+    this.set("programsCount", Value.fromI32(0));
+    this.set("referralsCount", Value.fromI32(0));
+    this.set("activeReferralsCount", Value.fromI32(0));
+    this.set("createdAt", Value.fromI32(0));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save ReferralContractInfluencer entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save ReferralContractInfluencer entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("ReferralContractInfluencer", id.toString(), this);
+    }
+  }
+
+  static load(id: string): ReferralContractInfluencer | null {
+    return changetype<ReferralContractInfluencer | null>(
+      store.get("ReferralContractInfluencer", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get contractId(): string {
+    let value = this.get("contractId");
+    return value!.toString();
+  }
+
+  set contractId(value: string) {
+    this.set("contractId", Value.fromString(value));
+  }
+
+  get influencerId(): string {
+    let value = this.get("influencerId");
+    return value!.toString();
+  }
+
+  set influencerId(value: string) {
+    this.set("influencerId", Value.fromString(value));
+  }
+
+  get programsCount(): i32 {
+    let value = this.get("programsCount");
+    return value!.toI32();
+  }
+
+  set programsCount(value: i32) {
+    this.set("programsCount", Value.fromI32(value));
+  }
+
+  get referralsCount(): i32 {
+    let value = this.get("referralsCount");
+    return value!.toI32();
+  }
+
+  set referralsCount(value: i32) {
+    this.set("referralsCount", Value.fromI32(value));
+  }
+
+  get activeReferralsCount(): i32 {
+    let value = this.get("activeReferralsCount");
+    return value!.toI32();
+  }
+
+  set activeReferralsCount(value: i32) {
+    this.set("activeReferralsCount", Value.fromI32(value));
+  }
+
+  get createdAt(): i32 {
+    let value = this.get("createdAt");
+    return value!.toI32();
+  }
+
+  set createdAt(value: i32) {
+    this.set("createdAt", Value.fromI32(value));
+  }
+}
+
 export class ReferralInfluencer extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
 
     this.set("influencerId", Value.fromString(""));
-    this.set("count", Value.fromI32(0));
+    this.set("programsCount", Value.fromI32(0));
+    this.set("referralsCount", Value.fromI32(0));
+    this.set("activeReferralsCount", Value.fromI32(0));
+    this.set("contractsCount", Value.fromI32(0));
   }
 
   save(): void {
@@ -1795,13 +1967,40 @@ export class ReferralInfluencer extends Entity {
     this.set("influencerId", Value.fromString(value));
   }
 
-  get count(): i32 {
-    let value = this.get("count");
+  get programsCount(): i32 {
+    let value = this.get("programsCount");
     return value!.toI32();
   }
 
-  set count(value: i32) {
-    this.set("count", Value.fromI32(value));
+  set programsCount(value: i32) {
+    this.set("programsCount", Value.fromI32(value));
+  }
+
+  get referralsCount(): i32 {
+    let value = this.get("referralsCount");
+    return value!.toI32();
+  }
+
+  set referralsCount(value: i32) {
+    this.set("referralsCount", Value.fromI32(value));
+  }
+
+  get activeReferralsCount(): i32 {
+    let value = this.get("activeReferralsCount");
+    return value!.toI32();
+  }
+
+  set activeReferralsCount(value: i32) {
+    this.set("activeReferralsCount", Value.fromI32(value));
+  }
+
+  get contractsCount(): i32 {
+    let value = this.get("contractsCount");
+    return value!.toI32();
+  }
+
+  set contractsCount(value: i32) {
+    this.set("contractsCount", Value.fromI32(value));
   }
 
   get programs(): Array<string> {
@@ -1811,6 +2010,105 @@ export class ReferralInfluencer extends Entity {
 
   set programs(value: Array<string>) {
     this.set("programs", Value.fromStringArray(value));
+  }
+}
+
+export class ReferralInfluencerContract extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("influencerId", Value.fromString(""));
+    this.set("contractId", Value.fromString(""));
+    this.set("programsCount", Value.fromI32(0));
+    this.set("referralsCount", Value.fromI32(0));
+    this.set("activeReferralsCount", Value.fromI32(0));
+    this.set("createdAt", Value.fromI32(0));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save ReferralInfluencerContract entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save ReferralInfluencerContract entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("ReferralInfluencerContract", id.toString(), this);
+    }
+  }
+
+  static load(id: string): ReferralInfluencerContract | null {
+    return changetype<ReferralInfluencerContract | null>(
+      store.get("ReferralInfluencerContract", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get influencerId(): string {
+    let value = this.get("influencerId");
+    return value!.toString();
+  }
+
+  set influencerId(value: string) {
+    this.set("influencerId", Value.fromString(value));
+  }
+
+  get contractId(): string {
+    let value = this.get("contractId");
+    return value!.toString();
+  }
+
+  set contractId(value: string) {
+    this.set("contractId", Value.fromString(value));
+  }
+
+  get programsCount(): i32 {
+    let value = this.get("programsCount");
+    return value!.toI32();
+  }
+
+  set programsCount(value: i32) {
+    this.set("programsCount", Value.fromI32(value));
+  }
+
+  get referralsCount(): i32 {
+    let value = this.get("referralsCount");
+    return value!.toI32();
+  }
+
+  set referralsCount(value: i32) {
+    this.set("referralsCount", Value.fromI32(value));
+  }
+
+  get activeReferralsCount(): i32 {
+    let value = this.get("activeReferralsCount");
+    return value!.toI32();
+  }
+
+  set activeReferralsCount(value: i32) {
+    this.set("activeReferralsCount", Value.fromI32(value));
+  }
+
+  get createdAt(): i32 {
+    let value = this.get("createdAt");
+    return value!.toI32();
+  }
+
+  set createdAt(value: i32) {
+    this.set("createdAt", Value.fromI32(value));
   }
 }
 

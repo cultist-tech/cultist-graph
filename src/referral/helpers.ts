@@ -1,4 +1,10 @@
-import { ReferralContract, ReferralInfluencer, ReferralProgram } from "../../generated/schema";
+import {
+    ReferralContract,
+    ReferralContractInfluencer,
+    ReferralInfluencer,
+    ReferralInfluencerContract,
+    ReferralProgram,
+} from "../../generated/schema";
 
 export function getReferralId(contractId: string, accountId: string, programId: string): string {
     return contractId + "||" + accountId + "||" + programId;
@@ -20,40 +26,15 @@ export function getReferralInfluencerId(influencerId: string): string {
     return influencerId;
 }
 
-export function getOrCreateReferralProgram(
-    contractId: string,
-    influencerId: string,
-    programId: string
-): ReferralProgram {
-    const id = getReferralProgramId(contractId, influencerId, programId);
-    const program = ReferralProgram.load(id.toString());
-
-    if (program) {
-        return program;
-    }
-
-    return createReferralProgram(contractId, influencerId, programId);
+export function getReferralInfluencerContractId(influencerId: string, contractId: string): string {
+    return influencerId + "||" + contractId;
 }
 
-export function createReferralProgram(
-    contractId: string,
-    influencerId: string,
-    programId: string
-): ReferralProgram {
-    const id = getReferralProgramId(contractId, influencerId, programId);
-    const program = new ReferralProgram(id.toString());
-
-    program.contractId = contractId;
-    program.influencerId = influencerId;
-    program.count = 0 as i32;
-    program.programId = programId;
-    program.contract = contractId;
-    program.influencer = influencerId;
-
-    program.save();
-
-    return program;
+export function getReferralContractInfluencerId(influencerId: string, contractId: string): string {
+    return contractId + "||" + influencerId;
 }
+
+//
 
 export function getOrCreateReferralContract(contractId: string): ReferralContract {
     const id = getReferralContractId(contractId);
@@ -71,16 +52,21 @@ export function createReferralContract(contractId: string): ReferralContract {
     const contract = new ReferralContract(id.toString());
 
     contract.contractId = contractId;
-    contract.count = 0 as i32;
+    contract.referralsCount = 0 as i32;
+    contract.activeReferralsCount = 0 as i32;
+    contract.programsCount = 0 as i32;
+    contract.influencersCount = 0 as i32;
 
     contract.save();
 
     return contract;
 }
 
+//
+
 export function getOrCreateReferralInfluencer(influencerId: string): ReferralInfluencer {
     const id = getReferralInfluencerId(influencerId);
-    const contract = ReferralInfluencer.load(id.toString());
+    let contract = ReferralInfluencer.load(id.toString());
 
     if (contract) {
         return contract;
@@ -94,7 +80,84 @@ export function createReferralInfluencer(influencerId: string): ReferralInfluenc
     const contract = new ReferralInfluencer(id.toString());
 
     contract.influencerId = influencerId;
-    contract.count = 0 as i32;
+    contract.referralsCount = 0 as i32;
+    contract.activeReferralsCount = 0 as i32;
+    contract.programsCount = 0 as i32;
+    contract.contractsCount = 0 as i32;
+
+    contract.save();
+
+    return contract;
+}
+
+//
+
+export function getOrCreateReferralInfluencerContract(
+    influencerId: string,
+    contractId: string
+): ReferralInfluencerContract {
+    const id = getReferralInfluencerContractId(influencerId, contractId);
+    const contract = ReferralInfluencerContract.load(id.toString());
+
+    if (contract) {
+        contract.programsCount++;
+        contract.save();
+
+        return contract;
+    }
+
+    return createReferralInfluencerContract(influencerId, contractId);
+}
+
+export function createReferralInfluencerContract(
+    influencerId: string,
+    contractId: string
+): ReferralInfluencerContract {
+    const id = getReferralInfluencerContractId(influencerId, contractId);
+    const contract = new ReferralInfluencerContract(id.toString());
+
+    contract.influencerId = influencerId;
+    contract.contractId = contractId;
+    contract.programsCount = 1 as i32;
+    contract.referralsCount = 0 as i32;
+    contract.activeReferralsCount = 0 as i32;
+
+    contract.save();
+
+    return contract;
+}
+
+//
+
+export function getOrCreateReferralContractInfluencer(
+    influencerId: string,
+    contractId: string
+): ReferralContractInfluencer {
+    const id = getReferralContractInfluencerId(influencerId, contractId);
+    const contract = ReferralContractInfluencer.load(id.toString());
+
+    if (contract) {
+        contract.programsCount++;
+        contract.save();
+
+        return contract;
+    }
+
+    return createReferralContractInfluencer(influencerId, contractId);
+}
+
+export function createReferralContractInfluencer(
+    influencerId: string,
+    contractId: string
+): ReferralContractInfluencer {
+    const id = getReferralContractInfluencerId(influencerId, contractId);
+    const contract = new ReferralContractInfluencer(id.toString());
+
+    contract.influencerId = influencerId;
+    contract.contractId = contractId;
+    contract.programsCount = 1 as i32;
+    contract.referralsCount = 0 as i32;
+    contract.activeReferralsCount = 0 as i32;
 
     contract.save();
 

@@ -211,7 +211,13 @@ type ReferralProgram @entity {
     influencerId: ID!
     programId: ID!
 
-    count: Int!
+    code: String!
+    royalty_percent: Int!
+
+    referralsCount: Int!
+    activeReferralsCount: Int!
+
+    createdAt: Int!
 
     contract: ReferralContract!
     influencer: ReferralInfluencer!
@@ -222,9 +228,25 @@ type ReferralContract @entity {
 
     contractId: ID!
 
-    count: Int!
+    programsCount: Int!
+    referralsCount: Int!
+    activeReferralsCount: Int!
+    influencersCount: Int!
 
     programs: [ReferralProgram!]! @derivedFrom(field: "contract")
+}
+
+type ReferralContractInfluencer @entity {
+    id: ID!
+
+    contractId: ID!
+    influencerId: ID!
+
+    programsCount: Int!
+    referralsCount: Int!
+    activeReferralsCount: Int!
+
+    createdAt: Int!
 }
 
 type ReferralInfluencer @entity {
@@ -232,9 +254,25 @@ type ReferralInfluencer @entity {
 
     influencerId: ID!
 
-    count: Int!
+    programsCount: Int!
+    referralsCount: Int!
+    activeReferralsCount: Int!
+    contractsCount: Int!
 
     programs: [ReferralProgram!]! @derivedFrom(field: "influencer")
+}
+
+type ReferralInfluencerContract @entity {
+    id: ID!
+
+    influencerId: ID!
+    contractId: ID!
+
+    programsCount: Int!
+    referralsCount: Int!
+    activeReferralsCount: Int!
+
+    createdAt: Int!
 }
 
 type Referral @entity {
