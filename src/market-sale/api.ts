@@ -13,6 +13,11 @@ import {
 import {MarketSale, MarketSaleCondition, Statistic, Token} from "../../generated/schema";
 import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
 import {getOrCreateAccount} from "../api/account";
+import {
+    getOrCreateReferralContract,
+    getOrCreateReferralContractVolume,
+    referralIncrementPayout
+} from "../referral/helpers";
 
 export class SaleMapper {
     protected stats: Statistic;
@@ -26,6 +31,7 @@ export class SaleMapper {
     }
 
     public saveRoyalty(
+        amount: string,
         payout: TypedMap<string, JSONValue>,
         ftTokenId: string,
         ownerId: string
@@ -35,7 +41,7 @@ export class SaleMapper {
             const payoutAccount = row.key;
 
             if (payoutAccount == 'payout') {
-                this.saveRoyalty(row.value.toObject(), ftTokenId, ownerId);
+                this.saveRoyalty(amount, row.value.toObject(), ftTokenId, ownerId);
                 return;
             } else {
                 const payoutValue = row.value.toString();
@@ -47,6 +53,14 @@ export class SaleMapper {
                 // }
             }
         }
+    }
+
+    public saveReferralStats(contractId: string, accountId: string, ftTokenId: string, price: string): void {
+        const referralContractVolume = getOrCreateReferralContractVolume(contractId, ftTokenId);
+        referralContractVolume.amount = sumBigInt(referralContractVolume.amount, price);
+        referralContractVolume.save();
+
+        referralIncrementPayout(contractId, accountId, ftTokenId == 'near' ? price : null);
     }
 
     public handle(method: string, data: TypedMap<string, JSONValue>): void {
@@ -139,8 +153,6 @@ export class SaleMapper {
         const ftTokenIdJson = data.get("ft_token_id");
         const price = data.get("price");
 
-        log.info('TEST_DEBUG market_offer', []);
-
         if (
             !tokenIdJson ||
             !ownerIdJson ||
@@ -178,10 +190,12 @@ export class SaleMapper {
 
         // royalty
 
+        // TODO new field
         if (payoutJson) {
-            log.info('TEST_DEBUG payout market_offer', []);
-            this.saveRoyalty(payoutJson.toObject(), ftTokenId, ownerId);
+            this.saveRoyalty(price.toString(), payoutJson.toObject(), ftTokenId, ownerId);
         }
+
+        this.saveReferralStats(contractId.toString(), ownerId.toString(), ftTokenId.toString(), price.toString());
 
         // contract stats
         const contractStats = getOrCreateStatistic(contractId.toString());
@@ -304,7 +318,7 @@ export class SaleMapper {
         contractStats.save();
     }
 
-    protected end() {
+    protected end(): void {
         this.stats.save();
     }
 }

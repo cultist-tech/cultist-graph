@@ -1,4 +1,5 @@
 import {
+    Referral,
     ReferralContract,
     ReferralContractInfluencer,
     ReferralContractVolume,
@@ -6,6 +7,8 @@ import {
     ReferralInfluencerContract,
     ReferralProgram,
 } from "../../generated/schema";
+import { log } from "@graphprotocol/graph-ts";
+import {sumBigInt} from "../utils";
 
 export function getReferralId(contractId: string, accountId: string): string {
     return contractId + "||" + accountId;
@@ -65,6 +68,7 @@ export function createReferralContract(contractId: string): ReferralContract {
     contract.activeReferralsCount = 0 as i32;
     contract.programsCount = 0 as i32;
     contract.influencersCount = 0 as i32;
+    contract.payoutNear = '0';
 
     contract.save();
 
@@ -93,6 +97,7 @@ export function createReferralInfluencer(influencerId: string): ReferralInfluenc
     contract.activeReferralsCount = 0 as i32;
     contract.programsCount = 0 as i32;
     contract.contractsCount = 0 as i32;
+    contract.payoutNear = '0';
 
     contract.save();
 
@@ -130,6 +135,7 @@ export function createReferralInfluencerContract(
     contract.programsCount = 1 as i32;
     contract.referralsCount = 0 as i32;
     contract.activeReferralsCount = 0 as i32;
+    contract.payoutNear = '0';
 
     contract.save();
 
@@ -167,6 +173,7 @@ export function createReferralContractInfluencer(
     contract.programsCount = 1 as i32;
     contract.referralsCount = 0 as i32;
     contract.activeReferralsCount = 0 as i32;
+    contract.payoutNear = '0';
 
     contract.save();
 
@@ -205,4 +212,55 @@ export function createReferralContractVolume(
     contract.save();
 
     return contract;
+}
+
+//
+
+export function referralIncrementPayout(contractId: string, accountId: string, nearAmount: string | null): void {
+    const referralId = getReferralId(contractId, accountId);
+    const referral = Referral.load(referralId);
+
+    if (!referral) {
+        return;
+    }
+
+    const program = ReferralProgram.load(referral.programId);
+
+    if (!program) {
+        log.error("Not found referral program", []);
+        return;
+    }
+
+    const contract = ReferralContract.load(getReferralContractId(program.contractId));
+    const influencer = ReferralInfluencer.load(getReferralInfluencerId(program.influencerId));
+    const influencerContract = ReferralInfluencerContract.load(getReferralInfluencerContractId(program.influencerId, program.contractId));
+    const contractInfluencer = ReferralContractInfluencer.load(getReferralContractInfluencerId(program.contractId, program.influencerId));
+
+    if (!contract || !influencer || !influencerContract || !contractInfluencer) {
+        log.error("Not found referral program entities", []);
+        return;
+    }
+
+    program.payoutCount++;
+    contract.payoutCount++;
+    influencer.payoutCount++;
+    influencerContract.payoutCount++;
+    contractInfluencer.payoutCount++;
+    referral.payoutCount++;
+
+    if (nearAmount) {
+        program.payoutNear = sumBigInt(program.payoutNear, nearAmount);
+        contract.payoutNear = sumBigInt(contract.payoutNear, nearAmount);
+        influencer.payoutNear = sumBigInt(influencer.payoutNear, nearAmount);
+        influencerContract.payoutNear = sumBigInt(influencerContract.payoutNear, nearAmount);
+        contractInfluencer.payoutNear = sumBigInt(contractInfluencer.payoutNear, nearAmount);
+        referral.payoutNear = sumBigInt(referral.payoutNear, nearAmount);
+    }
+
+    program.save();
+    contract.save();
+    influencer.save();
+    influencerContract.save();
+    contractInfluencer.save();
+    referral.save();
 }
