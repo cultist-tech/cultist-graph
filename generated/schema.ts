@@ -1842,6 +1842,74 @@ export class ReferralProgram extends Entity {
     this.set("royalty_percent", Value.fromI32(value));
   }
 
+  get title(): string | null {
+    let value = this.get("title");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set title(value: string | null) {
+    if (!value) {
+      this.unset("title");
+    } else {
+      this.set("title", Value.fromString(<string>value));
+    }
+  }
+
+  get description(): string | null {
+    let value = this.get("description");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set description(value: string | null) {
+    if (!value) {
+      this.unset("description");
+    } else {
+      this.set("description", Value.fromString(<string>value));
+    }
+  }
+
+  get media(): string | null {
+    let value = this.get("media");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set media(value: string | null) {
+    if (!value) {
+      this.unset("media");
+    } else {
+      this.set("media", Value.fromString(<string>value));
+    }
+  }
+
+  get url(): string | null {
+    let value = this.get("url");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set url(value: string | null) {
+    if (!value) {
+      this.unset("url");
+    } else {
+      this.set("url", Value.fromString(<string>value));
+    }
+  }
+
   get referralsCount(): i32 {
     let value = this.get("referralsCount");
     return value!.toI32();
@@ -1918,6 +1986,7 @@ export class ReferralContract extends Entity {
     this.set("activeReferralsCount", Value.fromI32(0));
     this.set("payoutCount", Value.fromI32(0));
     this.set("payoutNear", Value.fromString(""));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -2009,6 +2078,15 @@ export class ReferralContract extends Entity {
 
   set payoutNear(value: string) {
     this.set("payoutNear", Value.fromString(value));
+  }
+
+  get createdAt(): BigInt {
+    let value = this.get("createdAt");
+    return value!.toBigInt();
+  }
+
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 
   get programs(): Array<string> {
@@ -2152,6 +2230,7 @@ export class ReferralInfluencer extends Entity {
     this.set("activeReferralsCount", Value.fromI32(0));
     this.set("payoutCount", Value.fromI32(0));
     this.set("payoutNear", Value.fromString(""));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -2243,6 +2322,15 @@ export class ReferralInfluencer extends Entity {
 
   set payoutNear(value: string) {
     this.set("payoutNear", Value.fromString(value));
+  }
+
+  get createdAt(): BigInt {
+    let value = this.get("createdAt");
+    return value!.toBigInt();
+  }
+
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 
   get programs(): Array<string> {

@@ -7,7 +7,7 @@ import {
     ReferralInfluencerContract,
     ReferralProgram,
 } from "../../generated/schema";
-import { log } from "@graphprotocol/graph-ts";
+import { log, BigInt } from "@graphprotocol/graph-ts";
 import {sumBigInt} from "../utils";
 
 export function getReferralId(contractId: string, accountId: string): string {
@@ -34,7 +34,7 @@ export function getReferralInfluencerContractId(influencerId: string, contractId
     return influencerId + "||" + contractId;
 }
 
-export function getReferralContractInfluencerId(influencerId: string, contractId: string): string {
+export function getReferralContractInfluencerId(contractId: string, influencerId: string): string {
     return contractId + "||" + influencerId;
 }
 
@@ -108,7 +108,8 @@ export function createReferralInfluencer(influencerId: string): ReferralInfluenc
 
 export function getOrCreateReferralInfluencerContract(
     influencerId: string,
-    contractId: string
+    contractId: string,
+    createdAt: BigInt,
 ): ReferralInfluencerContract {
     const id = getReferralInfluencerContractId(influencerId, contractId);
     const contract = ReferralInfluencerContract.load(id.toString());
@@ -120,12 +121,13 @@ export function getOrCreateReferralInfluencerContract(
         return contract;
     }
 
-    return createReferralInfluencerContract(influencerId, contractId);
+    return createReferralInfluencerContract(influencerId, contractId, createdAt);
 }
 
 export function createReferralInfluencerContract(
     influencerId: string,
-    contractId: string
+    contractId: string,
+    createdAt: BigInt,
 ): ReferralInfluencerContract {
     const id = getReferralInfluencerContractId(influencerId, contractId);
     const contract = new ReferralInfluencerContract(id.toString());
@@ -136,6 +138,7 @@ export function createReferralInfluencerContract(
     contract.referralsCount = 0 as i32;
     contract.activeReferralsCount = 0 as i32;
     contract.payoutNear = '0';
+    contract.createdAt = createdAt;
 
     contract.save();
 
@@ -146,9 +149,10 @@ export function createReferralInfluencerContract(
 
 export function getOrCreateReferralContractInfluencer(
     influencerId: string,
-    contractId: string
+    contractId: string,
+    createdAt: BigInt,
 ): ReferralContractInfluencer {
-    const id = getReferralContractInfluencerId(influencerId, contractId);
+    const id = getReferralContractInfluencerId(contractId, influencerId);
     const contract = ReferralContractInfluencer.load(id.toString());
 
     if (contract) {
@@ -158,14 +162,15 @@ export function getOrCreateReferralContractInfluencer(
         return contract;
     }
 
-    return createReferralContractInfluencer(influencerId, contractId);
+    return createReferralContractInfluencer(influencerId, contractId, createdAt);
 }
 
 export function createReferralContractInfluencer(
+    contractId: string,
     influencerId: string,
-    contractId: string
+    createdAt: BigInt,
 ): ReferralContractInfluencer {
-    const id = getReferralContractInfluencerId(influencerId, contractId);
+    const id = getReferralContractInfluencerId(contractId, influencerId);
     const contract = new ReferralContractInfluencer(id.toString());
 
     contract.influencerId = influencerId;
@@ -174,6 +179,7 @@ export function createReferralContractInfluencer(
     contract.referralsCount = 0 as i32;
     contract.activeReferralsCount = 0 as i32;
     contract.payoutNear = '0';
+    contract.createdAt = createdAt;
 
     contract.save();
 

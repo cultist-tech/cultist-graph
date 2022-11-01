@@ -233,6 +233,10 @@ type ReferralProgram @entity {
 
     code: String!
     royalty_percent: Int!
+    title: String
+    description: String
+    media: String
+    url: String
 
     referralsCount: Int!
     activeReferralsCount: Int!
@@ -257,6 +261,8 @@ type ReferralContract @entity {
     activeReferralsCount: Int!
     payoutCount: Int!
     payoutNear: String!
+
+    createdAt: BigInt!
 
     programs: [ReferralProgram!]! @derivedFrom(field: "contract")
 }
@@ -288,6 +294,8 @@ type ReferralInfluencer @entity {
     activeReferralsCount: Int!
     payoutCount: Int!
     payoutNear: String!
+
+    createdAt: BigInt!
 
     programs: [ReferralProgram!]! @derivedFrom(field: "influencer")
 }
