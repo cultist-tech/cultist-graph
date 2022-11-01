@@ -216,7 +216,7 @@ export function createReferralContractVolume(
 
 //
 
-export function referralIncrementPayout(contractId: string, accountId: string, nearAmount: string | null): void {
+export function referralIncrementPayout(contractId: string, accountId: string, ftTokenId: string, amount: string): void {
     const referralId = getReferralId(contractId, accountId);
     const referral = Referral.load(referralId);
 
@@ -224,10 +224,15 @@ export function referralIncrementPayout(contractId: string, accountId: string, n
         return;
     }
 
+    const referralContractVolume = getOrCreateReferralContractVolume(contractId, ftTokenId);
+    referralContractVolume.amount = sumBigInt(referralContractVolume.amount, amount);
+    referralContractVolume.ftTokenId = ftTokenId;
+    referralContractVolume.save();
+
     const program = ReferralProgram.load(referral.programId);
 
     if (!program) {
-        log.error("Not found referral program", []);
+        log.error("REFERRAL Not found referral program", []);
         return;
     }
 
@@ -237,7 +242,7 @@ export function referralIncrementPayout(contractId: string, accountId: string, n
     const contractInfluencer = ReferralContractInfluencer.load(getReferralContractInfluencerId(program.contractId, program.influencerId));
 
     if (!contract || !influencer || !influencerContract || !contractInfluencer) {
-        log.error("Not found referral program entities", []);
+        log.error("REFERRAL Not found referral program entities", []);
         return;
     }
 
@@ -248,13 +253,13 @@ export function referralIncrementPayout(contractId: string, accountId: string, n
     contractInfluencer.payoutCount++;
     referral.payoutCount++;
 
-    if (nearAmount) {
-        program.payoutNear = sumBigInt(program.payoutNear, nearAmount);
-        contract.payoutNear = sumBigInt(contract.payoutNear, nearAmount);
-        influencer.payoutNear = sumBigInt(influencer.payoutNear, nearAmount);
-        influencerContract.payoutNear = sumBigInt(influencerContract.payoutNear, nearAmount);
-        contractInfluencer.payoutNear = sumBigInt(contractInfluencer.payoutNear, nearAmount);
-        referral.payoutNear = sumBigInt(referral.payoutNear, nearAmount);
+    if (ftTokenId == "near") {
+        program.payoutNear = sumBigInt(program.payoutNear, amount);
+        contract.payoutNear = sumBigInt(contract.payoutNear, amount);
+        influencer.payoutNear = sumBigInt(influencer.payoutNear, amount);
+        influencerContract.payoutNear = sumBigInt(influencerContract.payoutNear, amount);
+        contractInfluencer.payoutNear = sumBigInt(contractInfluencer.payoutNear, amount);
+        referral.payoutNear = sumBigInt(referral.payoutNear, amount);
     }
 
     program.save();

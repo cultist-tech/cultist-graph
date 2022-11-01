@@ -1,6 +1,6 @@
 import { getOrCreateAccountRoyalty } from "../api/account-royalty";
 import { sumBigInt } from "../utils";
-import { JSONValue, TypedMap } from "@graphprotocol/graph-ts";
+import { JSONValue, TypedMap, BigInt } from "@graphprotocol/graph-ts";
 import {log} from "@graphprotocol/graph-ts/index";
 import {getTokenId} from "../nft/helpers";
 import {
@@ -23,9 +23,9 @@ export class SaleMapper {
     protected stats: Statistic;
     protected contractStats: Statistic | null = null;
     protected contractId: string | null = null;
-    protected createdAt: i32;
+    protected createdAt: BigInt;
 
-    constructor(timestamp: i32) {
+    constructor(timestamp: BigInt) {
         this.stats = getOrCreateStatisticSystem();
         this.createdAt = timestamp;
     }
@@ -56,11 +56,7 @@ export class SaleMapper {
     }
 
     public saveReferralStats(contractId: string, accountId: string, ftTokenId: string, price: string): void {
-        const referralContractVolume = getOrCreateReferralContractVolume(contractId, ftTokenId);
-        referralContractVolume.amount = sumBigInt(referralContractVolume.amount, price);
-        referralContractVolume.save();
-
-        referralIncrementPayout(contractId, accountId, ftTokenId == 'near' ? price : null);
+        referralIncrementPayout(contractId, accountId, ftTokenId, price);
     }
 
     public handle(method: string, data: TypedMap<string, JSONValue>): void {

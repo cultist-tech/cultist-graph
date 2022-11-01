@@ -6,7 +6,7 @@ import {
     Statistic,
 } from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
-import { JSONValue, TypedMap } from "@graphprotocol/graph-ts";
+import { JSONValue, TypedMap, BigInt } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts/index";
 import {
     getOrCreateReferralContract,
@@ -22,9 +22,9 @@ import { getOrCreateAccount } from "../api/account";
 
 export class ReferralService {
     protected stats: Statistic;
-    protected createdAt: i32;
+    protected createdAt: BigInt;
 
-    constructor(timestamp: i32) {
+    constructor(timestamp: BigInt) {
         this.stats = getOrCreateStatisticSystem();
         this.createdAt = timestamp;
 
@@ -180,6 +180,7 @@ export class ReferralService {
         getOrCreateAccount(account_id.toString(), this.stats, contractStats);
 
         referral = new Referral(referralId);
+        referral.payoutNear = '0';
         referral.accountId = account_id.toString();
         referral.contractId = contractIdJson.toString();
         referral.influencerId = influencerIdJson.toString();
@@ -188,6 +189,7 @@ export class ReferralService {
         referral.contract = contractIdJson.toString();
         referral.influencer = influencerIdJson.toString();
         referral.account = account_id.toString();
+        referral.createdAt = this.createdAt;
 
         referral.save();
     }

@@ -1,15 +1,15 @@
 import { NftIdo, Statistic, Token } from "../../generated/schema";
 import { getOrCreateStatisticSystem } from "../api/statistic";
-import { JSONValue, log, TypedMap } from "@graphprotocol/graph-ts/index";
+import {BigInt, JSONValue, log, TypedMap} from "@graphprotocol/graph-ts/index";
 import { getNftIdoId } from "./helpers";
 import { getTokenId } from "../nft/helpers";
 
 export class NftIdoMapper {
     protected stats: Statistic;
     protected contractId: string;
-    protected createdAt: i32;
+    protected createdAt: BigInt;
 
-    constructor(contractId: string, timestamp: i32) {
+    constructor(contractId: string, timestamp: BigInt) {
         this.stats = getOrCreateStatisticSystem();
         this.contractId = contractId;
         this.createdAt = timestamp;

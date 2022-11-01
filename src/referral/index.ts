@@ -1,4 +1,4 @@
-import { near } from "@graphprotocol/graph-ts";
+import { near, BigInt } from "@graphprotocol/graph-ts";
 import { getReceiptDate, parseEvent } from "../utils";
 import { ReferralService } from "./api";
 

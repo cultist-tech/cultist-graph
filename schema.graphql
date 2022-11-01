@@ -59,7 +59,7 @@ type Token @entity {
     rarity: Int
     bindToOwner: Boolean
 
-    createdAt: Int!
+    createdAt: BigInt!
     revealAt: Int
 
     #
@@ -110,7 +110,7 @@ type MarketRent @entity {
     minTime: Int!
     maxTime: Int!
     endedAt: Int
-    createdAt: Int!
+    createdAt: BigInt!
     renterId: ID
 
     owner: Account!
@@ -135,7 +135,7 @@ type MarketSale @entity {
     tokenId: ID!
 
     isAuction: Boolean!
-    createdAt: Int!
+    createdAt: BigInt!
 
     owner: Account!
     token: Token!
@@ -195,8 +195,8 @@ type NftFractionation @entity {
     contractId: ID!
     tokenId: ID!
 
-    createdAt: Int!
-    competedAt: Int
+    createdAt: BigInt!
+    competedAt: BigInt
     competedBy: ID
 
     token: Token!
@@ -220,6 +220,8 @@ type Referral @entity {
     influencer: ReferralInfluencer!
     program: ReferralProgram!
     account: Account!
+
+    createdAt: BigInt!
 }
 
 type ReferralProgram @entity {
@@ -237,7 +239,7 @@ type ReferralProgram @entity {
     payoutCount: Int!
     payoutNear: String!
 
-    createdAt: Int!
+    createdAt: BigInt!
 
     contract: ReferralContract!
     influencer: ReferralInfluencer!
@@ -271,7 +273,7 @@ type ReferralContractInfluencer @entity {
     payoutCount: Int!
     payoutNear: String!
 
-    createdAt: Int!
+    createdAt: BigInt!
 }
 
 type ReferralInfluencer @entity {
@@ -302,7 +304,7 @@ type ReferralInfluencerContract @entity {
     payoutCount: Int!
     payoutNear: String!
 
-    createdAt: Int!
+    createdAt: BigInt!
 }
 
 type ReferralProgramVolume @entity {

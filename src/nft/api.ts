@@ -1,6 +1,6 @@
 import { NftContract, Statistic, Token, TokenMetadata } from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
-import { BigDecimal, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
+import {BigDecimal, BigInt, JSONValue, JSONValueKind, log, TypedMap} from "@graphprotocol/graph-ts/index";
 import { convertStringRarity, getTokenId, removeToken, saveTokenRoyalties } from "./helpers";
 import { getOrCreateAccount } from "../api/account";
 import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
@@ -11,9 +11,9 @@ export class TokenMapper {
     protected stats: Statistic;
     protected contractStats: Statistic;
     protected contractId: string;
-    protected createdAt: i32;
+    protected createdAt: BigInt;
 
-    constructor(contractId: string, timestamp: i32) {
+    constructor(contractId: string, timestamp: BigInt) {
         this.stats = getOrCreateStatisticSystem();
         this.contractStats = getOrCreateStatistic(contractId);
         this.contractId = contractId;

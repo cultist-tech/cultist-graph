@@ -367,7 +367,7 @@ export class Token extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("tokenId", Value.fromString(""));
-    this.set("createdAt", Value.fromI32(0));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("ownerId", Value.fromString(""));
     this.set("tokenMetadataId", Value.fromString(""));
     this.set("owner", Value.fromString(""));
@@ -427,13 +427,13 @@ export class Token extends Entity {
     this.set("bindToOwner", Value.fromBoolean(value));
   }
 
-  get createdAt(): i32 {
+  get createdAt(): BigInt {
     let value = this.get("createdAt");
-    return value!.toI32();
+    return value!.toBigInt();
   }
 
-  set createdAt(value: i32) {
-    this.set("createdAt", Value.fromI32(value));
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 
   get revealAt(): i32 {
@@ -806,7 +806,7 @@ export class MarketRent extends Entity {
     this.set("ownerId", Value.fromString(""));
     this.set("minTime", Value.fromI32(0));
     this.set("maxTime", Value.fromI32(0));
-    this.set("createdAt", Value.fromI32(0));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("owner", Value.fromString(""));
     this.set("token", Value.fromString(""));
   }
@@ -891,13 +891,13 @@ export class MarketRent extends Entity {
     this.set("endedAt", Value.fromI32(value));
   }
 
-  get createdAt(): i32 {
+  get createdAt(): BigInt {
     let value = this.get("createdAt");
-    return value!.toI32();
+    return value!.toBigInt();
   }
 
-  set createdAt(value: i32) {
-    this.set("createdAt", Value.fromI32(value));
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 
   get renterId(): string | null {
@@ -1030,7 +1030,7 @@ export class MarketSale extends Entity {
     this.set("contractId", Value.fromString(""));
     this.set("tokenId", Value.fromString(""));
     this.set("isAuction", Value.fromBoolean(false));
-    this.set("createdAt", Value.fromI32(0));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("owner", Value.fromString(""));
     this.set("token", Value.fromString(""));
     this.set("isDeleted", Value.fromBoolean(false));
@@ -1098,13 +1098,13 @@ export class MarketSale extends Entity {
     this.set("isAuction", Value.fromBoolean(value));
   }
 
-  get createdAt(): i32 {
+  get createdAt(): BigInt {
     let value = this.get("createdAt");
-    return value!.toI32();
+    return value!.toBigInt();
   }
 
-  set createdAt(value: i32) {
-    this.set("createdAt", Value.fromI32(value));
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 
   get owner(): string {
@@ -1496,7 +1496,7 @@ export class NftFractionation extends Entity {
 
     this.set("contractId", Value.fromString(""));
     this.set("tokenId", Value.fromString(""));
-    this.set("createdAt", Value.fromI32(0));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("token", Value.fromString(""));
   }
 
@@ -1546,22 +1546,30 @@ export class NftFractionation extends Entity {
     this.set("tokenId", Value.fromString(value));
   }
 
-  get createdAt(): i32 {
+  get createdAt(): BigInt {
     let value = this.get("createdAt");
-    return value!.toI32();
+    return value!.toBigInt();
   }
 
-  set createdAt(value: i32) {
-    this.set("createdAt", Value.fromI32(value));
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 
-  get competedAt(): i32 {
+  get competedAt(): BigInt | null {
     let value = this.get("competedAt");
-    return value!.toI32();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set competedAt(value: i32) {
-    this.set("competedAt", Value.fromI32(value));
+  set competedAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("competedAt");
+    } else {
+      this.set("competedAt", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get competedBy(): string | null {
@@ -1615,6 +1623,7 @@ export class Referral extends Entity {
     this.set("influencer", Value.fromString(""));
     this.set("program", Value.fromString(""));
     this.set("account", Value.fromString(""));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -1732,6 +1741,15 @@ export class Referral extends Entity {
   set account(value: string) {
     this.set("account", Value.fromString(value));
   }
+
+  get createdAt(): BigInt {
+    let value = this.get("createdAt");
+    return value!.toBigInt();
+  }
+
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
+  }
 }
 
 export class ReferralProgram extends Entity {
@@ -1748,7 +1766,7 @@ export class ReferralProgram extends Entity {
     this.set("activeReferralsCount", Value.fromI32(0));
     this.set("payoutCount", Value.fromI32(0));
     this.set("payoutNear", Value.fromString(""));
-    this.set("createdAt", Value.fromI32(0));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("contract", Value.fromString(""));
     this.set("influencer", Value.fromString(""));
   }
@@ -1860,13 +1878,13 @@ export class ReferralProgram extends Entity {
     this.set("payoutNear", Value.fromString(value));
   }
 
-  get createdAt(): i32 {
+  get createdAt(): BigInt {
     let value = this.get("createdAt");
-    return value!.toI32();
+    return value!.toBigInt();
   }
 
-  set createdAt(value: i32) {
-    this.set("createdAt", Value.fromI32(value));
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 
   get contract(): string {
@@ -2015,7 +2033,7 @@ export class ReferralContractInfluencer extends Entity {
     this.set("activeReferralsCount", Value.fromI32(0));
     this.set("payoutCount", Value.fromI32(0));
     this.set("payoutNear", Value.fromString(""));
-    this.set("createdAt", Value.fromI32(0));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -2112,13 +2130,13 @@ export class ReferralContractInfluencer extends Entity {
     this.set("payoutNear", Value.fromString(value));
   }
 
-  get createdAt(): i32 {
+  get createdAt(): BigInt {
     let value = this.get("createdAt");
-    return value!.toI32();
+    return value!.toBigInt();
   }
 
-  set createdAt(value: i32) {
-    this.set("createdAt", Value.fromI32(value));
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 }
 
@@ -2249,7 +2267,7 @@ export class ReferralInfluencerContract extends Entity {
     this.set("activeReferralsCount", Value.fromI32(0));
     this.set("payoutCount", Value.fromI32(0));
     this.set("payoutNear", Value.fromString(""));
-    this.set("createdAt", Value.fromI32(0));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -2346,13 +2364,13 @@ export class ReferralInfluencerContract extends Entity {
     this.set("payoutNear", Value.fromString(value));
   }
 
-  get createdAt(): i32 {
+  get createdAt(): BigInt {
     let value = this.get("createdAt");
-    return value!.toI32();
+    return value!.toBigInt();
   }
 
-  set createdAt(value: i32) {
-    this.set("createdAt", Value.fromI32(value));
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 }
 

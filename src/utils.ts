@@ -1,13 +1,10 @@
 import { json, JSONValue, log, TypedMap } from "@graphprotocol/graph-ts";
 import { BigInt, near } from "@graphprotocol/graph-ts/index";
 
-function convertNanoSec(time: u64): i32 {
-    return time / 1_000_000 as i32;
+export function getReceiptDate(receiptWithOutcome: near.ReceiptWithOutcome): BigInt {
+    return BigInt.fromU64(receiptWithOutcome.block.header.timestampNanosec).div(BigInt.fromU64(1_000_00));
 }
-export function getReceiptDate(receiptWithOutcome: near.ReceiptWithOutcome): i32 {
-    log.error('TIMESTAMP {}', [receiptWithOutcome.block.header.timestampNanosec.toString()]);
-    return convertNanoSec(receiptWithOutcome.block.header.timestampNanosec);
-}
+
 
 export function parseEvent(logData: string): TypedMap<string, JSONValue> {
     let outcomeLog = logData.toString();

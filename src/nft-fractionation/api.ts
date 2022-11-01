@@ -1,16 +1,16 @@
 import { NftFractionation, NftIdo, Statistic, Token } from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { JSONValue } from "@graphprotocol/graph-ts";
-import { log, TypedMap } from "@graphprotocol/graph-ts/index";
+import {BigInt, log, TypedMap} from "@graphprotocol/graph-ts/index";
 import { getTokenNftFractionationId } from "./helpers";
 import { getTokenId } from "../nft/helpers";
 
 export class NftFractionationMapper {
     protected stats: Statistic;
     protected contractId: string;
-    protected createdAt: i32;
+    protected createdAt: BigInt;
 
-    constructor(contractId: string, timestamp: i32) {
+    constructor(contractId: string, timestamp: BigInt) {
         this.stats = getOrCreateStatisticSystem();
         this.contractId = contractId;
         this.createdAt = timestamp;
