@@ -56,6 +56,7 @@ export class ParasService {
         this.contractStats = contractStats;
 
         referralIncrementPayout(contractId, ownerId, ftTokenId, price);
+        referralIncrementPayout(contractId, buyerId, ftTokenId, price);
         getOrCreateAccount(ownerId, this.stats, contractStats);
         getOrCreateAccount(buyerId, this.stats, contractStats);
     }

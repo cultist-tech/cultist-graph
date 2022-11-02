@@ -187,7 +187,8 @@ export class SaleMapper {
             this.saveRoyalty(price.toString(), payoutJson.toObject(), ftTokenId, ownerId);
         }
 
-        referralIncrementPayout(contractId.toString(), accountId.toString(), ftTokenId, price.toString());
+        referralIncrementPayout(contractId.toString(), ownerIdJson.toString(), ftTokenId, price.toString());
+        referralIncrementPayout(contractId.toString(), receiverId.toString(), ftTokenId, price.toString());
 
         // contract stats
         const contractStats = getOrCreateStatistic(contractId.toString());
