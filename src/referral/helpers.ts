@@ -259,6 +259,14 @@ export function referralIncrementPayout(contractId: string, accountId: string, f
     contractInfluencer.payoutCount++;
     referral.payoutCount++;
 
+    if (referral.payoutCount == 1) {
+        program.activeReferralsCount++;
+        contract.activeReferralsCount++;
+        influencer.activeReferralsCount++;
+        influencerContract.activeReferralsCount++;
+        contractInfluencer.activeReferralsCount++;
+    }
+
     if (ftTokenId == "near") {
         program.payoutNear = sumBigInt(program.payoutNear, amount);
         contract.payoutNear = sumBigInt(contract.payoutNear, amount);

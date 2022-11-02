@@ -191,7 +191,6 @@ export class ReferralService {
             this.createdAt,
         );
         referralInfluencerContract.referralsCount++;
-        referralInfluencerContract.activeReferralsCount++;
         referralInfluencerContract.createdAt = this.createdAt;
         referralInfluencerContract.save();
 
