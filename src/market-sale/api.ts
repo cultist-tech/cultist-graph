@@ -55,10 +55,6 @@ export class SaleMapper {
         }
     }
 
-    public saveReferralStats(contractId: string, accountId: string, ftTokenId: string, price: string): void {
-        referralIncrementPayout(contractId, accountId, ftTokenId, price);
-    }
-
     public handle(method: string, data: TypedMap<string, JSONValue>): void {
         this.stats.transactionTotal++;
 
@@ -191,7 +187,7 @@ export class SaleMapper {
             this.saveRoyalty(price.toString(), payoutJson.toObject(), ftTokenId, ownerId);
         }
 
-        this.saveReferralStats(contractId.toString(), ownerId.toString(), ftTokenId.toString(), price.toString());
+        referralIncrementPayout(contractId.toString(), accountId.toString(), ftTokenId, price.toString());
 
         // contract stats
         const contractStats = getOrCreateStatistic(contractId.toString());

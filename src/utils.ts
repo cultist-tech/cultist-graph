@@ -24,6 +24,8 @@ export function parseEvent(logData: string): TypedMap<string, JSONValue> {
 
     return jsonObject;
 }
+
 export function sumBigInt(one: string, two: string): string {
     return BigInt.fromString(one).plus(BigInt.fromString(two)).toString();
 }
+
