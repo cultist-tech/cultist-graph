@@ -115,7 +115,6 @@ export function getOrCreateReferralInfluencerContract(
     const contract = ReferralInfluencerContract.load(id.toString());
 
     if (contract) {
-        contract.programsCount++;
         contract.save();
 
         return contract;
@@ -156,7 +155,6 @@ export function getOrCreateReferralContractInfluencer(
     const contract = ReferralContractInfluencer.load(id.toString());
 
     if (contract) {
-        contract.programsCount++;
         contract.save();
 
         return contract;
