@@ -250,20 +250,20 @@ export function referralIncrementPayout(contractId: string, accountId: string, f
         return;
     }
 
-    program.payoutCount++;
-    contract.payoutCount++;
-    influencer.payoutCount++;
-    influencerContract.payoutCount++;
-    contractInfluencer.payoutCount++;
-    referral.payoutCount++;
-
-    if (referral.payoutCount == 1) {
+    if (referral.payoutCount == 0) {
         program.activeReferralsCount++;
         contract.activeReferralsCount++;
         influencer.activeReferralsCount++;
         influencerContract.activeReferralsCount++;
         contractInfluencer.activeReferralsCount++;
     }
+
+    program.payoutCount++;
+    contract.payoutCount++;
+    influencer.payoutCount++;
+    influencerContract.payoutCount++;
+    contractInfluencer.payoutCount++;
+    referral.payoutCount++;
 
     if (ftTokenId == "near") {
         program.payoutNear = sumBigInt(program.payoutNear, amount);

@@ -162,17 +162,14 @@ export class ReferralService {
         }
 
         program.referralsCount++;
-        program.activeReferralsCount++;
         program.save();
 
         const referralContract = getOrCreateReferralContract(contractIdJson.toString());
         referralContract.referralsCount++;
-        referralContract.activeReferralsCount++;
         referralContract.save();
 
         const referralInfluencer = getOrCreateReferralInfluencer(contractIdJson.toString());
         referralContract.referralsCount++;
-        referralContract.activeReferralsCount++;
         referralInfluencer.save();
 
         const referralContractInfluencer = getOrCreateReferralContractInfluencer(
@@ -181,7 +178,6 @@ export class ReferralService {
             this.createdAt,
         );
         referralContractInfluencer.referralsCount++;
-        referralContractInfluencer.activeReferralsCount++;
         referralContractInfluencer.createdAt = this.createdAt;
         referralContractInfluencer.save();
 

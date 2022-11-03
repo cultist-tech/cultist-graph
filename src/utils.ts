@@ -2,7 +2,7 @@ import { json, JSONValue, log, TypedMap } from "@graphprotocol/graph-ts";
 import { BigInt, near } from "@graphprotocol/graph-ts/index";
 
 export function getReceiptDate(receiptWithOutcome: near.ReceiptWithOutcome): BigInt {
-    return BigInt.fromU64(receiptWithOutcome.block.header.timestampNanosec).div(BigInt.fromU64(1_000_00));
+    return BigInt.fromU64(receiptWithOutcome.block.header.timestampNanosec).div(BigInt.fromU64(1_000_000));
 }
 
 
