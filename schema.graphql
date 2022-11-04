@@ -320,6 +320,7 @@ type ReferralProgramVolume @entity {
 
     contractId: ID!
     influencerId: ID!
+    programId: ID!
 
     ftTokenId: ID!
     amount: String!

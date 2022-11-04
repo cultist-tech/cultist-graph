@@ -2469,6 +2469,7 @@ export class ReferralProgramVolume extends Entity {
 
     this.set("contractId", Value.fromString(""));
     this.set("influencerId", Value.fromString(""));
+    this.set("programId", Value.fromString(""));
     this.set("ftTokenId", Value.fromString(""));
     this.set("amount", Value.fromString(""));
   }
@@ -2520,6 +2521,15 @@ export class ReferralProgramVolume extends Entity {
 
   set influencerId(value: string) {
     this.set("influencerId", Value.fromString(value));
+  }
+
+  get programId(): string {
+    let value = this.get("programId");
+    return value!.toString();
+  }
+
+  set programId(value: string) {
+    this.set("programId", Value.fromString(value));
   }
 
   get ftTokenId(): string {

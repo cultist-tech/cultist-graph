@@ -4,13 +4,18 @@ import { ParasService } from "./api";
 import {json, JSONValue, log, TypedMap} from "@graphprotocol/graph-ts/index";
 
 function parseParasEvent(logData: string): TypedMap<string, JSONValue> {
+    if (!logData) {
+        return new TypedMap<string, JSONValue>();
+    }
     let outcomeLog = logData.toString();
 
-    log.info("outcomeLog {}", [outcomeLog]);
+    if (!(outcomeLog.slice(0, 1) == "{" && outcomeLog.slice(-1) == "}")) {
+        return new TypedMap<string, JSONValue>();
+    }
 
-    let parsed = outcomeLog.replace("EVENT_JSON:", "");
+    log.info("outcomeLog paras {}", [outcomeLog]);
 
-    let jsonData = json.try_fromString(parsed);
+    let jsonData = json.try_fromString(outcomeLog);
     const jsonObject = jsonData.value.toObject();
 
     return jsonObject;
@@ -35,8 +40,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
         const ev = parseParasEvent(outcome.logs[logIndex]);
 
-        const data = ev.get('type');
-        const method = ev.get('params');
+        const method = ev.get('type');
+        const data = ev.get('params');
 
         if (!data || !method) {
             continue;

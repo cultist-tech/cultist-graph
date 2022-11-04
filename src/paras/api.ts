@@ -12,7 +12,6 @@ import {getOrCreateAccount} from "../api/account";
 export class ParasService {
     protected stats: Statistic;
     protected createdAt: BigInt;
-    protected contractStats: Statistic | null = null;
 
     constructor(timestamp: BigInt) {
         this.stats = getOrCreateStatisticSystem();
@@ -53,21 +52,16 @@ export class ParasService {
         const price = priceJson.toString();
 
         const contractStats = getOrCreateStatistic(contractId.toString());
-        this.contractStats = contractStats;
 
         referralIncrementPayout(contractId, ownerId, ftTokenId, price);
         referralIncrementPayout(contractId, buyerId, ftTokenId, price);
         getOrCreateAccount(ownerId, this.stats, contractStats);
         getOrCreateAccount(buyerId, this.stats, contractStats);
+
+        contractStats.save();
     }
 
     protected end(): void {
         this.stats.save();
-
-        const contractStats = this.contractStats;
-
-        if (contractStats) {
-            contractStats.save();
-        }
     }
 }
