@@ -205,8 +205,19 @@ type NftFractionation @entity {
     competedAt: BigInt
     competedBy: ID
 
-    token: Token!
-    tokens: [Token!]! @derivedFrom(field: "fractionation")
+    token: Token
+    parts: [NftFractionationPart!]! @derivedFrom(field: "fractionation")
+}
+
+type NftFractionationPart @entity {
+    id: ID!
+
+    contractId: ID!
+    tokenId: ID!
+    ownerId: ID
+    fractionation: NftFractionation!
+
+    token: Token
 }
 
 # referral

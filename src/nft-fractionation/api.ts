@@ -1,8 +1,8 @@
-import { NftFractionation, NftIdo, Statistic, Token } from "../../generated/schema";
+import {NftFractionation, NftFractionationPart, NftIdo, Statistic, Token} from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { JSONValue } from "@graphprotocol/graph-ts";
 import {BigInt, log, TypedMap} from "@graphprotocol/graph-ts/index";
-import { getTokenNftFractionationId } from "./helpers";
+import {getNftFractionationEntryId, getNftFractionationId} from "./helpers";
 import { getTokenId } from "../nft/helpers";
 
 export class NftFractionationMapper {
@@ -42,27 +42,15 @@ export class NftFractionationMapper {
 
         const entriesArr = entries.toArray();
 
-        for (let i = 0; i < entriesArr.length; i++) {
-            const entryId = entriesArr[i];
-            const contractTokenId = getTokenId(contractId.toString(), entryId.toString());
-
-            const token = Token.load(contractTokenId);
-
-            if (!token) {
-                log.error("[nft_fractionation_create] - not found token", []);
-                return;
-            }
-        }
-
         const contractTokenId = getTokenId(contractId.toString(), tokenId.toString());
-        const contractFractionationId = getTokenNftFractionationId(
+        const contractFractionationId = getNftFractionationId(
             contractId.toString(),
             tokenId.toString()
         );
         const fractionation = new NftFractionation(contractFractionationId);
 
         fractionation.contractId = contractId.toString();
-        fractionation.tokenId = contractTokenId;
+        fractionation.tokenId = tokenId.toString();
         fractionation.token = contractTokenId;
         fractionation.createdAt = this.createdAt;
 
@@ -76,9 +64,8 @@ export class NftFractionationMapper {
 
         for (let i = 0; i < entriesArr.length; i++) {
             const entryId = entriesArr[i];
-            const contractTokenId = getTokenId(contractId.toString(), entryId.toString());
 
-            this.addFractionationEntry(contractTokenId, contractFractionationId.toString());
+            this.addFractionationEntry(contractId.toString(), tokenId.toString(), entryId.toString());
         }
     }
 
@@ -104,7 +91,7 @@ export class NftFractionationMapper {
             return;
         }
 
-        const contractFractionationId = getTokenNftFractionationId(
+        const contractFractionationId = getNftFractionationId(
             contractId.toString(),
             tokenId.toString()
         );
@@ -146,14 +133,28 @@ export class NftFractionationMapper {
     }
 
     protected addFractionationEntry(
-        contractTokenId: string,
-        contractFractionationId: string
+        contractId: string,
+        tokenId: string,
+        entryId: string
     ): void {
+        const contractTokenId = getTokenId(contractId, entryId);
+
+        const fractionationId = getNftFractionationId(contractId, tokenId);
+        const fractionationEntryId = getNftFractionationEntryId(contractId, tokenId, entryId);
+        const entry = new  NftFractionationPart(fractionationEntryId);
+
+        entry.contractId = contractId;
+        entry.fractionation = fractionationId;
+        entry.ownerId = null;
+        entry.tokenId = tokenId;
+
+        entry.save();
+
         const token = Token.load(contractTokenId);
 
         if (token) {
-            token.fractionation = contractFractionationId;
-            token.fractionationId = contractFractionationId;
+            token.fractionation = fractionationId;
+            token.fractionationId = fractionationId;
 
             token.save();
         }
