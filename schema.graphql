@@ -6,6 +6,8 @@ type _Schema_
         include: [{ entity: "Token", fields: [{ name: "ownerId" }] }]
     )
 
+#
+
 type Statistic @entity {
     id: ID!
 
@@ -80,6 +82,7 @@ type Token @entity {
 
     royalty: [TokenRoyalty!]! @derivedFrom(field: "token")
 }
+
 type TokenMetadata @entity {
     id: ID!
     title: String
@@ -90,6 +93,7 @@ type TokenMetadata @entity {
 
     tokenId: String!
 }
+
 type TokenRoyalty @entity {
     id: ID!
     tokenId: ID!
@@ -117,6 +121,7 @@ type MarketRent @entity {
     token: Token!
     conditions: [MarketRentCondition!]! @derivedFrom(field: "rent")
 }
+
 type MarketRentCondition @entity {
     id: ID!
     ftTokenId: ID!
@@ -142,6 +147,7 @@ type MarketSale @entity {
     isDeleted: Boolean!
     conditions: [MarketSaleCondition!]! @derivedFrom(field: "sale")
 }
+
 type MarketSaleCondition @entity {
     id: ID!
     ftTokenId: ID!

@@ -92,7 +92,7 @@ dataSources:
     name: nftFractionation
     network: near-testnet
     source:
-      account: "dev-1661195421024-21796573573897"
+      account: "dev-1667634224837-83673024709620"
       startBlock: 83358000
     mapping:
       apiVersion: 0.0.7
@@ -118,17 +118,17 @@ dataSources:
       receiptHandlers:
         - handler: handleReferral
 
-  - kind: near
-    name: paras
-    network: near-testnet
-    source:
-      account: "paras-marketplace-v1.testnet"
-      startBlock: 83358000
-    mapping:
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      file: ./src/paras/index.ts
-      entities:
-        - Account
-      receiptHandlers:
-        - handler: handleParas
+#  - kind: near
+#    name: paras
+#    network: near-testnet
+#    source:
+#      account: "paras-marketplace-v1.testnet"
+#      startBlock: 83358000
+#    mapping:
+#      apiVersion: 0.0.7
+#      language: wasm/assemblyscript
+#      file: ./src/paras/index.ts
+#      entities:
+#        - Account
+#      receiptHandlers:
+#        - handler: handleParas

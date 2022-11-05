@@ -18,6 +18,18 @@ export class NftFractionationMapper {
         this.stats.transactionTotal++;
     }
 
+    public handle(method: string, data: TypedMap<string, JSONValue>): void {
+        if (method == "fractionation_create") {
+            this.onCreate(data);
+        } else if (method == "fractionation_complete") {
+            this.onCompete(data);
+        } else if (method == "fractionation_process") {
+            this.onProcess(data);
+        }
+
+        this.end();
+    }
+
     public onCreate(obj: TypedMap<string, JSONValue>): void {
         const tokenId = obj.get("token_id");
         const contractId = obj.get("contract_id");
@@ -37,7 +49,7 @@ export class NftFractionationMapper {
             const token = Token.load(contractTokenId);
 
             if (!token) {
-                log.error("[fractionation] - not found token", []);
+                log.error("[nft_fractionation_create] - not found token", []);
                 return;
             }
         }
