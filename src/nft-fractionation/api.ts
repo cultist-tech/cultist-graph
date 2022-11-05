@@ -146,7 +146,8 @@ export class NftFractionationMapper {
         entry.contractId = contractId;
         entry.fractionation = fractionationId;
         entry.ownerId = null;
-        entry.tokenId = tokenId;
+        entry.tokenId = entryId;
+        entry.token = entryId;
 
         entry.save();
 
