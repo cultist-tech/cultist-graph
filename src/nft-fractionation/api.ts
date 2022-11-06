@@ -79,6 +79,18 @@ export class NftFractionationMapper {
             log.error("[nft_fractionation_process] - invalid args", []);
             return;
         }
+
+        const fractionationEntryId = getNftFractionationEntryId(contractId.toString(), fractionationId.toString(), tokenId.toString());
+        const entry = NftFractionationPart.load(fractionationEntryId);
+
+        if (!entry) {
+            log.error("[nft_fractionation_process] - not found entry", []);
+            return
+        }
+
+        entry.ownerId = accountId.toString();
+
+        entry.save();
     }
 
     public onCompete(obj: TypedMap<string, JSONValue>): void {
@@ -147,7 +159,7 @@ export class NftFractionationMapper {
         entry.fractionation = fractionationId;
         entry.ownerId = null;
         entry.tokenId = entryId;
-        entry.token = entryId;
+        entry.token = contractTokenId;
 
         entry.save();
 

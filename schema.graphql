@@ -59,7 +59,7 @@ type Token @entity {
     tokenId: String!
 
     rarity: Int
-    bindToOwner: Boolean
+    bindToOwner: Boolean!
 
     createdAt: BigInt!
     revealAt: Int
@@ -81,6 +81,7 @@ type Token @entity {
     nftIdo: NftIdo
 
     royalty: [TokenRoyalty!]! @derivedFrom(field: "token")
+    stats: [TokenStat!]! @derivedFrom(field: "token")
 }
 
 type TokenMetadata @entity {
@@ -101,6 +102,14 @@ type TokenRoyalty @entity {
     value: Int!
 
     token: Token!
+}
+
+type TokenStat @entity {
+    id: ID!
+    tokenId: ID!
+    token: Token!
+    key: String!
+    value: String!
 }
 
 # rent

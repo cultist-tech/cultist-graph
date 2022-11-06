@@ -118,17 +118,17 @@ dataSources:
       receiptHandlers:
         - handler: handleReferral
 
-#  - kind: near
-#    name: paras
-#    network: near-testnet
-#    source:
-#      account: "paras-marketplace-v1.testnet"
-#      startBlock: 83358000
-#    mapping:
-#      apiVersion: 0.0.7
-#      language: wasm/assemblyscript
-#      file: ./src/paras/index.ts
-#      entities:
-#        - Account
-#      receiptHandlers:
-#        - handler: handleParas
+  - kind: near
+    name: paras
+    network: near-testnet
+    source:
+      account: "paras-marketplace-v1.testnet"
+      startBlock: 83358000
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/paras/index.ts
+      entities:
+        - Account
+      receiptHandlers:
+        - handler: handleParas

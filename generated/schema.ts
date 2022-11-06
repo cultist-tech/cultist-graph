@@ -367,6 +367,7 @@ export class Token extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("tokenId", Value.fromString(""));
+    this.set("bindToOwner", Value.fromBoolean(false));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("ownerId", Value.fromString(""));
     this.set("tokenMetadataId", Value.fromString(""));
@@ -625,6 +626,15 @@ export class Token extends Entity {
   set royalty(value: Array<string>) {
     this.set("royalty", Value.fromStringArray(value));
   }
+
+  get stats(): Array<string> {
+    let value = this.get("stats");
+    return value!.toStringArray();
+  }
+
+  set stats(value: Array<string>) {
+    this.set("stats", Value.fromStringArray(value));
+  }
 }
 
 export class TokenMetadata extends Entity {
@@ -793,6 +803,80 @@ export class TokenRoyalty extends Entity {
 
   set token(value: string) {
     this.set("token", Value.fromString(value));
+  }
+}
+
+export class TokenStat extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("tokenId", Value.fromString(""));
+    this.set("token", Value.fromString(""));
+    this.set("key", Value.fromString(""));
+    this.set("value", Value.fromString(""));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save TokenStat entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save TokenStat entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("TokenStat", id.toString(), this);
+    }
+  }
+
+  static load(id: string): TokenStat | null {
+    return changetype<TokenStat | null>(store.get("TokenStat", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get tokenId(): string {
+    let value = this.get("tokenId");
+    return value!.toString();
+  }
+
+  set tokenId(value: string) {
+    this.set("tokenId", Value.fromString(value));
+  }
+
+  get token(): string {
+    let value = this.get("token");
+    return value!.toString();
+  }
+
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
+  }
+
+  get key(): string {
+    let value = this.get("key");
+    return value!.toString();
+  }
+
+  set key(value: string) {
+    this.set("key", Value.fromString(value));
+  }
+
+  get value(): string {
+    let value = this.get("value");
+    return value!.toString();
+  }
+
+  set value(value: string) {
+    this.set("value", Value.fromString(value));
   }
 }
 

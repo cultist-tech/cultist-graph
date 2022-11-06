@@ -1,11 +1,16 @@
 import { NftContract, Statistic, Token, TokenMetadata } from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
-import {BigDecimal, BigInt, JSONValue, JSONValueKind, log, TypedMap} from "@graphprotocol/graph-ts/index";
-import { convertStringRarity, getTokenId, removeToken, saveTokenRoyalties } from "./helpers";
+import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
+import {
+    convertStringRarity, deprecatedSaveTokenStats,
+    getTokenId,
+    removeToken,
+    saveTokenRoyalties,
+    saveTokenStats,
+} from "./helpers";
 import { getOrCreateAccount } from "../api/account";
 import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
 import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
-import { getOrCreateAccountRoyalty } from "../api/account-royalty";
 
 export class TokenMapper {
     protected stats: Statistic;
@@ -43,23 +48,26 @@ export class TokenMapper {
         const ownerId = tokenData.get("owner_id");
         const metadata = tokenData.get("metadata");
 
-        // const collection = tokenData.get('collection');
-        // const tokenType = tokenData.get('token_type');
-        // const tokenSubType = tokenData.get('token_sub_type');
         const rarity = tokenData.get("rarity");
         const royalty = tokenData.get("royalty");
         const bindToOwner = tokenData.get("bind_to_owner");
         const revealAt = tokenData.get("reveal_at");
+        const typesJson = tokenData.get("types");
+
+        const deprecatedCollection = tokenData.get("collection");
+        const deprecatedTokenType = tokenData.get("token_type");
+        const deprecatedTokenSubType = tokenData.get("token_sub_type");
 
         if (!tokenIdRaw || !ownerId) {
             log.error("[nft_create] - invalid token args", []);
             return;
         }
 
-        const tokenId = getTokenId(this.contractId, tokenIdRaw.toString());
-        const token = new Token(tokenId);
+        const tokenId = tokenIdRaw.toString();
+        const contractTokenId = getTokenId(this.contractId, tokenId);
+        const token = new Token(contractTokenId);
 
-        token.tokenId = tokenIdRaw.toString();
+        token.tokenId = tokenId;
         token.ownerId = ownerId.toString();
         token.owner = ownerId.toString();
         token.bindToOwner = bindToOwner && !bindToOwner.isNull() ? bindToOwner.toBool() : false;
@@ -78,25 +86,33 @@ export class TokenMapper {
 
         if (metadata && !metadata.isNull()) {
             const metaObj = metadata.toObject();
-            const tokenMetadata = new TokenMetadata(tokenId);
+            const tokenMetadata = new TokenMetadata(contractTokenId);
             const metaTitle = metaObj.get("title");
             const metaDescription = metaObj.get("description");
             const metaMedia = metaObj.get("media");
 
-            tokenMetadata.tokenId = tokenId.toString();
+            tokenMetadata.tokenId = tokenId;
             tokenMetadata.title = metaTitle && !metaTitle.isNull() ? metaTitle.toString() : null;
             tokenMetadata.description =
                 metaDescription && !metaDescription.isNull() ? metaDescription.toString() : null;
             tokenMetadata.media = metaMedia && !metaMedia.isNull() ? metaMedia.toString() : null;
 
-            token.tokenMetadata = tokenId.toString();
-            token.tokenMetadataId = tokenId.toString();
+            token.tokenMetadata = contractTokenId.toString();
+            token.tokenMetadataId = contractTokenId.toString();
 
             tokenMetadata.save();
         }
 
         if (royalty && !royalty.isNull()) {
             saveTokenRoyalties(token.tokenId, royalty);
+        }
+
+        if (typesJson) {
+            saveTokenStats(this.contractId, tokenIdRaw.toString(), typesJson);
+        } else {
+            if (deprecatedTokenType || deprecatedTokenSubType || deprecatedCollection) {
+                deprecatedSaveTokenStats(this.contractId, tokenId, deprecatedTokenType, deprecatedTokenSubType, deprecatedCollection)
+            }
         }
 
         token.save();
@@ -114,8 +130,6 @@ export class TokenMapper {
         accStats.transactionTotal++;
         accStats.save();
     }
-
-    public test(func: () => void): void {}
 
     public transfer(data: TypedMap<string, JSONValue>): void {
         const tokenIds = data.get("token_ids");
