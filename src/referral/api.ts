@@ -96,7 +96,11 @@ export class ReferralService {
         program.save();
 
         const referralContract = getOrCreateReferralContract(contract_id.toString());
+        referralContract.programsCount++;
+
         const referralInfluencer = getOrCreateReferralInfluencer(influencer_id.toString());
+        referralInfluencer.programsCount++;
+
         const referralContractInfluencerId = getReferralContractInfluencerId(
             contract_id.toString(),
             influencer_id.toString()
@@ -108,16 +112,15 @@ export class ReferralService {
 
         if (!ReferralContractInfluencer.load(referralContractInfluencerId)) {
             referralInfluencer.contractsCount++;
-            referralInfluencer.programsCount++;
             referralContract.createdAt = this.createdAt;
-            referralInfluencer.save();
         }
         if (!ReferralInfluencerContract.load(referralInfluencerContractId)) {
             referralContract.influencersCount++;
-            referralContract.programsCount++;
             referralContract.createdAt = this.createdAt;
-            referralContract.save();
         }
+
+        referralInfluencer.save();
+        referralContract.save();
 
         getOrCreateReferralContractInfluencer(contract_id.toString(), influencer_id.toString(), this.createdAt);
         getOrCreateReferralInfluencerContract(influencer_id.toString(), contract_id.toString(), this.createdAt);
@@ -129,19 +132,23 @@ export class ReferralService {
         const contractIdJson = data.get("contract_id");
         const influencerIdJson = data.get("influencer_id");
         const programIdJson = data.get("program_id");
-        const account_id = data.get("account_id");
+        const accountIdJson = data.get("account_id");
 
-        if (!contractIdJson || !influencerIdJson || !programIdJson || !account_id) {
+        if (!contractIdJson || !influencerIdJson || !programIdJson || !accountIdJson) {
             log.error("[referral_accept] - invalid args", []);
             return;
         }
 
-        const contractStats = getOrCreateStatistic(contractIdJson.toString());
+        const influencerId = influencerIdJson.toString();
+        const contractId = contractIdJson.toString();
+        const accountId = accountIdJson.toString();
+
+        const contractStats = getOrCreateStatistic(contractId);
         contractStats.transactionTotal++;
 
         const referralId = getReferralId(
-            contractIdJson.toString(),
-            account_id.toString(),
+            contractId,
+            accountId
         );
         let referral = Referral.load(referralId);
 
@@ -150,8 +157,8 @@ export class ReferralService {
         }
 
         const programId = getReferralProgramId(
-            contractIdJson.toString(),
-            influencerIdJson.toString(),
+            contractId,
+            influencerId,
             programIdJson.toString()
         );
         const program = ReferralProgram.load(programId);
@@ -164,17 +171,17 @@ export class ReferralService {
         program.referralsCount++;
         program.save();
 
-        const referralContract = getOrCreateReferralContract(contractIdJson.toString());
+        const referralContract = getOrCreateReferralContract(contractId);
         referralContract.referralsCount++;
         referralContract.save();
 
-        const referralInfluencer = getOrCreateReferralInfluencer(contractIdJson.toString());
+        const referralInfluencer = getOrCreateReferralInfluencer(influencerId);
         referralContract.referralsCount++;
         referralInfluencer.save();
 
         const referralContractInfluencer = getOrCreateReferralContractInfluencer(
-            influencerIdJson.toString(),
-            contractIdJson.toString(),
+            influencerId,
+            contractId,
             this.createdAt,
         );
         referralContractInfluencer.referralsCount++;
@@ -182,26 +189,26 @@ export class ReferralService {
         referralContractInfluencer.save();
 
         const referralInfluencerContract = getOrCreateReferralInfluencerContract(
-            contractIdJson.toString(),
-            influencerIdJson.toString(),
+            influencerId,
+            contractId,
             this.createdAt,
         );
         referralInfluencerContract.referralsCount++;
         referralInfluencerContract.createdAt = this.createdAt;
         referralInfluencerContract.save();
 
-        getOrCreateAccount(account_id.toString(), this.stats, contractStats);
+        getOrCreateAccount(accountId, this.stats, contractStats);
 
         referral = new Referral(referralId);
         referral.payoutNear = '0';
-        referral.accountId = account_id.toString();
+        referral.accountId = accountId;
         referral.contractId = contractIdJson.toString();
         referral.influencerId = influencerIdJson.toString();
         referral.programId = programId.toString();
         referral.program = programId.toString();
         referral.contract = contractIdJson.toString();
         referral.influencer = influencerIdJson.toString();
-        referral.account = account_id.toString();
+        referral.account = accountId;
         referral.createdAt = this.createdAt;
 
         referral.save();

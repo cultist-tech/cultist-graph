@@ -157,16 +157,14 @@ export function createReferralInfluencerContract(
 //
 
 export function getOrCreateReferralContractInfluencer(
-    influencerId: string,
     contractId: string,
+    influencerId: string,
     createdAt: BigInt,
 ): ReferralContractInfluencer {
     const id = getReferralContractInfluencerId(contractId, influencerId);
     const contract = ReferralContractInfluencer.load(id.toString());
 
     if (contract) {
-        contract.save();
-
         return contract;
     }
 
@@ -204,8 +202,6 @@ export function getOrCreateReferralContractVolume(
     const contract = ReferralContractVolume.load(id);
 
     if (contract) {
-        contract.save();
-
         return contract;
     }
 
