@@ -72,6 +72,7 @@ export class TokenMapper {
         token.owner = ownerId.toString();
         token.bindToOwner = bindToOwner && !bindToOwner.isNull() ? bindToOwner.toBool() : false;
         token.createdAt = this.createdAt;
+        token.contractId = this.contractId;
 
         if (revealAt && !revealAt.isNull()) {
             token.revealAt = revealAt.toU64() as i32;

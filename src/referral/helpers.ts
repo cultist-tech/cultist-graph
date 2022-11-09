@@ -125,8 +125,6 @@ export function getOrCreateReferralInfluencerContract(
     const contract = ReferralInfluencerContract.load(id.toString());
 
     if (contract) {
-        contract.save();
-
         return contract;
     }
 
@@ -143,7 +141,7 @@ export function createReferralInfluencerContract(
 
     contract.influencerId = influencerId;
     contract.contractId = contractId;
-    contract.programsCount = 1 as i32;
+    contract.programsCount = 0 as i32;
     contract.referralsCount = 0 as i32;
     contract.activeReferralsCount = 0 as i32;
     contract.payoutNear = '0';
@@ -168,7 +166,7 @@ export function getOrCreateReferralContractInfluencer(
         return contract;
     }
 
-    return createReferralContractInfluencer(influencerId, contractId, createdAt);
+    return createReferralContractInfluencer(contractId, influencerId, createdAt);
 }
 
 export function createReferralContractInfluencer(
@@ -181,7 +179,7 @@ export function createReferralContractInfluencer(
 
     contract.influencerId = influencerId;
     contract.contractId = contractId;
-    contract.programsCount = 1 as i32;
+    contract.programsCount = 0 as i32;
     contract.referralsCount = 0 as i32;
     contract.activeReferralsCount = 0 as i32;
     contract.payoutNear = '0';
@@ -307,16 +305,21 @@ export function referralIncrementPayout(contractId: string, accountId: string, f
     const referralContractVolume = getOrCreateReferralContractVolume(contractId, ftTokenId);
     referralContractVolume.amount = sumBigInt(referralContractVolume.amount, amount);
     referralContractVolume.ftTokenId = ftTokenId;
+    referralContractVolume.contractId = contractId;
     referralContractVolume.save();
 
-    const referralInfluencerVolume = getOrCreateReferralInfluencerVolume(contractId, ftTokenId);
+    const referralInfluencerVolume = getOrCreateReferralInfluencerVolume(referral.influencerId, ftTokenId);
     referralInfluencerVolume.amount = sumBigInt(referralInfluencerVolume.amount, amount);
     referralInfluencerVolume.ftTokenId = ftTokenId;
+    referralInfluencerVolume.influencerId = referral.influencerId;
     referralInfluencerVolume.save();
 
     const referralProgramVolume = getOrCreateReferralProgramVolume(contractId, referral.influencerId, referral.programId, ftTokenId);
     referralProgramVolume.amount = sumBigInt(referralProgramVolume.amount, amount);
     referralProgramVolume.ftTokenId = ftTokenId;
+    referralProgramVolume.contractId = contractId;
+    referralProgramVolume.influencerId = referral.influencerId;
+    referralProgramVolume.programId = referral.programId;
     referralProgramVolume.save();
 
     const program = ReferralProgram.load(referral.programId);

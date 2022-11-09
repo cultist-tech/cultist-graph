@@ -57,6 +57,7 @@ type NftContract @entity {
 type Token @entity {
     id: ID!
     tokenId: String!
+    contractId: ID!
 
     rarity: Int
     bindToOwner: Boolean!

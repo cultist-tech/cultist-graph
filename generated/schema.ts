@@ -367,6 +367,7 @@ export class Token extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("tokenId", Value.fromString(""));
+    this.set("contractId", Value.fromString(""));
     this.set("bindToOwner", Value.fromBoolean(false));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("ownerId", Value.fromString(""));
@@ -408,6 +409,15 @@ export class Token extends Entity {
 
   set tokenId(value: string) {
     this.set("tokenId", Value.fromString(value));
+  }
+
+  get contractId(): string {
+    let value = this.get("contractId");
+    return value!.toString();
+  }
+
+  set contractId(value: string) {
+    this.set("contractId", Value.fromString(value));
   }
 
   get rarity(): i32 {
