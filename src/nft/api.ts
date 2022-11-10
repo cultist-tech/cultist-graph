@@ -1,4 +1,4 @@
-import { NftContract, Statistic, Token, TokenMetadata } from "../../generated/schema";
+import {AccountStats, ContractStats, NftContract, Statistic, Token, TokenMetadata} from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import {
@@ -11,16 +11,15 @@ import {
 import { getOrCreateAccount } from "../api/account";
 import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
 import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
+import {AccountStatsApi} from "../stats/account-stats";
+import {ContractStatsApi} from "../stats/contract-stats";
 
 export class TokenMapper {
-    protected stats: Statistic;
-    protected contractStats: Statistic;
     protected contractId: string;
     protected createdAt: BigInt;
+    protected stats: ContractStatsApi;
 
     constructor(contractId: string, timestamp: BigInt) {
-        this.stats = getOrCreateStatisticSystem();
-        this.contractStats = getOrCreateStatistic(contractId);
         this.contractId = contractId;
         this.createdAt = timestamp;
 
@@ -31,8 +30,7 @@ export class TokenMapper {
             nftContract.save();
         }
 
-        this.stats.transactionTotal++;
-        this.contractStats.transactionTotal++;
+        this.stats = new ContractStatsApi(this.contractId);
     }
 
     public create(data: TypedMap<string, JSONValue>): void {
@@ -118,18 +116,9 @@ export class TokenMapper {
 
         token.save();
 
-        // acc
-        getOrCreateAccount(ownerId.toString(), this.stats, this.contractStats);
-
         // stats
-        this.stats.nftTotal++;
-        this.contractStats.nftTotal++;
-
-        // stats acc
-        const accStats = getOrCreateStatistic(ownerId.toString());
-        accStats.nftTotal++;
-        accStats.transactionTotal++;
-        accStats.save();
+        const accountStats = new AccountStatsApi(ownerId.toString());
+        accountStats.save();
     }
 
     public transfer(data: TypedMap<string, JSONValue>): void {
@@ -162,23 +151,14 @@ export class TokenMapper {
         removeMarketSale(saleId);
         removeMarketRent(rentId);
 
-        // acc
-        getOrCreateAccount(senderId.toString(), this.stats, this.contractStats);
-        getOrCreateAccount(receiverId.toString(), this.stats, this.contractStats);
-
         // stats
-        this.stats.nftTransferTotal++;
-        this.contractStats.nftTransferTotal++;
-
-        // stats acc
-        const senderStats = getOrCreateStatistic(senderId.toString());
-        senderStats.nftTotal--;
-        senderStats.transactionTotal++;
+        const senderStats = new AccountStatsApi(senderId.toString());
+        senderStats.nftSend();
         senderStats.save();
-        const receiverStats = getOrCreateStatistic(receiverId.toString());
-        receiverStats.nftTotal++;
-        receiverStats.transactionTotal++;
+        const receiverStats = new AccountStatsApi(receiverId.toString());
+        receiverStats.nftReceive();
         receiverStats.save();
+        this.stats.nftTransfer(senderId.toString(), receiverId.toString());
     }
 
     public burn(data: TypedMap<string, JSONValue>): void {
@@ -207,20 +187,11 @@ export class TokenMapper {
         removeMarketSale(saleId);
         removeMarketRent(rentId);
 
-        // acc
-        getOrCreateAccount(senderId.toString(), this.stats, this.contractStats);
-
         // stats
-        this.stats.nftTotal--;
-        this.stats.nftBurnTotal++;
-        this.contractStats.nftTotal--;
-        this.contractStats.nftBurnTotal++;
-
-        // stats acc
-        const senderStats = getOrCreateStatistic(senderId.toString());
-        senderStats.nftTotal--;
-        senderStats.transactionTotal++;
+        const senderStats = new AccountStatsApi(senderId.toString());
+        senderStats.nftBurn();
         senderStats.save();
+        this.stats.nftBurn(senderId.toString());
     }
 
     public mint(data: TypedMap<string, JSONValue>): void {
@@ -235,12 +206,11 @@ export class TokenMapper {
         const tokenIdRaw = tokenIds.toArray()[0].toString();
         const tokenId = getTokenId(this.contractId, tokenIdRaw.toString());
 
-        // acc
-        getOrCreateAccount(receiverId.toString(), this.stats, this.contractStats);
-
-        const senderStats = getOrCreateStatistic(receiverId.toString());
-        senderStats.transactionTotal++;
-        senderStats.save();
+        //
+        const accountStats = new AccountStatsApi(receiverId.toString());
+        accountStats.nftReceive();
+        accountStats.save();
+        this.stats.nftMint(receiverId.toString());
     }
 
     public transferPayout(data: TypedMap<string, JSONValue>): void {
@@ -256,23 +226,18 @@ export class TokenMapper {
 
         const tokenId = getTokenId(this.contractId.toString(), tokenIdRaw.toString());
 
-        // acc
-        getOrCreateAccount(senderId.toString(), this.stats, this.contractStats);
-        getOrCreateAccount(receiverId.toString(), this.stats, this.contractStats);
-
         // stats
-        this.stats.nftPayTotal++;
-        this.contractStats.nftPayTotal++;
-
-        // stats acc
-        const senderStats = getOrCreateStatistic(senderId.toString());
-        senderStats.transactionTotal++;
+        const senderStats = new AccountStatsApi(senderId.toString());
+        senderStats.nftSell();
         senderStats.save();
+        const receverStats = new AccountStatsApi(receiverId.toString());
+        receverStats.nftBuy();
+        receverStats.save();
+        this.stats.nftTransferPayout(senderId.toString(), receiverId.toString());
     }
 
     public end(): void {
         this.stats.save();
-        this.contractStats.save();
     }
 
     // private

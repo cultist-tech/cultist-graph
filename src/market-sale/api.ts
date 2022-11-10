@@ -10,7 +10,7 @@ import {
     updateCreateMarketSaleStats,
     updateRemoveMarketSaleStats
 } from "./helpers";
-import {MarketSale, MarketSaleCondition, Statistic, Token} from "../../generated/schema";
+import {ContractStats, MarketSale, MarketSaleCondition, Statistic, Token} from "../../generated/schema";
 import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
 import {getOrCreateAccount} from "../api/account";
 import {
@@ -18,10 +18,11 @@ import {
     getOrCreateReferralContractVolume,
     referralIncrementPayout
 } from "../referral/helpers";
+import {ContractStatsApi} from "../stats/contract-stats";
+import {AccountStatsApi} from "../stats/account-stats";
 
 export class SaleMapper {
     protected stats: Statistic;
-    protected contractStats: Statistic | null = null;
     protected contractId: string | null = null;
     protected createdAt: BigInt;
 
@@ -118,21 +119,12 @@ export class SaleMapper {
             token.saleId = contractSaleId;
         }
 
-        //
-        const contractStats = getOrCreateStatistic(contractId.toString());
-
-        // acc
-        getOrCreateAccount(ownerId.toString(), this.stats, contractStats);
-
         // stats
-        this.stats.marketSaleTotal++;
-
-        // stats acc
-        const senderStats = getOrCreateStatistic(ownerId.toString());
-        senderStats.marketSaleTotal++;
-        senderStats.transactionTotal++;
+        const senderStats = new AccountStatsApi(ownerId.toString());
+        senderStats.marketCreate();
         senderStats.save();
-
+        const contractStats = new ContractStatsApi(contractId.toString());
+        contractStats.marketCreate(ownerId.toString());
         contractStats.save();
     }
 
@@ -190,21 +182,15 @@ export class SaleMapper {
         referralIncrementPayout(contractId.toString(), ownerIdJson.toString(), ftTokenId, price.toString());
         referralIncrementPayout(contractId.toString(), receiverId.toString(), ftTokenId, price.toString());
 
-        // contract stats
-        const contractStats = getOrCreateStatistic(contractId.toString());
-
-        // acc
-        getOrCreateAccount(ownerId.toString(), this.stats, contractStats);
-
         // stats
-        this.stats.marketSaleTotal--;
-
-        // stats acc
-        const senderStats = getOrCreateStatistic(ownerId.toString());
-        senderStats.transactionTotal++;
-        senderStats.marketSaleTotal--;
+        const senderStats = new AccountStatsApi(ownerId.toString());
+        senderStats.marketSell();
         senderStats.save();
-
+        const receverStats = new AccountStatsApi(receiverId.toString());
+        receverStats.marketBuy();
+        receverStats.save();
+        const contractStats = new ContractStatsApi(contractId.toString());
+        contractStats.marketPay(ownerId.toString(), receiverId.toString());
         contractStats.save();
     }
 
@@ -239,24 +225,17 @@ export class SaleMapper {
             token.saleId = null;
         }
 
-        //
-        const contractStats = getOrCreateStatistic(contractId.toString());
-
-        // acc
-        getOrCreateAccount(ownerId.toString(), this.stats, contractStats);
+        // stats
+        // if (this.stats.marketSaleTotal > 0) {
+        //     updateRemoveMarketSaleStats(this.stats, contractSaleId, ownerId.toString());
+        // }
 
         // stats
-        if (this.stats.marketSaleTotal > 0) {
-            this.stats.marketSaleTotal--;
-            updateRemoveMarketSaleStats(this.stats, contractSaleId, ownerId.toString());
-        }
-
-        // stats acc
-        const senderStats = getOrCreateStatistic(ownerId.toString());
-        senderStats.transactionTotal++;
-        senderStats.marketSaleTotal--;
+        const senderStats = new AccountStatsApi(ownerId.toString());
+        senderStats.marketRemove();
         senderStats.save();
-
+        const contractStats = new ContractStatsApi(contractId.toString());
+        contractStats.marketRemove(ownerId.toString());
         contractStats.save();
     }
 
@@ -292,22 +271,17 @@ export class SaleMapper {
 
         saleCondition.save();
 
-        //
-        const contractStats = getOrCreateStatistic(contractId.toString());
-
-        // acc
-        getOrCreateAccount(ownerId.toString(), this.stats, contractStats);
+        // stats
+        // if (ftTokenId.toString() == "near") {
+        //     updateCreateMarketSaleStats(this.stats, contractSaleId, ownerId.toString(), saleCondition);
+        // }
 
         // stats
-        if (ftTokenId.toString() == "near") {
-            updateCreateMarketSaleStats(this.stats, contractSaleId, ownerId.toString(), saleCondition);
-        }
-
-        // stats acc
-        const senderStats = getOrCreateStatistic(ownerId.toString());
-        senderStats.transactionTotal++;
+        const senderStats = new AccountStatsApi(ownerId.toString());
+        senderStats.marketUpdate();
         senderStats.save();
-
+        const contractStats = new ContractStatsApi(contractId.toString());
+        contractStats.marketUpdate();
         contractStats.save();
     }
 

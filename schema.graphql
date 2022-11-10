@@ -30,6 +30,30 @@ type Statistic @entity {
     transactionTotal: Int!
 }
 
+#
+
+type AccountStats @entity  {
+    id: ID!
+
+    nftTransferTotal: Int!
+    nftBuyTotal: Int!
+    nftSellTotal: Int!
+    nftBurnTotal: Int!
+    nftTotal: Int!
+
+    marketSaleTotal: Int!
+    marketSaleNearFloor: String!
+    marketSaleNearSum: String!
+    marketSaleNearTotal: Int!
+
+    marketRentTotal: Int!
+    marketRentNearFloor: String!
+    marketRentNearSum: String!
+    marketRentNearTotal: Int!
+
+    transactionTotal: Int!
+}
+
 type Account @entity {
     id: ID!
 
@@ -38,6 +62,8 @@ type Account @entity {
     marketRents: [MarketRent!]! @derivedFrom(field: "owner")
     ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
 }
+
+#
 
 type AccountRoyalty @entity {
     id: ID!
@@ -51,6 +77,30 @@ type AccountRoyalty @entity {
 type NftContract @entity {
     id: ID!
 }
+
+type ContractStats @entity  {
+    id: ID!
+
+    nftTransferTotal: Int!
+    nftBuyTotal: Int!
+    nftSellTotal: Int!
+    nftBurnTotal: Int!
+    nftTotal: Int!
+
+    marketSaleTotal: Int!
+    marketSaleNearFloor: String!
+    marketSaleNearSum: String!
+    marketSaleNearTotal: Int!
+
+    marketRentTotal: Int!
+    marketRentNearFloor: String!
+    marketRentNearSum: String!
+    marketRentNearTotal: Int!
+
+    transactionTotal: Int!
+    accountTotal: Int!
+}
+
 
 # nft
 

@@ -185,6 +185,180 @@ export class Statistic extends Entity {
   }
 }
 
+export class AccountStats extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("nftTransferTotal", Value.fromI32(0));
+    this.set("nftBuyTotal", Value.fromI32(0));
+    this.set("nftSellTotal", Value.fromI32(0));
+    this.set("nftBurnTotal", Value.fromI32(0));
+    this.set("nftTotal", Value.fromI32(0));
+    this.set("marketSaleTotal", Value.fromI32(0));
+    this.set("marketSaleNearFloor", Value.fromString(""));
+    this.set("marketSaleNearSum", Value.fromString(""));
+    this.set("marketSaleNearTotal", Value.fromI32(0));
+    this.set("marketRentTotal", Value.fromI32(0));
+    this.set("marketRentNearFloor", Value.fromString(""));
+    this.set("marketRentNearSum", Value.fromString(""));
+    this.set("marketRentNearTotal", Value.fromI32(0));
+    this.set("transactionTotal", Value.fromI32(0));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save AccountStats entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save AccountStats entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("AccountStats", id.toString(), this);
+    }
+  }
+
+  static load(id: string): AccountStats | null {
+    return changetype<AccountStats | null>(store.get("AccountStats", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nftTransferTotal(): i32 {
+    let value = this.get("nftTransferTotal");
+    return value!.toI32();
+  }
+
+  set nftTransferTotal(value: i32) {
+    this.set("nftTransferTotal", Value.fromI32(value));
+  }
+
+  get nftBuyTotal(): i32 {
+    let value = this.get("nftBuyTotal");
+    return value!.toI32();
+  }
+
+  set nftBuyTotal(value: i32) {
+    this.set("nftBuyTotal", Value.fromI32(value));
+  }
+
+  get nftSellTotal(): i32 {
+    let value = this.get("nftSellTotal");
+    return value!.toI32();
+  }
+
+  set nftSellTotal(value: i32) {
+    this.set("nftSellTotal", Value.fromI32(value));
+  }
+
+  get nftBurnTotal(): i32 {
+    let value = this.get("nftBurnTotal");
+    return value!.toI32();
+  }
+
+  set nftBurnTotal(value: i32) {
+    this.set("nftBurnTotal", Value.fromI32(value));
+  }
+
+  get nftTotal(): i32 {
+    let value = this.get("nftTotal");
+    return value!.toI32();
+  }
+
+  set nftTotal(value: i32) {
+    this.set("nftTotal", Value.fromI32(value));
+  }
+
+  get marketSaleTotal(): i32 {
+    let value = this.get("marketSaleTotal");
+    return value!.toI32();
+  }
+
+  set marketSaleTotal(value: i32) {
+    this.set("marketSaleTotal", Value.fromI32(value));
+  }
+
+  get marketSaleNearFloor(): string {
+    let value = this.get("marketSaleNearFloor");
+    return value!.toString();
+  }
+
+  set marketSaleNearFloor(value: string) {
+    this.set("marketSaleNearFloor", Value.fromString(value));
+  }
+
+  get marketSaleNearSum(): string {
+    let value = this.get("marketSaleNearSum");
+    return value!.toString();
+  }
+
+  set marketSaleNearSum(value: string) {
+    this.set("marketSaleNearSum", Value.fromString(value));
+  }
+
+  get marketSaleNearTotal(): i32 {
+    let value = this.get("marketSaleNearTotal");
+    return value!.toI32();
+  }
+
+  set marketSaleNearTotal(value: i32) {
+    this.set("marketSaleNearTotal", Value.fromI32(value));
+  }
+
+  get marketRentTotal(): i32 {
+    let value = this.get("marketRentTotal");
+    return value!.toI32();
+  }
+
+  set marketRentTotal(value: i32) {
+    this.set("marketRentTotal", Value.fromI32(value));
+  }
+
+  get marketRentNearFloor(): string {
+    let value = this.get("marketRentNearFloor");
+    return value!.toString();
+  }
+
+  set marketRentNearFloor(value: string) {
+    this.set("marketRentNearFloor", Value.fromString(value));
+  }
+
+  get marketRentNearSum(): string {
+    let value = this.get("marketRentNearSum");
+    return value!.toString();
+  }
+
+  set marketRentNearSum(value: string) {
+    this.set("marketRentNearSum", Value.fromString(value));
+  }
+
+  get marketRentNearTotal(): i32 {
+    let value = this.get("marketRentNearTotal");
+    return value!.toI32();
+  }
+
+  set marketRentNearTotal(value: i32) {
+    this.set("marketRentNearTotal", Value.fromI32(value));
+  }
+
+  get transactionTotal(): i32 {
+    let value = this.get("transactionTotal");
+    return value!.toI32();
+  }
+
+  set transactionTotal(value: i32) {
+    this.set("transactionTotal", Value.fromI32(value));
+  }
+}
+
 export class Account extends Entity {
   constructor(id: string) {
     super();
@@ -358,6 +532,190 @@ export class NftContract extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+}
+
+export class ContractStats extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("nftTransferTotal", Value.fromI32(0));
+    this.set("nftBuyTotal", Value.fromI32(0));
+    this.set("nftSellTotal", Value.fromI32(0));
+    this.set("nftBurnTotal", Value.fromI32(0));
+    this.set("nftTotal", Value.fromI32(0));
+    this.set("marketSaleTotal", Value.fromI32(0));
+    this.set("marketSaleNearFloor", Value.fromString(""));
+    this.set("marketSaleNearSum", Value.fromString(""));
+    this.set("marketSaleNearTotal", Value.fromI32(0));
+    this.set("marketRentTotal", Value.fromI32(0));
+    this.set("marketRentNearFloor", Value.fromString(""));
+    this.set("marketRentNearSum", Value.fromString(""));
+    this.set("marketRentNearTotal", Value.fromI32(0));
+    this.set("transactionTotal", Value.fromI32(0));
+    this.set("accountTotal", Value.fromI32(0));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save ContractStats entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save ContractStats entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("ContractStats", id.toString(), this);
+    }
+  }
+
+  static load(id: string): ContractStats | null {
+    return changetype<ContractStats | null>(store.get("ContractStats", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nftTransferTotal(): i32 {
+    let value = this.get("nftTransferTotal");
+    return value!.toI32();
+  }
+
+  set nftTransferTotal(value: i32) {
+    this.set("nftTransferTotal", Value.fromI32(value));
+  }
+
+  get nftBuyTotal(): i32 {
+    let value = this.get("nftBuyTotal");
+    return value!.toI32();
+  }
+
+  set nftBuyTotal(value: i32) {
+    this.set("nftBuyTotal", Value.fromI32(value));
+  }
+
+  get nftSellTotal(): i32 {
+    let value = this.get("nftSellTotal");
+    return value!.toI32();
+  }
+
+  set nftSellTotal(value: i32) {
+    this.set("nftSellTotal", Value.fromI32(value));
+  }
+
+  get nftBurnTotal(): i32 {
+    let value = this.get("nftBurnTotal");
+    return value!.toI32();
+  }
+
+  set nftBurnTotal(value: i32) {
+    this.set("nftBurnTotal", Value.fromI32(value));
+  }
+
+  get nftTotal(): i32 {
+    let value = this.get("nftTotal");
+    return value!.toI32();
+  }
+
+  set nftTotal(value: i32) {
+    this.set("nftTotal", Value.fromI32(value));
+  }
+
+  get marketSaleTotal(): i32 {
+    let value = this.get("marketSaleTotal");
+    return value!.toI32();
+  }
+
+  set marketSaleTotal(value: i32) {
+    this.set("marketSaleTotal", Value.fromI32(value));
+  }
+
+  get marketSaleNearFloor(): string {
+    let value = this.get("marketSaleNearFloor");
+    return value!.toString();
+  }
+
+  set marketSaleNearFloor(value: string) {
+    this.set("marketSaleNearFloor", Value.fromString(value));
+  }
+
+  get marketSaleNearSum(): string {
+    let value = this.get("marketSaleNearSum");
+    return value!.toString();
+  }
+
+  set marketSaleNearSum(value: string) {
+    this.set("marketSaleNearSum", Value.fromString(value));
+  }
+
+  get marketSaleNearTotal(): i32 {
+    let value = this.get("marketSaleNearTotal");
+    return value!.toI32();
+  }
+
+  set marketSaleNearTotal(value: i32) {
+    this.set("marketSaleNearTotal", Value.fromI32(value));
+  }
+
+  get marketRentTotal(): i32 {
+    let value = this.get("marketRentTotal");
+    return value!.toI32();
+  }
+
+  set marketRentTotal(value: i32) {
+    this.set("marketRentTotal", Value.fromI32(value));
+  }
+
+  get marketRentNearFloor(): string {
+    let value = this.get("marketRentNearFloor");
+    return value!.toString();
+  }
+
+  set marketRentNearFloor(value: string) {
+    this.set("marketRentNearFloor", Value.fromString(value));
+  }
+
+  get marketRentNearSum(): string {
+    let value = this.get("marketRentNearSum");
+    return value!.toString();
+  }
+
+  set marketRentNearSum(value: string) {
+    this.set("marketRentNearSum", Value.fromString(value));
+  }
+
+  get marketRentNearTotal(): i32 {
+    let value = this.get("marketRentNearTotal");
+    return value!.toI32();
+  }
+
+  set marketRentNearTotal(value: i32) {
+    this.set("marketRentNearTotal", Value.fromI32(value));
+  }
+
+  get transactionTotal(): i32 {
+    let value = this.get("transactionTotal");
+    return value!.toI32();
+  }
+
+  set transactionTotal(value: i32) {
+    this.set("transactionTotal", Value.fromI32(value));
+  }
+
+  get accountTotal(): i32 {
+    let value = this.get("accountTotal");
+    return value!.toI32();
+  }
+
+  set accountTotal(value: i32) {
+    this.set("accountTotal", Value.fromI32(value));
   }
 }
 
