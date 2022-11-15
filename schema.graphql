@@ -32,7 +32,7 @@ type Statistic @entity {
 
 #
 
-type AccountStats @entity  {
+type AccountStat @entity  {
     id: ID!
 
     nftTransferTotal: Int!
@@ -78,7 +78,7 @@ type NftContract @entity {
     id: ID!
 }
 
-type ContractStats @entity  {
+type ContractStat @entity  {
     id: ID!
 
     nftTransferTotal: Int!
@@ -419,6 +419,15 @@ type ReferralInfluencerVolume @entity {
 
     ftTokenId: ID!
     amount: String!
+}
+
+# reputation
+
+type Reputation @entity {
+    id: ID!
+    contractId: ID!
+    accountId: ID!
+    value: Int!
 }
 
 # logger

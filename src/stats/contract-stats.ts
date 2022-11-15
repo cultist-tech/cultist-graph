@@ -1,19 +1,19 @@
-import { Account, ContractStats } from "../../generated/schema";
+import { Account, ContractStat } from "../../generated/schema";
 
-function getOrCreateStats(contractId: string): ContractStats {
-    const stats = ContractStats.load(contractId);
+function getOrCreateStats(contractId: string): ContractStat {
+    const stats = ContractStat.load(contractId);
 
     if (stats) {
         return stats;
     }
 
-    const newStats = new ContractStats(contractId);
+    const newStats = new ContractStat(contractId);
 
     return newStats;
 }
 
 export class ContractStatsApi {
-    public stats: ContractStats;
+    public stats: ContractStat;
 
     constructor(contractId: string) {
         this.stats = getOrCreateStats(contractId);

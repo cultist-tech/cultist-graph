@@ -10,7 +10,7 @@ import {
     updateCreateMarketSaleStats,
     updateRemoveMarketSaleStats
 } from "./helpers";
-import {ContractStats, MarketSale, MarketSaleCondition, Statistic, Token} from "../../generated/schema";
+import { MarketSale, MarketSaleCondition, Statistic, Token} from "../../generated/schema";
 import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
 import {getOrCreateAccount} from "../api/account";
 import {
@@ -20,6 +20,7 @@ import {
 } from "../referral/helpers";
 import {ContractStatsApi} from "../stats/contract-stats";
 import {AccountStatsApi} from "../stats/account-stats";
+import {ReputationService} from "../reputation";
 
 export class SaleMapper {
     protected stats: Statistic;
@@ -67,6 +68,12 @@ export class SaleMapper {
             this.onRemove(data);
         } else if (method == "market_offer") {
             this.onPay(data);
+        } else {
+            const rep = new ReputationService('market');
+
+            if (rep.isEvent(method)) {
+                rep.handle(method, data);
+            }
         }
 
         this.end();

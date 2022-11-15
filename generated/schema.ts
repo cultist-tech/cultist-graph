@@ -185,7 +185,7 @@ export class Statistic extends Entity {
   }
 }
 
-export class AccountStats extends Entity {
+export class AccountStat extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -208,19 +208,19 @@ export class AccountStats extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save AccountStats entity without an ID");
+    assert(id != null, "Cannot save AccountStat entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save AccountStats entity with non-string ID. " +
+        "Cannot save AccountStat entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("AccountStats", id.toString(), this);
+      store.set("AccountStat", id.toString(), this);
     }
   }
 
-  static load(id: string): AccountStats | null {
-    return changetype<AccountStats | null>(store.get("AccountStats", id));
+  static load(id: string): AccountStat | null {
+    return changetype<AccountStat | null>(store.get("AccountStat", id));
   }
 
   get id(): string {
@@ -535,7 +535,7 @@ export class NftContract extends Entity {
   }
 }
 
-export class ContractStats extends Entity {
+export class ContractStat extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -559,19 +559,19 @@ export class ContractStats extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save ContractStats entity without an ID");
+    assert(id != null, "Cannot save ContractStat entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save ContractStats entity with non-string ID. " +
+        "Cannot save ContractStat entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("ContractStats", id.toString(), this);
+      store.set("ContractStat", id.toString(), this);
     }
   }
 
-  static load(id: string): ContractStats | null {
-    return changetype<ContractStats | null>(store.get("ContractStats", id));
+  static load(id: string): ContractStat | null {
+    return changetype<ContractStat | null>(store.get("ContractStat", id));
   }
 
   get id(): string {
@@ -3245,6 +3245,70 @@ export class ReferralInfluencerVolume extends Entity {
 
   set amount(value: string) {
     this.set("amount", Value.fromString(value));
+  }
+}
+
+export class Reputation extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("contractId", Value.fromString(""));
+    this.set("accountId", Value.fromString(""));
+    this.set("value", Value.fromI32(0));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Reputation entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Reputation entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Reputation", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Reputation | null {
+    return changetype<Reputation | null>(store.get("Reputation", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get contractId(): string {
+    let value = this.get("contractId");
+    return value!.toString();
+  }
+
+  set contractId(value: string) {
+    this.set("contractId", Value.fromString(value));
+  }
+
+  get accountId(): string {
+    let value = this.get("accountId");
+    return value!.toString();
+  }
+
+  set accountId(value: string) {
+    this.set("accountId", Value.fromString(value));
+  }
+
+  get value(): i32 {
+    let value = this.get("value");
+    return value!.toI32();
+  }
+
+  set value(value: i32) {
+    this.set("value", Value.fromI32(value));
   }
 }
 

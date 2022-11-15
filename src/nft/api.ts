@@ -1,4 +1,4 @@
-import {AccountStats, ContractStats, NftContract, Statistic, Token, TokenMetadata} from "../../generated/schema";
+import {  NftContract, Statistic, Token, TokenMetadata} from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import {

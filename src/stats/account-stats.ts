@@ -1,19 +1,19 @@
-import { AccountStats } from "../../generated/schema";
+import { AccountStat } from "../../generated/schema";
 
-function getOrCreateStats(accountId: string): AccountStats {
-    const stats = AccountStats.load(accountId);
+function getOrCreateStats(accountId: string): AccountStat {
+    const stats = AccountStat.load(accountId);
 
     if (stats) {
         return stats;
     }
 
-    const newStats = new AccountStats(accountId);
+    const newStats = new AccountStat(accountId);
 
     return newStats;
 }
 
 export class AccountStatsApi {
-    private stats: AccountStats;
+    private stats: AccountStat;
 
     constructor(accountId: string) {
         this.stats = getOrCreateStats(accountId);
