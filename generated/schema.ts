@@ -1023,6 +1023,23 @@ export class Token extends Entity {
     }
   }
 
+  get nftBurner(): string | null {
+    let value = this.get("nftBurner");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nftBurner(value: string | null) {
+    if (!value) {
+      this.unset("nftBurner");
+    } else {
+      this.set("nftBurner", Value.fromString(<string>value));
+    }
+  }
+
   get royalty(): Array<string> {
     let value = this.get("royalty");
     return value!.toStringArray();
@@ -1290,6 +1307,7 @@ export class TokenUpgrade extends Entity {
     super();
     this.set("id", Value.fromString(id));
 
+    this.set("rarity", Value.fromI32(0));
     this.set("ftTokenId", Value.fromString(""));
     this.set("price", Value.fromString(""));
   }
@@ -1320,6 +1338,15 @@ export class TokenUpgrade extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get rarity(): i32 {
+    let value = this.get("rarity");
+    return value!.toI32();
+  }
+
+  set rarity(value: i32) {
+    this.set("rarity", Value.fromI32(value));
+  }
+
   get ftTokenId(): string {
     let value = this.get("ftTokenId");
     return value!.toString();
@@ -1336,6 +1363,60 @@ export class TokenUpgrade extends Entity {
 
   set price(value: string) {
     this.set("price", Value.fromString(value));
+  }
+}
+
+export class TokenBurner extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("rarity", Value.fromI32(0));
+    this.set("rarity_sum", Value.fromI32(0));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save TokenBurner entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save TokenBurner entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("TokenBurner", id.toString(), this);
+    }
+  }
+
+  static load(id: string): TokenBurner | null {
+    return changetype<TokenBurner | null>(store.get("TokenBurner", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get rarity(): i32 {
+    let value = this.get("rarity");
+    return value!.toI32();
+  }
+
+  set rarity(value: i32) {
+    this.set("rarity", Value.fromI32(value));
+  }
+
+  get rarity_sum(): i32 {
+    let value = this.get("rarity_sum");
+    return value!.toI32();
+  }
+
+  set rarity_sum(value: i32) {
+    this.set("rarity_sum", Value.fromI32(value));
   }
 }
 

@@ -1,5 +1,5 @@
-import {JSONValue, store, TypedMap} from "@graphprotocol/graph-ts/index";
-import {TokenRoyalty, TokenStat} from "../../generated/schema";
+import { JSONValue, store, TypedMap } from "@graphprotocol/graph-ts/index";
+import { TokenRoyalty, TokenStat } from "../../generated/schema";
 
 export function getTokenId(contractId: string, tokenId: string): string {
     return contractId + "||" + tokenId;
@@ -71,37 +71,42 @@ export function saveTokenStats(contractId: string, tokenId: string, types: JSONV
         stat.save();
     }
 }
-export function deprecatedSaveTokenStats(contractId: string, tokenId: string, type: JSONValue | null, subType: JSONValue | null, collection: JSONValue | null): void {
+export function deprecatedSaveTokenStats(
+    contractId: string,
+    tokenId: string,
+    type: JSONValue | null,
+    subType: JSONValue | null,
+    collection: JSONValue | null
+): void {
     const contractTokenId = getTokenId(contractId, tokenId);
 
     if (type && !type.isNull()) {
-        const tokenTypeStatId = getTokenStatId(contractTokenId, 'type');
+        const tokenTypeStatId = getTokenStatId(contractTokenId, "type");
         const typeStat = new TokenStat(tokenTypeStatId);
         typeStat.token = contractTokenId;
         typeStat.tokenId = tokenId;
-        typeStat.key = 'type'
+        typeStat.key = "type";
         typeStat.value = type.toString();
         typeStat.save();
     }
     if (subType && !subType.isNull()) {
-        const tokenTypeStatId = getTokenStatId(contractTokenId, 'subType');
+        const tokenTypeStatId = getTokenStatId(contractTokenId, "subType");
         const typeStat = new TokenStat(tokenTypeStatId);
         typeStat.token = contractTokenId;
         typeStat.tokenId = tokenId;
-        typeStat.key = 'subType'
+        typeStat.key = "subType";
         typeStat.value = subType.toString();
         typeStat.save();
     }
     if (collection && !collection.isNull()) {
-        const tokenTypeStatId = getTokenStatId(contractTokenId, 'collection');
+        const tokenTypeStatId = getTokenStatId(contractTokenId, "collection");
         const typeStat = new TokenStat(tokenTypeStatId);
         typeStat.token = contractTokenId;
         typeStat.tokenId = tokenId;
-        typeStat.key = 'collection'
+        typeStat.key = "collection";
         typeStat.value = collection.toString();
         typeStat.save();
     }
-
 }
 
 // upgrade
@@ -111,8 +116,27 @@ export function getNftUpgradeKey(types: JSONValue | null, rarity: i64): string {
         return rarity.toString();
     }
 
-    return types.toString() + '||' + rarity.toString();
+    let id = rarity.toString();
+
+    let typesObj = types.toObject();
+
+    for (let i = 0; i < typesObj.entries.length; i++) {
+        const row = typesObj.entries[i];
+
+        id = id + "||" + row.key + ":" + row.value.toString();
+    }
+
+    return id;
 }
 export function removeNftUpgrade(id: string): void {
-    store.remove('TokenUpgrade', id);
+    store.remove("TokenUpgrade", id);
+}
+
+// burner
+
+export function getNftBurnerKey(types: JSONValue | null, rarity: i64): string {
+    return getNftUpgradeKey(types, rarity);
+}
+export function removeNftBurner(id: string): void {
+    store.remove("TokenBurner", id);
 }

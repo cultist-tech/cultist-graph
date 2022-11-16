@@ -133,6 +133,7 @@ type Token @entity {
     fractionation: NftFractionation
     nftIdo: NftIdo
     nftUpgrade: TokenUpgrade
+    nftBurner: TokenBurner
 
     royalty: [TokenRoyalty!]! @derivedFrom(field: "token")
     stats: [TokenStat!]! @derivedFrom(field: "token")
@@ -168,8 +169,15 @@ type TokenStat @entity {
 
 type TokenUpgrade @entity {
     id: ID!
+    rarity: Int!
     ftTokenId: ID!
     price: String!
+}
+
+type TokenBurner @entity {
+    id: ID!
+    rarity: Int!
+    rarity_sum: Int!
 }
 
 # rent

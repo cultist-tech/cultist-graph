@@ -14,9 +14,6 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
         return;
     }
 
-    // const functionCall = action.toFunctionCall();
-    // const ipfsHash = 'bafybeiew2l6admor2lx6vnfdaevuuenzgeyrpfle56yrgse4u6nnkwrfeu'
-    // const methodName = functionCall.methodName
     const outcome = receiptWithOutcome.outcome;
     const contractId = receiptWithOutcome.receipt.receiverId;
     const timestamp = getReceiptDate(receiptWithOutcome);
@@ -40,8 +37,6 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
         const method = eventMethod.toString();
 
         const tokenMapper = new TokenMapper(contractId, timestamp);
-
         tokenMapper.handle(method, data);
-
     }
 }

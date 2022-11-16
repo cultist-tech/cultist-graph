@@ -1,11 +1,11 @@
-import { NftContract, Statistic, Token, TokenMetadata, TokenUpgrade } from "../../generated/schema";
+import { NftContract, Statistic, Token, TokenMetadata, TokenUpgrade, TokenBurner } from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import {
     convertStringRarity,
-    deprecatedSaveTokenStats,
+    deprecatedSaveTokenStats, getNftBurnerKey,
     getNftUpgradeKey,
-    getTokenId,
+    getTokenId, removeNftBurner,
     removeNftUpgrade,
     removeToken,
     saveTokenRoyalties,
@@ -47,12 +47,14 @@ export class TokenMapper {
             this.onMint(data);
         } else if (method == "nft_transfer_payout") {
             this.onTransferPayout(data);
-        } else if (method == "nft_set_upgrade") {
+        } else if (method == "nft_set_upgrade_price") {
             this.onSetUpgradePrice(data);
-        } else if (method == "nft_remove_upgrade") {
+        } else if (method == "nft_remove_upgrade_price") {
             this.onRemoveUpgradePrice(data);
         } else if (method == "nft_upgrade") {
             this.onUpgrade(data);
+        } else if (method == "nft_set_burner_price") {
+            this.onSetBurnerPrice(data);
         }
 
         this.end();
@@ -106,6 +108,9 @@ export class TokenMapper {
             } else {
                 token.rarity = rarity.toU64() as i32;
             }
+
+            token.nftBurner = getNftBurnerKey(typesJson, rarity.toI64());
+            token.nftUpgrade = getNftUpgradeKey(typesJson, rarity.toI64())
         }
 
         if (metadata && !metadata.isNull()) {
@@ -146,10 +151,6 @@ export class TokenMapper {
         }
 
         token.save();
-
-        // stats
-        const accountStats = new AccountStatsApi(ownerId.toString());
-        accountStats.save();
     }
 
     public onTransfer(data: TypedMap<string, JSONValue>): void {
@@ -241,7 +242,6 @@ export class TokenMapper {
         const accountStats = new AccountStatsApi(receiverId.toString());
         accountStats.nftReceive();
         accountStats.save();
-        this.stats.nftMint(receiverId.toString());
     }
 
     public onTransferPayout(data: TypedMap<string, JSONValue>): void {
@@ -288,18 +288,23 @@ export class TokenMapper {
     }
 
     public onRemoveUpgradePrice(data: TypedMap<string, JSONValue>): void {
-        const priceType = data.get("price_type");
+        const priceTypeJson = data.get("price_type");
         const typesJson = data.get("types"); // option
         const rarityJson = data.get("rarity");
 
-        if (!rarityJson || !priceType) {
+        if (!rarityJson || !priceTypeJson) {
             log.error("[nft_remove_upgrade_price] - invalid args", []);
             return;
         }
 
+        const priceType = priceTypeJson.toString();
         const upgradeId = getNftUpgradeKey(typesJson, rarityJson.toI64());
 
-        removeNftUpgrade(upgradeId);
+        if (priceType == "Upgradable") {
+            removeNftUpgrade(upgradeId);
+        } else if (priceType == "Burner") {
+            removeNftBurner(upgradeId);
+        }
     }
 
     public onUpgrade(data: TypedMap<string, JSONValue>): void {
@@ -326,6 +331,25 @@ export class TokenMapper {
         senderStats.nftUpgrade();
         senderStats.save();
         this.stats.nftUpgrade(ownerId);
+    }
+
+    public onSetBurnerPrice(data: TypedMap<string, JSONValue>): void {
+        const rarityJson = data.get("rarity");
+        const typesJson = data.get("types"); // option
+        const burningRaritySum = data.get("burning_rarity_sum");
+
+        if (!rarityJson || !burningRaritySum) {
+            log.error("[nft_set_burner_price] - invalid args", []);
+            return;
+        }
+
+        const upgradeId = getNftBurnerKey(typesJson, rarityJson.toI64());
+
+        const nftBurner = new TokenBurner(upgradeId);
+        nftBurner.rarity =rarityJson.toI64() as i32;
+        nftBurner.rarity_sum = burningRaritySum.toI64() as i32;
+
+        nftBurner.save();
     }
 
     public end(): void {
