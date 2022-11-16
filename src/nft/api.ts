@@ -1,9 +1,12 @@
-import {  NftContract, Statistic, Token, TokenMetadata} from "../../generated/schema";
+import { NftContract, Statistic, Token, TokenMetadata, TokenUpgrade } from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import {
-    convertStringRarity, deprecatedSaveTokenStats,
+    convertStringRarity,
+    deprecatedSaveTokenStats,
+    getNftUpgradeKey,
     getTokenId,
+    removeNftUpgrade,
     removeToken,
     saveTokenRoyalties,
     saveTokenStats,
@@ -11,8 +14,8 @@ import {
 import { getOrCreateAccount } from "../api/account";
 import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
 import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
-import {AccountStatsApi} from "../stats/account-stats";
-import {ContractStatsApi} from "../stats/contract-stats";
+import { AccountStatsApi } from "../stats/account-stats";
+import { ContractStatsApi } from "../stats/contract-stats";
 
 export class TokenMapper {
     protected contractId: string;
@@ -33,7 +36,29 @@ export class TokenMapper {
         this.stats = new ContractStatsApi(this.contractId);
     }
 
-    public create(data: TypedMap<string, JSONValue>): void {
+    public handle(method: string, data: TypedMap<string, JSONValue>): void {
+        if (method == "nft_create") {
+            this.onCreate(data);
+        } else if (method == "nft_transfer") {
+            this.onTransfer(data);
+        } else if (method == "nft_burn") {
+            this.onBurn(data);
+        } else if (method == "nft_mint") {
+            this.onMint(data);
+        } else if (method == "nft_transfer_payout") {
+            this.onTransferPayout(data);
+        } else if (method == "nft_set_upgrade") {
+            this.onSetUpgradePrice(data);
+        } else if (method == "nft_remove_upgrade") {
+            this.onRemoveUpgradePrice(data);
+        } else if (method == "nft_upgrade") {
+            this.onUpgrade(data);
+        }
+
+        this.end();
+    }
+
+    public onCreate(data: TypedMap<string, JSONValue>): void {
         const rawToken = data.get("token");
 
         if (!rawToken) {
@@ -110,7 +135,13 @@ export class TokenMapper {
             saveTokenStats(this.contractId, tokenIdRaw.toString(), typesJson);
         } else {
             if (deprecatedTokenType || deprecatedTokenSubType || deprecatedCollection) {
-                deprecatedSaveTokenStats(this.contractId, tokenId, deprecatedTokenType, deprecatedTokenSubType, deprecatedCollection)
+                deprecatedSaveTokenStats(
+                    this.contractId,
+                    tokenId,
+                    deprecatedTokenType,
+                    deprecatedTokenSubType,
+                    deprecatedCollection
+                );
             }
         }
 
@@ -121,7 +152,7 @@ export class TokenMapper {
         accountStats.save();
     }
 
-    public transfer(data: TypedMap<string, JSONValue>): void {
+    public onTransfer(data: TypedMap<string, JSONValue>): void {
         const tokenIds = data.get("token_ids");
         const senderId = data.get("old_owner_id");
         const receiverId = data.get("new_owner_id");
@@ -161,7 +192,7 @@ export class TokenMapper {
         this.stats.nftTransfer(senderId.toString(), receiverId.toString());
     }
 
-    public burn(data: TypedMap<string, JSONValue>): void {
+    public onBurn(data: TypedMap<string, JSONValue>): void {
         const tokenIds = data.get("token_ids");
         const senderId = data.get("owner_id");
 
@@ -194,7 +225,7 @@ export class TokenMapper {
         this.stats.nftBurn(senderId.toString());
     }
 
-    public mint(data: TypedMap<string, JSONValue>): void {
+    public onMint(data: TypedMap<string, JSONValue>): void {
         const tokenIds = data.get("token_ids");
         const receiverId = data.get("owner_id");
 
@@ -213,7 +244,7 @@ export class TokenMapper {
         this.stats.nftMint(receiverId.toString());
     }
 
-    public transferPayout(data: TypedMap<string, JSONValue>): void {
+    public onTransferPayout(data: TypedMap<string, JSONValue>): void {
         const tokenIdRaw = data.get("token_id");
         const senderId = data.get("sender_id");
         const receiverId = data.get("receiver_id");
@@ -234,6 +265,67 @@ export class TokenMapper {
         receverStats.nftBuy();
         receverStats.save();
         this.stats.nftTransferPayout(senderId.toString(), receiverId.toString());
+    }
+
+    public onSetUpgradePrice(data: TypedMap<string, JSONValue>): void {
+        const rarityJson = data.get("rarity");
+        const typesJson = data.get("types"); // option
+        const ftTokenJson = data.get("ft_token");
+        const priceJson = data.get("price");
+
+        if (!rarityJson || !ftTokenJson || !priceJson) {
+            log.error("[nft_set_upgrade_price] - invalid args", []);
+            return;
+        }
+
+        const upgradeId = getNftUpgradeKey(typesJson, rarityJson.toI64());
+
+        const nftUpgrade = new TokenUpgrade(upgradeId);
+        nftUpgrade.ftTokenId = ftTokenJson.toString();
+        nftUpgrade.price = priceJson.toString();
+
+        nftUpgrade.save();
+    }
+
+    public onRemoveUpgradePrice(data: TypedMap<string, JSONValue>): void {
+        const priceType = data.get("price_type");
+        const typesJson = data.get("types"); // option
+        const rarityJson = data.get("rarity");
+
+        if (!rarityJson || !priceType) {
+            log.error("[nft_remove_upgrade_price] - invalid args", []);
+            return;
+        }
+
+        const upgradeId = getNftUpgradeKey(typesJson, rarityJson.toI64());
+
+        removeNftUpgrade(upgradeId);
+    }
+
+    public onUpgrade(data: TypedMap<string, JSONValue>): void {
+        const ownerIdJson = data.get("owner_id");
+        const rarityJson = data.get("rarity");
+        const tokenIdJson = data.get("token_id");
+
+        if (!rarityJson || !ownerIdJson || !tokenIdJson) {
+            log.error("[nft_upgrade] - invalid args", []);
+            return;
+        }
+
+        const tokenId = tokenIdJson.toString();
+        const ownerId = ownerIdJson.toString();
+        const contractTokenId = getTokenId(this.contractId, tokenId);
+
+        const token = this.get(contractTokenId);
+
+        token.rarity = rarityJson.toI64() as i32;
+
+        token.save();
+
+        const senderStats = new AccountStatsApi(ownerId);
+        senderStats.nftUpgrade();
+        senderStats.save();
+        this.stats.nftUpgrade(ownerId);
     }
 
     public end(): void {

@@ -103,3 +103,16 @@ export function deprecatedSaveTokenStats(contractId: string, tokenId: string, ty
     }
 
 }
+
+// upgrade
+
+export function getNftUpgradeKey(types: JSONValue | null, rarity: i64): string {
+    if (!types) {
+        return rarity.toString();
+    }
+
+    return types.toString() + '||' + rarity.toString();
+}
+export function removeNftUpgrade(id: string): void {
+    store.remove('TokenUpgrade', id);
+}

@@ -44,6 +44,12 @@ export class ContractStatsApi {
         this.getOrCreateAccount(accountId);
     }
 
+    public nftUpgrade(accountId: string): void {
+        this.stats.transactionTotal++;
+        this.stats.nftUpgradeTotal++;
+        this.getOrCreateAccount(accountId);
+    }
+
     public marketCreate(accountId: string): void {
         this.stats.marketSaleTotal++;
         this.getOrCreateAccount(accountId);

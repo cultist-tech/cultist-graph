@@ -26,19 +26,28 @@ export class AccountStatsApi {
     }
 
     public nftReceive(): void {
+        this.stats.transactionTotal++;
         this.stats.nftTotal++;
     }
 
     public nftBuy(): void {
+        this.stats.transactionTotal++;
         this.stats.nftBurnTotal++;
     }
 
     public nftSell(): void {
+        this.stats.transactionTotal++;
         this.stats.nftSellTotal++;
     }
 
     public nftBurn(): void {
+        this.stats.transactionTotal++;
         this.stats.nftBurnTotal++;
+    }
+
+    public nftUpgrade(): void {
+        this.stats.transactionTotal++;
+        this.stats.nftUpgradeTotal++;
     }
 
     public marketCreate(): void {

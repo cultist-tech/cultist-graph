@@ -195,6 +195,7 @@ export class AccountStat extends Entity {
     this.set("nftSellTotal", Value.fromI32(0));
     this.set("nftBurnTotal", Value.fromI32(0));
     this.set("nftTotal", Value.fromI32(0));
+    this.set("nftUpgradeTotal", Value.fromI32(0));
     this.set("marketSaleTotal", Value.fromI32(0));
     this.set("marketSaleNearFloor", Value.fromString(""));
     this.set("marketSaleNearSum", Value.fromString(""));
@@ -275,6 +276,15 @@ export class AccountStat extends Entity {
 
   set nftTotal(value: i32) {
     this.set("nftTotal", Value.fromI32(value));
+  }
+
+  get nftUpgradeTotal(): i32 {
+    let value = this.get("nftUpgradeTotal");
+    return value!.toI32();
+  }
+
+  set nftUpgradeTotal(value: i32) {
+    this.set("nftUpgradeTotal", Value.fromI32(value));
   }
 
   get marketSaleTotal(): i32 {
@@ -545,6 +555,7 @@ export class ContractStat extends Entity {
     this.set("nftSellTotal", Value.fromI32(0));
     this.set("nftBurnTotal", Value.fromI32(0));
     this.set("nftTotal", Value.fromI32(0));
+    this.set("nftUpgradeTotal", Value.fromI32(0));
     this.set("marketSaleTotal", Value.fromI32(0));
     this.set("marketSaleNearFloor", Value.fromString(""));
     this.set("marketSaleNearSum", Value.fromString(""));
@@ -626,6 +637,15 @@ export class ContractStat extends Entity {
 
   set nftTotal(value: i32) {
     this.set("nftTotal", Value.fromI32(value));
+  }
+
+  get nftUpgradeTotal(): i32 {
+    let value = this.get("nftUpgradeTotal");
+    return value!.toI32();
+  }
+
+  set nftUpgradeTotal(value: i32) {
+    this.set("nftUpgradeTotal", Value.fromI32(value));
   }
 
   get marketSaleTotal(): i32 {
@@ -986,6 +1006,23 @@ export class Token extends Entity {
     }
   }
 
+  get nftUpgrade(): string | null {
+    let value = this.get("nftUpgrade");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nftUpgrade(value: string | null) {
+    if (!value) {
+      this.unset("nftUpgrade");
+    } else {
+      this.set("nftUpgrade", Value.fromString(<string>value));
+    }
+  }
+
   get royalty(): Array<string> {
     let value = this.get("royalty");
     return value!.toStringArray();
@@ -1245,6 +1282,60 @@ export class TokenStat extends Entity {
 
   set value(value: string) {
     this.set("value", Value.fromString(value));
+  }
+}
+
+export class TokenUpgrade extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("ftTokenId", Value.fromString(""));
+    this.set("price", Value.fromString(""));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save TokenUpgrade entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save TokenUpgrade entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("TokenUpgrade", id.toString(), this);
+    }
+  }
+
+  static load(id: string): TokenUpgrade | null {
+    return changetype<TokenUpgrade | null>(store.get("TokenUpgrade", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get ftTokenId(): string {
+    let value = this.get("ftTokenId");
+    return value!.toString();
+  }
+
+  set ftTokenId(value: string) {
+    this.set("ftTokenId", Value.fromString(value));
+  }
+
+  get price(): string {
+    let value = this.get("price");
+    return value!.toString();
+  }
+
+  set price(value: string) {
+    this.set("price", Value.fromString(value));
   }
 }
 

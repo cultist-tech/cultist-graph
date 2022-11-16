@@ -40,6 +40,7 @@ type AccountStat @entity  {
     nftSellTotal: Int!
     nftBurnTotal: Int!
     nftTotal: Int!
+    nftUpgradeTotal: Int!
 
     marketSaleTotal: Int!
     marketSaleNearFloor: String!
@@ -86,6 +87,7 @@ type ContractStat @entity  {
     nftSellTotal: Int!
     nftBurnTotal: Int!
     nftTotal: Int!
+    nftUpgradeTotal: Int!
 
     marketSaleTotal: Int!
     marketSaleNearFloor: String!
@@ -130,6 +132,7 @@ type Token @entity {
     sale: MarketSale
     fractionation: NftFractionation
     nftIdo: NftIdo
+    nftUpgrade: TokenUpgrade
 
     royalty: [TokenRoyalty!]! @derivedFrom(field: "token")
     stats: [TokenStat!]! @derivedFrom(field: "token")
@@ -161,6 +164,12 @@ type TokenStat @entity {
     token: Token!
     key: String!
     value: String!
+}
+
+type TokenUpgrade @entity {
+    id: ID!
+    ftTokenId: ID!
+    price: String!
 }
 
 # rent

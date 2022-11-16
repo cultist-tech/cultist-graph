@@ -41,18 +41,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
         const tokenMapper = new TokenMapper(contractId, timestamp);
 
-        if (method == "nft_create") {
-            tokenMapper.create(data);
-        } else if (method == "nft_transfer") {
-            tokenMapper.transfer(data);
-        } else if (method == "nft_burn") {
-            tokenMapper.burn(data);
-        } else if (method == "nft_mint") {
-            tokenMapper.mint(data);
-        } else if (method == "nft_transfer_payout") {
-            tokenMapper.transferPayout(data);
-        }
+        tokenMapper.handle(method, data);
 
-        tokenMapper.end();
     }
 }
