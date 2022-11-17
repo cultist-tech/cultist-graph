@@ -22,6 +22,8 @@ import {ContractStatsApi} from "../stats/contract-stats";
 import {AccountStatsApi} from "../stats/account-stats";
 import {ReputationService} from "../reputation";
 
+const MARKET_ACCOUNT_ID = 'mfight-market.testnet';
+
 export class SaleMapper {
     protected stats: Statistic;
     protected contractId: string | null = null;
@@ -69,7 +71,7 @@ export class SaleMapper {
         } else if (method == "market_offer") {
             this.onPay(data);
         } else {
-            const rep = new ReputationService('market');
+            const rep = new ReputationService(MARKET_ACCOUNT_ID);
 
             if (rep.isEvent(method)) {
                 rep.handle(method, data);

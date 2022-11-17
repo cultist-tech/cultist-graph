@@ -72,6 +72,14 @@ export class ContractStatsApi {
         this.stats.transactionTotal++;
     }
 
+    public reputationUpdate(change: i32): void {
+        this.stats.reputationTotal = this.stats.reputationTotal + change;
+
+        if (this.stats.reputationTotal < 0) {
+            this.stats.reputationTotal = 0;
+        }
+    }
+
     //
 
     public getOrCreateAccount(accountId: string): Account {

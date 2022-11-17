@@ -1,21 +1,21 @@
-import { NftContract, Statistic, Token, TokenMetadata, TokenUpgrade, TokenBurner } from "../../generated/schema";
-import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
-import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
+import {NftContract, Token, TokenBurner, TokenMetadata, TokenUpgrade} from "../../generated/schema";
+import {BigInt, JSONValue, JSONValueKind, log, TypedMap} from "@graphprotocol/graph-ts/index";
 import {
     convertStringRarity,
-    deprecatedSaveTokenStats, getNftBurnerKey,
+    deprecatedSaveTokenStats,
+    getNftBurnerKey,
     getNftUpgradeKey,
-    getTokenId, removeNftBurner,
+    getTokenId,
+    removeNftBurner,
     removeNftUpgrade,
     removeToken,
     saveTokenRoyalties,
     saveTokenStats,
 } from "./helpers";
-import { getOrCreateAccount } from "../api/account";
-import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
-import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
-import { AccountStatsApi } from "../stats/account-stats";
-import { ContractStatsApi } from "../stats/contract-stats";
+import {getMarketSaleId, removeMarketSale} from "../market-sale/helpers";
+import {getMarketRentId, removeMarketRent} from "../market-rent/helpers";
+import {AccountStatsApi} from "../stats/account-stats";
+import {ContractStatsApi} from "../stats/contract-stats";
 
 export class TokenMapper {
     protected contractId: string;
@@ -73,7 +73,7 @@ export class TokenMapper {
         const ownerId = tokenData.get("owner_id");
         const metadata = tokenData.get("metadata");
 
-        const rarity = tokenData.get("rarity");
+        const rarityJson = tokenData.get("rarity");
         const royalty = tokenData.get("royalty");
         const bindToOwner = tokenData.get("bind_to_owner");
         const revealAt = tokenData.get("reveal_at");
@@ -102,15 +102,15 @@ export class TokenMapper {
         if (revealAt && !revealAt.isNull()) {
             token.revealAt = revealAt.toU64() as i32;
         }
-        if (rarity && !rarity.isNull()) {
-            if (rarity.kind === JSONValueKind.STRING) {
-                token.rarity = convertStringRarity(rarity);
+        if (rarityJson && !rarityJson.isNull()) {
+            if (rarityJson.kind === JSONValueKind.STRING) {
+                token.rarity = convertStringRarity(rarityJson);
             } else {
-                token.rarity = rarity.toU64() as i32;
+                token.rarity = rarityJson.toU64() as i32;
             }
 
-            token.nftBurner = getNftBurnerKey(typesJson, rarity.toI64());
-            token.nftUpgrade = getNftUpgradeKey(typesJson, rarity.toI64())
+            token.nftBurner = getNftBurnerKey(typesJson, token.rarity);
+            token.nftUpgrade = getNftUpgradeKey(typesJson, token.rarity);
         }
 
         if (metadata && !metadata.isNull()) {
@@ -314,6 +314,11 @@ export class TokenMapper {
 
         if (!rarityJson || !ownerIdJson || !tokenIdJson) {
             log.error("[nft_upgrade] - invalid args", []);
+            return;
+        }
+
+        if (rarityJson.kind == JSONValueKind.STRING) {
+            // SKIP DEPRECATED RARITY
             return;
         }
 

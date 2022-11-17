@@ -73,6 +73,10 @@ export class AccountStatsApi {
         this.stats.transactionTotal++;
     }
 
+    public reputationUpdate(value: i32): void {
+        this.stats.marketReputation = value;
+    }
+
     public save(): void {
         this.stats.save();
     }

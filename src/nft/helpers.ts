@@ -116,7 +116,7 @@ export function getNftUpgradeKey(types: JSONValue | null, rarity: i64): string {
         return rarity.toString();
     }
 
-    let id = rarity.toString();
+    let id = "r" + rarity.toString();
 
     let typesObj = types.toObject();
 

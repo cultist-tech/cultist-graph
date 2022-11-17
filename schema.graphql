@@ -46,6 +46,7 @@ type AccountStat @entity  {
     marketSaleNearFloor: String!
     marketSaleNearSum: String!
     marketSaleNearTotal: Int!
+    marketReputation: Int!
 
     marketRentTotal: Int!
     marketRentNearFloor: String!
@@ -64,8 +65,6 @@ type Account @entity {
     ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
 }
 
-#
-
 type AccountRoyalty @entity {
     id: ID!
 
@@ -74,6 +73,8 @@ type AccountRoyalty @entity {
     ftTokenId: ID!
     amount: String!
 }
+
+# contract
 
 type NftContract @entity {
     id: ID!
@@ -101,6 +102,7 @@ type ContractStat @entity  {
 
     transactionTotal: Int!
     accountTotal: Int!
+    reputationTotal: Int!
 }
 
 
@@ -128,10 +130,12 @@ type Token @entity {
 
     owner: Account!
     tokenMetadata: TokenMetadata!
+
     rent: MarketRent
     sale: MarketSale
     fractionation: NftFractionation
     nftIdo: NftIdo
+
     nftUpgrade: TokenUpgrade
     nftBurner: TokenBurner
 

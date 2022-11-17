@@ -200,6 +200,7 @@ export class AccountStat extends Entity {
     this.set("marketSaleNearFloor", Value.fromString(""));
     this.set("marketSaleNearSum", Value.fromString(""));
     this.set("marketSaleNearTotal", Value.fromI32(0));
+    this.set("marketReputation", Value.fromI32(0));
     this.set("marketRentTotal", Value.fromI32(0));
     this.set("marketRentNearFloor", Value.fromString(""));
     this.set("marketRentNearSum", Value.fromString(""));
@@ -321,6 +322,15 @@ export class AccountStat extends Entity {
 
   set marketSaleNearTotal(value: i32) {
     this.set("marketSaleNearTotal", Value.fromI32(value));
+  }
+
+  get marketReputation(): i32 {
+    let value = this.get("marketReputation");
+    return value!.toI32();
+  }
+
+  set marketReputation(value: i32) {
+    this.set("marketReputation", Value.fromI32(value));
   }
 
   get marketRentTotal(): i32 {
@@ -566,6 +576,7 @@ export class ContractStat extends Entity {
     this.set("marketRentNearTotal", Value.fromI32(0));
     this.set("transactionTotal", Value.fromI32(0));
     this.set("accountTotal", Value.fromI32(0));
+    this.set("reputationTotal", Value.fromI32(0));
   }
 
   save(): void {
@@ -736,6 +747,15 @@ export class ContractStat extends Entity {
 
   set accountTotal(value: i32) {
     this.set("accountTotal", Value.fromI32(value));
+  }
+
+  get reputationTotal(): i32 {
+    let value = this.get("reputationTotal");
+    return value!.toI32();
+  }
+
+  set reputationTotal(value: i32) {
+    this.set("reputationTotal", Value.fromI32(value));
   }
 }
 
