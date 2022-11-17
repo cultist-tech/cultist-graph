@@ -1,11 +1,9 @@
-import {
-    Statistic,
-} from "../../generated/schema";
-import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
+import { Statistic } from "../../generated/schema";
+import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { JSONValue, TypedMap, BigInt } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts/index";
-import {referralIncrementPayout} from "../referral/helpers";
-import {getOrCreateAccount} from "../api/account";
+import { referralIncrementPayout } from "../referral/helpers";
+import { getOrCreateAccount } from "../api/account";
 
 // use for referral service
 
@@ -40,7 +38,14 @@ export class ParasService {
         const priceJson = data.get("price");
         const buyerIdJson = data.get("buyer_id");
 
-        if (!ownerIdJson || !nftContractIdJson || !tokenIdJson || !ftTokenIdJson || !priceJson || !buyerIdJson) {
+        if (
+            !ownerIdJson ||
+            !nftContractIdJson ||
+            !tokenIdJson ||
+            !ftTokenIdJson ||
+            !priceJson ||
+            !buyerIdJson
+        ) {
             log.error("[PARAS RESOLVE PURCHASE] - invalid args", []);
             return;
         }

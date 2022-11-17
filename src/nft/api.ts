@@ -1,5 +1,11 @@
-import {NftContract, Token, TokenBurner, TokenMetadata, TokenUpgrade} from "../../generated/schema";
-import {BigInt, JSONValue, JSONValueKind, log, TypedMap} from "@graphprotocol/graph-ts/index";
+import {
+    NftContract,
+    Token,
+    TokenBurner,
+    TokenMetadata,
+    TokenUpgrade,
+} from "../../generated/schema";
+import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import {
     convertStringRarity,
     deprecatedSaveTokenStats,
@@ -12,10 +18,10 @@ import {
     saveTokenRoyalties,
     saveTokenStats,
 } from "./helpers";
-import {getMarketSaleId, removeMarketSale} from "../market-sale/helpers";
-import {getMarketRentId, removeMarketRent} from "../market-rent/helpers";
-import {AccountStatsApi} from "../stats/account-stats";
-import {ContractStatsApi} from "../stats/contract-stats";
+import { getMarketSaleId, removeMarketSale } from "../market-sale/helpers";
+import { getMarketRentId, removeMarketRent } from "../market-rent/helpers";
+import { AccountStatsApi } from "../stats/account-stats";
+import { ContractStatsApi } from "../stats/contract-stats";
 
 export class TokenMapper {
     protected contractId: string;
@@ -351,7 +357,7 @@ export class TokenMapper {
         const upgradeId = getNftBurnerKey(typesJson, rarityJson.toI64());
 
         const nftBurner = new TokenBurner(upgradeId);
-        nftBurner.rarity =rarityJson.toI64() as i32;
+        nftBurner.rarity = rarityJson.toI64() as i32;
         nftBurner.rarity_sum = burningRaritySum.toI64() as i32;
 
         nftBurner.save();

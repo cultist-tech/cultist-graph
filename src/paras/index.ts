@@ -1,7 +1,7 @@
 import { near } from "@graphprotocol/graph-ts";
 import { getReceiptDate } from "../utils";
 import { ParasService } from "./api";
-import {json, JSONValue, log, TypedMap} from "@graphprotocol/graph-ts/index";
+import { json, JSONValue, log, TypedMap } from "@graphprotocol/graph-ts/index";
 
 function parseParasEvent(logData: string): TypedMap<string, JSONValue> {
     if (!logData) {
@@ -40,8 +40,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
     for (let logIndex = 0; logIndex < outcome.logs.length; logIndex++) {
         const ev = parseParasEvent(outcome.logs[logIndex]);
 
-        const method = ev.get('type');
-        const data = ev.get('params');
+        const method = ev.get("type");
+        const data = ev.get("params");
 
         if (!data || !method) {
             continue;

@@ -1,28 +1,29 @@
 import { getOrCreateAccountRoyalty } from "../api/account-royalty";
 import { sumBigInt } from "../utils";
 import { JSONValue, TypedMap, BigInt } from "@graphprotocol/graph-ts";
-import {log} from "@graphprotocol/graph-ts/index";
-import {getTokenId} from "../nft/helpers";
+import { log } from "@graphprotocol/graph-ts/index";
+import { getTokenId } from "../nft/helpers";
 import {
     getMarketSaleConditionId,
     getMarketSaleId,
-    removeMarketSale, saveMarketSaleConditions,
+    removeMarketSale,
+    saveMarketSaleConditions,
     updateCreateMarketSaleStats,
-    updateRemoveMarketSaleStats
+    updateRemoveMarketSaleStats,
 } from "./helpers";
-import { MarketSale, MarketSaleCondition, Statistic, Token} from "../../generated/schema";
-import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
-import {getOrCreateAccount} from "../api/account";
+import { MarketSale, MarketSaleCondition, Statistic, Token } from "../../generated/schema";
+import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
+import { getOrCreateAccount } from "../api/account";
 import {
     getOrCreateReferralContract,
     getOrCreateReferralContractVolume,
-    referralIncrementPayout
+    referralIncrementPayout,
 } from "../referral/helpers";
-import {ContractStatsApi} from "../stats/contract-stats";
-import {AccountStatsApi} from "../stats/account-stats";
-import {ReputationService} from "../reputation";
+import { ContractStatsApi } from "../stats/contract-stats";
+import { AccountStatsApi } from "../stats/account-stats";
+import { ReputationService } from "../reputation";
 
-const MARKET_ACCOUNT_ID = 'mfight-market.testnet';
+const MARKET_ACCOUNT_ID = "mfight-market.testnet";
 
 export class SaleMapper {
     protected stats: Statistic;
@@ -44,7 +45,7 @@ export class SaleMapper {
             const row = payout.entries[i];
             const payoutAccount = row.key;
 
-            if (payoutAccount == 'payout') {
+            if (payoutAccount == "payout") {
                 this.saveRoyalty(amount, row.value.toObject(), ftTokenId, ownerId);
                 return;
             } else {
@@ -93,17 +94,22 @@ export class SaleMapper {
         const ownerId = saleObj.get("owner_id");
         const contractId = saleObj.get("nft_contract_id");
         const tokenIdJson = saleObj.get("token_id");
-        const saleConditions = saleObj.get("sale_conditions");
+        const saleConditionsJson = saleObj.get("sale_conditions");
         const isAuction = saleObj.get("is_auction");
 
-        if (!ownerId || !ownerId || !contractId || !tokenIdJson || !saleConditions) {
+        if (!ownerId || !ownerId || !contractId || !tokenIdJson || !saleConditionsJson) {
             log.error("[market_create_sale] - invalid args", []);
             return;
         }
 
+        // args
         const contractTokenId = getTokenId(contractId.toString(), tokenIdJson.toString());
         const contractSaleId = getMarketSaleId(contractId.toString(), tokenIdJson.toString());
 
+        // structures
+        const contractStats = new ContractStatsApi(contractId.toString());
+
+        // sale
         const sale = new MarketSale(contractSaleId);
 
         sale.tokenId = contractTokenId;
@@ -113,12 +119,30 @@ export class SaleMapper {
         sale.contractId = contractId.toString();
         sale.createdAt = this.createdAt;
         sale.isAuction = isAuction ? isAuction.toBool() : false;
-
-        if (saleConditions && !saleConditions.isNull()) {
-            saveMarketSaleConditions(this.stats, contractSaleId, ownerId.toString(), saleConditions);
-        }
-
         sale.save();
+
+        // sale conditions
+        if (saleConditionsJson && !saleConditionsJson.isNull()) {
+            const saleConditions = saleConditionsJson.toObject();
+
+            for (let i = 0; i < saleConditions.entries.length; i++) {
+                const row = saleConditions.entries[i];
+
+                const rowId = getMarketSaleConditionId(contractSaleId, row.key.toString());
+                const saleCondition = new MarketSaleCondition(rowId);
+
+                saleCondition.saleId = contractSaleId;
+                saleCondition.sale = contractSaleId;
+                saleCondition.ftTokenId = row.key.toString();
+                saleCondition.price = row.value.toString();
+
+                if (saleCondition.ftTokenId === "near") {
+                    contractStats.marketAddSaleNear(saleCondition.price);
+                }
+
+                saleCondition.save();
+            }
+        }
 
         // token
         const token = Token.load(contractTokenId);
@@ -132,7 +156,7 @@ export class SaleMapper {
         const senderStats = new AccountStatsApi(ownerId.toString());
         senderStats.marketCreate();
         senderStats.save();
-        const contractStats = new ContractStatsApi(contractId.toString());
+
         contractStats.marketCreate(ownerId.toString());
         contractStats.save();
     }
@@ -188,16 +212,26 @@ export class SaleMapper {
             this.saveRoyalty(price.toString(), payoutJson.toObject(), ftTokenId, ownerId);
         }
 
-        referralIncrementPayout(contractId.toString(), ownerIdJson.toString(), ftTokenId, price.toString());
-        referralIncrementPayout(contractId.toString(), receiverId.toString(), ftTokenId, price.toString());
+        referralIncrementPayout(
+            contractId.toString(),
+            ownerIdJson.toString(),
+            ftTokenId,
+            price.toString()
+        );
+        referralIncrementPayout(
+            contractId.toString(),
+            receiverId.toString(),
+            ftTokenId,
+            price.toString()
+        );
 
         // stats
         const senderStats = new AccountStatsApi(ownerId.toString());
         senderStats.marketSell();
         senderStats.save();
-        const receverStats = new AccountStatsApi(receiverId.toString());
-        receverStats.marketBuy();
-        receverStats.save();
+        const receiverStats = new AccountStatsApi(receiverId.toString());
+        receiverStats.marketBuy();
+        receiverStats.save();
         const contractStats = new ContractStatsApi(contractId.toString());
         contractStats.marketPay(ownerId.toString(), receiverId.toString());
         contractStats.save();
@@ -205,16 +239,19 @@ export class SaleMapper {
 
     protected onRemove(data: TypedMap<string, JSONValue>): void {
         const tokenIdJson = data.get("token_id");
-        const ownerId = data.get("owner_id");
-        const contractId = data.get("nft_contract_id");
+        const ownerIdJson = data.get("owner_id");
+        const contractIdJson = data.get("nft_contract_id");
 
-        if (!tokenIdJson || !ownerId || !contractId) {
+        if (!tokenIdJson || !ownerIdJson || !contractIdJson) {
             log.error("[market_remove_sale] - invalid args", []);
             return;
         }
 
-        const tokenContractId = getTokenId(contractId.toString(), tokenIdJson.toString());
-        const contractSaleId = getMarketSaleId(contractId.toString(), tokenIdJson.toString());
+        const contractId = contractIdJson.toString();
+        const ownerId = ownerIdJson.toString();
+        const tokenId = tokenIdJson.toString();
+        const tokenContractId = getTokenId(contractId, tokenId);
+        const contractSaleId = getMarketSaleId(contractId, tokenId);
 
         const sale = MarketSale.load(contractSaleId);
 
@@ -224,7 +261,6 @@ export class SaleMapper {
         }
 
         sale.isDeleted = true;
-        sale.save();
 
         // token
         const token = Token.load(tokenContractId);
@@ -232,40 +268,40 @@ export class SaleMapper {
         if (token) {
             token.sale = null;
             token.saleId = null;
+            token.save();
         }
-
-        // stats
-        // if (this.stats.marketSaleTotal > 0) {
-        //     updateRemoveMarketSaleStats(this.stats, contractSaleId, ownerId.toString());
-        // }
 
         // stats
         const senderStats = new AccountStatsApi(ownerId.toString());
         senderStats.marketRemove();
         senderStats.save();
         const contractStats = new ContractStatsApi(contractId.toString());
-        contractStats.marketRemove(ownerId.toString());
+        contractStats.marketRemove(ownerId.toString(), contractSaleId);
         contractStats.save();
+
+        sale.save();
     }
 
     protected onUpdate(data: TypedMap<string, JSONValue>): void {
         const tokenIdJson = data.get("token_id");
-        const ownerId = data.get("owner_id");
-        const contractId = data.get("nft_contract_id");
-        const ftTokenId = data.get("ft_token_id");
-        const price = data.get("price");
+        const ownerIdJson = data.get("owner_id");
+        const contractIdJson = data.get("nft_contract_id");
+        const ftTokenIdJson = data.get("ft_token_id");
+        const priceJson = data.get("price");
 
-        if (!tokenIdJson || !ownerId || !contractId || !ftTokenId || !price) {
+        if (!tokenIdJson || !ownerIdJson || !contractIdJson || !ftTokenIdJson || !priceJson) {
             log.error("[market_update_sale] - invalid args", []);
             return;
         }
 
-        const contractSaleId = getMarketSaleId(contractId.toString(), tokenIdJson.toString());
+        const contractId = contractIdJson.toString();
+        const tokenId = tokenIdJson.toString();
+        const ftTokenId = ftTokenIdJson.toString();
+        const ownerId = ownerIdJson.toString();
+        const price = priceJson.toString();
+        const contractSaleId = getMarketSaleId(contractId, tokenId);
 
-        const saleConditionId = getMarketSaleConditionId(
-            contractSaleId,
-            ftTokenId.toString()
-        );
+        const saleConditionId = getMarketSaleConditionId(contractSaleId, ftTokenId);
 
         let saleCondition = MarketSaleCondition.load(saleConditionId);
 
@@ -275,23 +311,18 @@ export class SaleMapper {
             saleCondition.sale = contractSaleId;
         }
 
-        saleCondition.ftTokenId = ftTokenId.toString();
-        saleCondition.price = price.toString();
-
-        saleCondition.save();
+        saleCondition.ftTokenId = ftTokenId;
+        saleCondition.price = price;
 
         // stats
-        // if (ftTokenId.toString() == "near") {
-        //     updateCreateMarketSaleStats(this.stats, contractSaleId, ownerId.toString(), saleCondition);
-        // }
-
-        // stats
-        const senderStats = new AccountStatsApi(ownerId.toString());
+        const senderStats = new AccountStatsApi(ownerId);
         senderStats.marketUpdate();
         senderStats.save();
-        const contractStats = new ContractStatsApi(contractId.toString());
-        contractStats.marketUpdate();
+        const contractStats = new ContractStatsApi(contractId);
+        contractStats.marketUpdate(contractSaleId, ftTokenId, price);
         contractStats.save();
+
+        saleCondition.save();
     }
 
     protected end(): void {

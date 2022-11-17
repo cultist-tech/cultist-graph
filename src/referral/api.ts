@@ -81,15 +81,15 @@ export class ReferralService {
         program.influencer = influencer_id.toString();
         program.royalty_percent = royalty_percent.toI64() as i32;
         program.code = code.toString();
-        program.payoutNear = '0';
+        program.payoutNear = "0";
         program.createdAt = this.createdAt;
 
         if (metadataJson && !metadataJson.isNull()) {
             const metadataObj = metadataJson.toObject();
-            const titleJson = metadataObj.get('title');
-            const descriptionJson = metadataObj.get('description');
-            const mediaJson = metadataObj.get('media');
-            const urlJson = metadataObj.get('url');
+            const titleJson = metadataObj.get("title");
+            const descriptionJson = metadataObj.get("description");
+            const mediaJson = metadataObj.get("media");
+            const urlJson = metadataObj.get("url");
 
             program.title = titleJson ? titleJson.toString() : null;
             program.description = descriptionJson ? descriptionJson.toString() : null;
@@ -107,7 +107,7 @@ export class ReferralService {
         );
         const referralInfluencerContractId = getReferralInfluencerContractId(
             influencer_id.toString(),
-            contract_id.toString(),
+            contract_id.toString()
         );
 
         // contract
@@ -136,8 +136,16 @@ export class ReferralService {
 
         // contract influencer relations
 
-        const contractInfluencer = getOrCreateReferralContractInfluencer(contract_id.toString(), influencer_id.toString(), this.createdAt);
-        const influencerContract = getOrCreateReferralInfluencerContract(influencer_id.toString(), contract_id.toString(), this.createdAt);
+        const contractInfluencer = getOrCreateReferralContractInfluencer(
+            contract_id.toString(),
+            influencer_id.toString(),
+            this.createdAt
+        );
+        const influencerContract = getOrCreateReferralInfluencerContract(
+            influencer_id.toString(),
+            contract_id.toString(),
+            this.createdAt
+        );
 
         contractInfluencer.programsCount++;
         influencerContract.programsCount++;
@@ -166,21 +174,14 @@ export class ReferralService {
         const contractStats = getOrCreateStatistic(contractId);
         contractStats.transactionTotal++;
 
-        const referralId = getReferralId(
-            contractId,
-            accountId
-        );
+        const referralId = getReferralId(contractId, accountId);
         let referral = Referral.load(referralId);
 
         if (referral) {
             return;
         }
 
-        const programId = getReferralProgramId(
-            contractId,
-            influencerId,
-            programIdJson.toString()
-        );
+        const programId = getReferralProgramId(contractId, influencerId, programIdJson.toString());
         const program = ReferralProgram.load(programId);
 
         if (!program) {
@@ -202,7 +203,7 @@ export class ReferralService {
         const referralContractInfluencer = getOrCreateReferralContractInfluencer(
             contractId,
             influencerId,
-            this.createdAt,
+            this.createdAt
         );
         referralContractInfluencer.referralsCount++;
         referralContractInfluencer.createdAt = this.createdAt;
@@ -211,7 +212,7 @@ export class ReferralService {
         const referralInfluencerContract = getOrCreateReferralInfluencerContract(
             influencerId,
             contractId,
-            this.createdAt,
+            this.createdAt
         );
         referralInfluencerContract.referralsCount++;
         referralInfluencerContract.createdAt = this.createdAt;
@@ -220,7 +221,7 @@ export class ReferralService {
         getOrCreateAccount(accountId, this.stats, contractStats);
 
         referral = new Referral(referralId);
-        referral.payoutNear = '0';
+        referral.payoutNear = "0";
         referral.accountId = accountId;
         referral.contractId = contractIdJson.toString();
         referral.influencerId = influencerIdJson.toString();

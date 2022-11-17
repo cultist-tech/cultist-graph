@@ -2,9 +2,10 @@ import { json, JSONValue, log, TypedMap } from "@graphprotocol/graph-ts";
 import { BigInt, near } from "@graphprotocol/graph-ts/index";
 
 export function getReceiptDate(receiptWithOutcome: near.ReceiptWithOutcome): BigInt {
-    return BigInt.fromU64(receiptWithOutcome.block.header.timestampNanosec).div(BigInt.fromU64(1_000_000));
+    return BigInt.fromU64(receiptWithOutcome.block.header.timestampNanosec).div(
+        BigInt.fromU64(1_000_000)
+    );
 }
-
 
 export function parseEvent(logData: string): TypedMap<string, JSONValue> {
     let outcomeLog = logData.toString();
@@ -28,4 +29,3 @@ export function parseEvent(logData: string): TypedMap<string, JSONValue> {
 export function sumBigInt(one: string, two: string): string {
     return BigInt.fromString(one).plus(BigInt.fromString(two)).toString();
 }
-

@@ -1,6 +1,6 @@
 import { NftIdo, Statistic, Token } from "../../generated/schema";
 import { getOrCreateStatisticSystem } from "../api/statistic";
-import {BigInt, JSONValue, log, TypedMap} from "@graphprotocol/graph-ts/index";
+import { BigInt, JSONValue, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import { getNftIdoId } from "./helpers";
 import { getTokenId } from "../nft/helpers";
 

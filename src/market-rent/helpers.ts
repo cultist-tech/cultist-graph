@@ -1,6 +1,5 @@
 import { JSONValue, BigInt, store, log } from "@graphprotocol/graph-ts/index";
 import { MarketRentCondition, MarketSaleCondition, Statistic } from "../../generated/schema";
-import { getOrCreateStatisticSystem } from "../api/statistic";
 import { getMarketSaleConditionId } from "../market-sale/helpers";
 
 export function getMarketRentId(contractId: string, tokenId: string): string {

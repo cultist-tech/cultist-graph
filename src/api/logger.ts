@@ -1,4 +1,4 @@
-import {Log, LogStats} from "../../generated/schema";
+import { Log, LogStats } from "../../generated/schema";
 
 export class Logger {
     protected stats: LogStats;
@@ -15,18 +15,18 @@ export class Logger {
     public save(): void {
         this.stats.save();
 
-        for(let i = 0; i < this.logs.length; i++) {
+        for (let i = 0; i < this.logs.length; i++) {
             const l = this.logs[i];
             l.save();
         }
     }
 
     protected getId(): string {
-        let stats = LogStats.load('_');
+        let stats = LogStats.load("_");
 
         if (!stats) {
-           stats = new LogStats('_');
-           stats.count = 0 as i32;
+            stats = new LogStats("_");
+            stats.count = 0 as i32;
         }
         this.stats = stats;
         this.stats.count++;

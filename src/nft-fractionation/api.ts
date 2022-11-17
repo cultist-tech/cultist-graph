@@ -1,8 +1,14 @@
-import {NftFractionation, NftFractionationPart, NftIdo, Statistic, Token} from "../../generated/schema";
+import {
+    NftFractionation,
+    NftFractionationPart,
+    NftIdo,
+    Statistic,
+    Token,
+} from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { JSONValue } from "@graphprotocol/graph-ts";
-import {BigInt, log, TypedMap} from "@graphprotocol/graph-ts/index";
-import {getNftFractionationEntryId, getNftFractionationId} from "./helpers";
+import { BigInt, log, TypedMap } from "@graphprotocol/graph-ts/index";
+import { getNftFractionationEntryId, getNftFractionationId } from "./helpers";
 import { getTokenId } from "../nft/helpers";
 
 export class NftFractionationMapper {
@@ -65,7 +71,11 @@ export class NftFractionationMapper {
         for (let i = 0; i < entriesArr.length; i++) {
             const entryId = entriesArr[i];
 
-            this.addFractionationEntry(contractId.toString(), tokenId.toString(), entryId.toString());
+            this.addFractionationEntry(
+                contractId.toString(),
+                tokenId.toString(),
+                entryId.toString()
+            );
         }
     }
 
@@ -80,12 +90,16 @@ export class NftFractionationMapper {
             return;
         }
 
-        const fractionationEntryId = getNftFractionationEntryId(contractId.toString(), fractionationId.toString(), tokenId.toString());
+        const fractionationEntryId = getNftFractionationEntryId(
+            contractId.toString(),
+            fractionationId.toString(),
+            tokenId.toString()
+        );
         const entry = NftFractionationPart.load(fractionationEntryId);
 
         if (!entry) {
             log.error("[nft_fractionation_process] - not found entry", []);
-            return
+            return;
         }
 
         entry.ownerId = accountId.toString();
@@ -144,16 +158,12 @@ export class NftFractionationMapper {
         }
     }
 
-    protected addFractionationEntry(
-        contractId: string,
-        tokenId: string,
-        entryId: string
-    ): void {
+    protected addFractionationEntry(contractId: string, tokenId: string, entryId: string): void {
         const contractTokenId = getTokenId(contractId, entryId);
 
         const fractionationId = getNftFractionationId(contractId, tokenId);
         const fractionationEntryId = getNftFractionationEntryId(contractId, tokenId, entryId);
-        const entry = new  NftFractionationPart(fractionationEntryId);
+        const entry = new NftFractionationPart(fractionationEntryId);
 
         entry.contractId = contractId;
         entry.fractionation = fractionationId;

@@ -1,7 +1,7 @@
 import { Reputation } from "../../generated/schema";
 import { JSONValue, TypedMap, log } from "@graphprotocol/graph-ts/index";
-import {AccountStatsApi} from "../stats/account-stats";
-import {ContractStatsApi} from "../stats/contract-stats";
+import { AccountStatsApi } from "../stats/account-stats";
+import { ContractStatsApi } from "../stats/contract-stats";
 
 function getReputationId(contractId: string, accountId: string): string {
     return contractId + "||" + accountId;
@@ -44,7 +44,7 @@ export class ReputationService {
             accountStats.save();
 
             const contractStats = new ContractStatsApi(this.contractId);
-            contractStats.reputationUpdate(change);
+            contractStats.reputationUpdate(change as i32);
             contractStats.save();
         } else if (method === "reputation_decrease") {
             const accountIdJson = data.get("account_id");
@@ -71,7 +71,7 @@ export class ReputationService {
             accountStats.save();
 
             const contractStats = new ContractStatsApi(this.contractId);
-            contractStats.reputationUpdate(-change);
+            contractStats.reputationUpdate(-change as i32);
             contractStats.save();
         }
     }

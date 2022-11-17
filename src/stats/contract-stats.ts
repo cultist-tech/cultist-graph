@@ -1,4 +1,6 @@
-import { Account, ContractStat } from "../../generated/schema";
+import { Account, ContractStat, MarketSaleCondition } from "../../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts/index";
+import { getMarketSaleConditionId } from "../market-sale/helpers";
 
 function getOrCreateStats(contractId: string): ContractStat {
     const stats = ContractStat.load(contractId);
@@ -56,20 +58,52 @@ export class ContractStatsApi {
     }
 
     public marketPay(ownerId: string, receiverId: string): void {
-        this.stats.marketSaleTotal--
+        this.stats.marketSaleTotal--;
         this.getOrCreateAccount(ownerId);
         this.getOrCreateAccount(receiverId);
     }
 
-    public marketRemove(ownerId: string): void {
+    public marketRemove(ownerId: string, saleId: string): void {
         this.stats.transactionTotal++;
         this.stats.marketSaleTotal--;
+
+        const saleConditionId = getMarketSaleConditionId(saleId, "near");
+        const saleCondition = MarketSaleCondition.load(saleConditionId);
+
+        if (saleCondition && this.stats.marketSaleNearTotal > 0) {
+            this.marketRemoveSaleNear(saleCondition.price);
+        }
 
         this.getOrCreateAccount(ownerId);
     }
 
-    public marketUpdate(): void {
+    public marketUpdate(saleId: string, ftTokenId: string, price: string): void {
         this.stats.transactionTotal++;
+
+        if (ftTokenId === "near") {
+            const saleConditionId = getMarketSaleConditionId(saleId, "near");
+            const saleCondition = MarketSaleCondition.load(saleConditionId);
+
+            if (saleCondition) {
+                this.marketRemoveSaleNear(saleCondition.price);
+            }
+
+            this.marketAddSaleNear(price);
+        }
+    }
+
+    public marketRemoveSaleNear(price: string): void {
+        this.stats.marketSaleNearTotal--;
+        this.stats.marketSaleNearSum = BigInt.fromString(this.stats.marketSaleNearSum)
+            .minus(BigInt.fromString(price))
+            .toString();
+    }
+
+    public marketAddSaleNear(price: string): void {
+        this.stats.marketSaleNearTotal++;
+        this.stats.marketSaleNearSum = BigInt.fromString(this.stats.marketSaleNearSum)
+            .plus(BigInt.fromString(price))
+            .toString();
     }
 
     public reputationUpdate(change: i32): void {

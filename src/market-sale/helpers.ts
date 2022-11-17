@@ -1,6 +1,5 @@
 import { JSONValue, BigInt } from "@graphprotocol/graph-ts";
 import { MarketSaleCondition, Statistic } from "../../generated/schema";
-import { getOrCreateStatisticSystem } from "../api/statistic";
 import { log, store } from "@graphprotocol/graph-ts/index";
 
 export function getMarketSaleId(contractId: string, tokenId: string): string {
@@ -34,10 +33,6 @@ export function saveMarketSaleConditions(
         saleCondition.sale = saleId.toString();
         saleCondition.ftTokenId = row.key.toString();
         saleCondition.price = row.value.toString();
-
-        if (saleCondition.ftTokenId == "near") {
-            updateCreateMarketSaleStats(stats, saleId, accountId, saleCondition);
-        }
 
         saleCondition.save();
     }
