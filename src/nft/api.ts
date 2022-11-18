@@ -109,8 +109,8 @@ export class TokenMapper {
 
             token.nftBurner = upgradeKey;
             token.nftUpgrade = upgradeKey;
-            token.nftBurnerId = token.nftBurner;
-            token.nftUpgradeId = token.nftUpgradeId;
+            token.nftBurnerId = upgradeKey;
+            token.nftUpgradeId = upgradeKey;
         }
 
         if (metadata && !metadata.isNull()) {

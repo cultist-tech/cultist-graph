@@ -91,11 +91,11 @@ export function parseNftStats(token: TypedMap<string, JSONValue>): TypedMap<stri
     if (deprecatedCollection && !deprecatedCollection.isNull()) {
         deprecated.set("collection", deprecatedCollection);
     }
-    if (deprecatedTokenType && !deprecatedTokenType.isNull()) {
-        deprecated.set("type", deprecatedTokenType);
-    }
     if (deprecatedTokenSubType && !deprecatedTokenSubType.isNull()) {
         deprecated.set("sub_type", deprecatedTokenSubType);
+    }
+    if (deprecatedTokenType && !deprecatedTokenType.isNull()) {
+        deprecated.set("type", deprecatedTokenType);
     }
 
     return deprecated;
