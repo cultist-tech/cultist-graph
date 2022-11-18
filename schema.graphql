@@ -138,6 +138,8 @@ type Token @entity {
 
     nftUpgrade: TokenUpgrade
     nftBurner: TokenBurner
+    nftUpgradeId: ID
+    nftBurnerId: ID
 
     royalty: [TokenRoyalty!]! @derivedFrom(field: "token")
     stats: [TokenStat!]! @derivedFrom(field: "token")
@@ -458,10 +460,4 @@ type Log @entity {
 
     key: String!
     message: String!
-}
-
-type LogStats @entity {
-    id: ID!
-
-    count: Int!
 }

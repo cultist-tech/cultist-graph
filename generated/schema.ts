@@ -1060,6 +1060,40 @@ export class Token extends Entity {
     }
   }
 
+  get nftUpgradeId(): string | null {
+    let value = this.get("nftUpgradeId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nftUpgradeId(value: string | null) {
+    if (!value) {
+      this.unset("nftUpgradeId");
+    } else {
+      this.set("nftUpgradeId", Value.fromString(<string>value));
+    }
+  }
+
+  get nftBurnerId(): string | null {
+    let value = this.get("nftBurnerId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nftBurnerId(value: string | null) {
+    if (!value) {
+      this.unset("nftBurnerId");
+    } else {
+      this.set("nftBurnerId", Value.fromString(<string>value));
+    }
+  }
+
   get royalty(): Array<string> {
     let value = this.get("royalty");
     return value!.toStringArray();
@@ -3555,49 +3589,5 @@ export class Log extends Entity {
 
   set message(value: string) {
     this.set("message", Value.fromString(value));
-  }
-}
-
-export class LogStats extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-
-    this.set("count", Value.fromI32(0));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save LogStats entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save LogStats entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("LogStats", id.toString(), this);
-    }
-  }
-
-  static load(id: string): LogStats | null {
-    return changetype<LogStats | null>(store.get("LogStats", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get count(): i32 {
-    let value = this.get("count");
-    return value!.toI32();
-  }
-
-  set count(value: i32) {
-    this.set("count", Value.fromI32(value));
   }
 }

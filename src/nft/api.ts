@@ -7,11 +7,9 @@ import {
 } from "../../generated/schema";
 import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import {
-    convertStringRarity,
-    deprecatedSaveTokenStats,
     getNftBurnerKey,
     getNftUpgradeKey,
-    getTokenId,
+    getTokenId, parseNftStats, parseRarity,
     removeNftBurner,
     removeNftUpgrade,
     removeToken,
@@ -83,11 +81,7 @@ export class TokenMapper {
         const royalty = tokenData.get("royalty");
         const bindToOwner = tokenData.get("bind_to_owner");
         const revealAt = tokenData.get("reveal_at");
-        const typesJson = tokenData.get("types");
-
-        const deprecatedCollection = tokenData.get("collection");
-        const deprecatedTokenType = tokenData.get("token_type");
-        const deprecatedTokenSubType = tokenData.get("token_sub_type");
+        const typesJson = parseNftStats(tokenData);
 
         if (!tokenIdRaw || !ownerId) {
             log.error("[nft_create] - invalid token args", []);
@@ -109,14 +103,14 @@ export class TokenMapper {
             token.revealAt = revealAt.toU64() as i32;
         }
         if (rarityJson && !rarityJson.isNull()) {
-            if (rarityJson.kind === JSONValueKind.STRING) {
-                token.rarity = convertStringRarity(rarityJson);
-            } else {
-                token.rarity = rarityJson.toU64() as i32;
-            }
+            token.rarity = parseRarity(rarityJson)
 
-            token.nftBurner = getNftBurnerKey(typesJson, token.rarity);
-            token.nftUpgrade = getNftUpgradeKey(typesJson, token.rarity);
+            const upgradeKey = getNftBurnerKey(typesJson, token.rarity + 1);
+
+            token.nftBurner = upgradeKey;
+            token.nftUpgrade = upgradeKey;
+            token.nftBurnerId = token.nftBurner;
+            token.nftUpgradeId = token.nftUpgradeId;
         }
 
         if (metadata && !metadata.isNull()) {
@@ -142,19 +136,8 @@ export class TokenMapper {
             saveTokenRoyalties(token.tokenId, royalty);
         }
 
-        if (typesJson) {
-            saveTokenStats(this.contractId, tokenIdRaw.toString(), typesJson);
-        } else {
-            if (deprecatedTokenType || deprecatedTokenSubType || deprecatedCollection) {
-                deprecatedSaveTokenStats(
-                    this.contractId,
-                    tokenId,
-                    deprecatedTokenType,
-                    deprecatedTokenSubType,
-                    deprecatedCollection
-                );
-            }
-        }
+        // save stats
+        saveTokenStats(this.contractId, tokenId, typesJson);
 
         token.save();
     }
@@ -279,16 +262,17 @@ export class TokenMapper {
         const ftTokenJson = data.get("ft_token");
         const priceJson = data.get("price");
 
-        if (!rarityJson || !ftTokenJson || !priceJson) {
+        if (!rarityJson || !ftTokenJson || !priceJson || !typesJson) {
             log.error("[nft_set_upgrade_price] - invalid args", []);
             return;
         }
 
-        const upgradeId = getNftUpgradeKey(typesJson, rarityJson.toI64());
+        const upgradeId = getNftUpgradeKey(typesJson.toObject(), rarityJson.toI64());
 
         const nftUpgrade = new TokenUpgrade(upgradeId);
         nftUpgrade.ftTokenId = ftTokenJson.toString();
         nftUpgrade.price = priceJson.toString();
+        nftUpgrade.rarity = rarityJson.toI64() as i32;
 
         nftUpgrade.save();
     }
@@ -298,13 +282,13 @@ export class TokenMapper {
         const typesJson = data.get("types"); // option
         const rarityJson = data.get("rarity");
 
-        if (!rarityJson || !priceTypeJson) {
+        if (!rarityJson || !priceTypeJson || !typesJson) {
             log.error("[nft_remove_upgrade_price] - invalid args", []);
             return;
         }
 
         const priceType = priceTypeJson.toString();
-        const upgradeId = getNftUpgradeKey(typesJson, rarityJson.toI64());
+        const upgradeId = getNftUpgradeKey(typesJson.toObject(), rarityJson.toI64());
 
         if (priceType == "Upgradable") {
             removeNftUpgrade(upgradeId);
@@ -336,6 +320,17 @@ export class TokenMapper {
 
         token.rarity = rarityJson.toI64() as i32;
 
+        const nftBurner = token.nftBurner;
+        if (nftBurner) {
+            token.nftBurner = "r" + (token.rarity + 1).toString() + nftBurner.slice(2);
+        }
+        const nftUpgrade = token.nftUpgrade;
+        if (nftUpgrade) {
+            token.nftUpgrade = "r" + (token.rarity + 1).toString() + nftUpgrade.slice(2);
+        }
+        token.nftBurnerId = token.nftBurner;
+        token.nftUpgradeId = token.nftUpgradeId;
+
         token.save();
 
         const senderStats = new AccountStatsApi(ownerId);
@@ -349,12 +344,12 @@ export class TokenMapper {
         const typesJson = data.get("types"); // option
         const burningRaritySum = data.get("burning_rarity_sum");
 
-        if (!rarityJson || !burningRaritySum) {
+        if (!rarityJson || !burningRaritySum || !typesJson) {
             log.error("[nft_set_burner_price] - invalid args", []);
             return;
         }
 
-        const upgradeId = getNftBurnerKey(typesJson, rarityJson.toI64());
+        const upgradeId = getNftBurnerKey(typesJson.toObject(), rarityJson.toI64());
 
         const nftBurner = new TokenBurner(upgradeId);
         nftBurner.rarity = rarityJson.toI64() as i32;

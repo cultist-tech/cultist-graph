@@ -1,4 +1,4 @@
-import { JSONValue, store, TypedMap } from "@graphprotocol/graph-ts/index";
+import {JSONValue, JSONValueKind, store, TypedMap} from "@graphprotocol/graph-ts/index";
 import { TokenRoyalty, TokenStat } from "../../generated/schema";
 
 export function getTokenId(contractId: string, tokenId: string): string {
@@ -13,23 +13,27 @@ export function removeToken(id: string): void {
     store.remove("Token", id);
 }
 
-export function convertStringRarity(rarityValue: JSONValue): i32 {
-    const rarity = rarityValue.toString();
+export function parseRarity(value: JSONValue): i32 {
+    if (value.kind === JSONValueKind.STRING) {
+        const rarity = value.toString();
 
-    if (rarity == "Common") {
-        return 0 as i32;
-    } else if (rarity == "Uncommon") {
-        return 1 as i32;
-    } else if (rarity == "Rare") {
-        return 2 as i32;
-    } else if (rarity == "Uniq") {
-        return 3 as i32;
-    } else if (rarity == "Legendary") {
-        return 4 as i32;
-    } else if (rarity == "Artefact") {
-        return 5 as i32;
+        if (rarity == "Common") {
+            return 0 as i32;
+        } else if (rarity == "Uncommon") {
+            return 1 as i32;
+        } else if (rarity == "Rare") {
+            return 2 as i32;
+        } else if (rarity == "Uniq") {
+            return 3 as i32;
+        } else if (rarity == "Legendary") {
+            return 4 as i32;
+        } else if (rarity == "Artefact") {
+            return 5 as i32;
+        } else {
+            return 0 as i32;
+        }
     } else {
-        return 0 as i32;
+        return value.toU64() as i32;
     }
 }
 
@@ -51,12 +55,11 @@ export function saveTokenRoyalties(tokenId: string, obj: JSONValue): void {
     }
 }
 
-export function saveTokenStats(contractId: string, tokenId: string, types: JSONValue): void {
+export function saveTokenStats(contractId: string, tokenId: string, types: TypedMap<string, JSONValue>): void {
     const contractTokenId = getTokenId(contractId, tokenId);
-    const typesObj = types.toObject();
 
-    for (let i = 0; i < typesObj.entries.length; i++) {
-        const row = typesObj.entries[i];
+    for (let i = 0; i < types.entries.length; i++) {
+        const row = types.entries[i];
 
         const tokenStatId = getTokenStatId(contractTokenId, row.key);
         const value = row.value.toString();
@@ -71,57 +74,40 @@ export function saveTokenStats(contractId: string, tokenId: string, types: JSONV
         stat.save();
     }
 }
-export function deprecatedSaveTokenStats(
-    contractId: string,
-    tokenId: string,
-    type: JSONValue | null,
-    subType: JSONValue | null,
-    collection: JSONValue | null
-): void {
-    const contractTokenId = getTokenId(contractId, tokenId);
+export function parseNftStats(token: TypedMap<string, JSONValue>): TypedMap<string, JSONValue> {
+    const typesJson = token.get("types");
 
-    if (type && !type.isNull()) {
-        const tokenTypeStatId = getTokenStatId(contractTokenId, "type");
-        const typeStat = new TokenStat(tokenTypeStatId);
-        typeStat.token = contractTokenId;
-        typeStat.tokenId = tokenId;
-        typeStat.key = "type";
-        typeStat.value = type.toString();
-        typeStat.save();
+    if (typesJson) {
+        return typesJson.toObject();
     }
-    if (subType && !subType.isNull()) {
-        const tokenTypeStatId = getTokenStatId(contractTokenId, "subType");
-        const typeStat = new TokenStat(tokenTypeStatId);
-        typeStat.token = contractTokenId;
-        typeStat.tokenId = tokenId;
-        typeStat.key = "subType";
-        typeStat.value = subType.toString();
-        typeStat.save();
+
+    const deprecatedCollection = token.get("collection");
+    const deprecatedTokenType = token.get("token_type");
+    const deprecatedTokenSubType = token.get("token_sub_type");
+
+
+    const deprecated = new TypedMap<string, JSONValue>();
+
+    if (deprecatedCollection && !deprecatedCollection.isNull()) {
+        deprecated.set("collection", deprecatedCollection);
     }
-    if (collection && !collection.isNull()) {
-        const tokenTypeStatId = getTokenStatId(contractTokenId, "collection");
-        const typeStat = new TokenStat(tokenTypeStatId);
-        typeStat.token = contractTokenId;
-        typeStat.tokenId = tokenId;
-        typeStat.key = "collection";
-        typeStat.value = collection.toString();
-        typeStat.save();
+    if (deprecatedTokenType && !deprecatedTokenType.isNull()) {
+        deprecated.set("type", deprecatedTokenType);
     }
+    if (deprecatedTokenSubType && !deprecatedTokenSubType.isNull()) {
+        deprecated.set("sub_type", deprecatedTokenSubType);
+    }
+
+    return deprecated;
 }
 
 // upgrade
 
-export function getNftUpgradeKey(types: JSONValue | null, rarity: i64): string {
-    if (!types) {
-        return rarity.toString();
-    }
-
+export function getNftUpgradeKey(types: TypedMap<string, JSONValue>, rarity: i64): string {
     let id = "r" + rarity.toString();
 
-    let typesObj = types.toObject();
-
-    for (let i = 0; i < typesObj.entries.length; i++) {
-        const row = typesObj.entries[i];
+    for (let i = 0; i < types.entries.length; i++) {
+        const row = types.entries[i];
 
         id = id + "||" + row.key + ":" + row.value.toString();
     }
@@ -134,7 +120,7 @@ export function removeNftUpgrade(id: string): void {
 
 // burner
 
-export function getNftBurnerKey(types: JSONValue | null, rarity: i64): string {
+export function getNftBurnerKey(types: TypedMap<string, JSONValue>, rarity: i64): string {
     return getNftUpgradeKey(types, rarity);
 }
 export function removeNftBurner(id: string): void {
