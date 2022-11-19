@@ -73,7 +73,7 @@ export class TokenMapper {
         }
         const tokenData = rawToken.toObject();
 
-        const tokenIdRaw = tokenData.get("token_id");
+        const tokenIdJson = tokenData.get("token_id");
         const ownerId = tokenData.get("owner_id");
         const metadata = tokenData.get("metadata");
 
@@ -83,12 +83,12 @@ export class TokenMapper {
         const revealAt = tokenData.get("reveal_at");
         const typesJson = parseNftStats(tokenData);
 
-        if (!tokenIdRaw || !ownerId) {
+        if (!tokenIdJson || !ownerId) {
             log.error("[nft_create] - invalid token args", []);
             return;
         }
 
-        const tokenId = tokenIdRaw.toString();
+        const tokenId = tokenIdJson.toString();
         const contractTokenId = getTokenId(this.contractId, tokenId);
         const token = new Token(contractTokenId);
 
@@ -143,21 +143,24 @@ export class TokenMapper {
     }
 
     public onTransfer(data: TypedMap<string, JSONValue>): void {
-        const tokenIds = data.get("token_ids");
-        const senderId = data.get("old_owner_id");
-        const receiverId = data.get("new_owner_id");
+        const tokenIdsJson = data.get("token_ids");
+        const senderIdJson = data.get("old_owner_id");
+        const receiverIdJson = data.get("new_owner_id");
 
-        if (!tokenIds || !senderId || !receiverId) {
+        if (!senderIdJson || !tokenIdsJson || !receiverIdJson) {
             log.error("[nft_transfer] - invalid args", []);
             return;
         }
-        const tokenIdRaw = tokenIds.toArray()[0];
 
-        const tokenId = getTokenId(this.contractId.toString(), tokenIdRaw.toString());
-        let token = Token.load(tokenId);
+        const tokenId = tokenIdsJson.toArray()[0].toString();
+        const contractTokenId = getTokenId(this.contractId, tokenId);
+        const receiverId = receiverIdJson.toString();
+        const senderId = senderIdJson.toString();
+
+        let token = Token.load(contractTokenId);
 
         if (!token) {
-            log.error("[nft_transfer] - Not found transferred token {}", [tokenId.toString()]);
+            log.error("[nft_transfer] - Not found transferred token {}", [contractTokenId]);
             return;
         }
 
@@ -167,68 +170,73 @@ export class TokenMapper {
         token.save();
 
         // clear
-        const saleId = getMarketSaleId(this.contractId, tokenId.toString());
-        const rentId = getMarketRentId(this.contractId, tokenId.toString());
+        const saleId = getMarketSaleId(this.contractId, tokenId);
+        const rentId = getMarketRentId(this.contractId, tokenId);
         removeMarketSale(saleId);
         removeMarketRent(rentId);
 
         // stats
-        const senderStats = new AccountStatsApi(senderId.toString());
+        const senderStats = new AccountStatsApi(senderId);
         senderStats.nftSend();
         senderStats.save();
-        const receiverStats = new AccountStatsApi(receiverId.toString());
+        const receiverStats = new AccountStatsApi(receiverId);
         receiverStats.nftReceive();
         receiverStats.save();
-        this.stats.nftTransfer(senderId.toString(), receiverId.toString());
+        this.stats.nftTransfer(senderId, receiverId);
     }
 
     public onBurn(data: TypedMap<string, JSONValue>): void {
-        const tokenIds = data.get("token_ids");
-        const senderId = data.get("owner_id");
+        const tokenIdsJson = data.get("token_ids");
+        const senderIdJson = data.get("owner_id");
 
-        if (!tokenIds || !senderId) {
+        if (!tokenIdsJson || !senderIdJson) {
             log.error("[nft_burn] - invalid args", []);
             return;
         }
-        const tokenIdRaw = tokenIds.toArray()[0];
-        const tokenId = getTokenId(this.contractId.toString(), tokenIdRaw.toString());
 
-        let token = Token.load(tokenId.toString());
+        const tokenId = tokenIdsJson.toArray()[0].toString();
+        const senderId = senderIdJson.toString();
+
+        const contractTokenId = getTokenId(this.contractId, tokenId);
+
+        let token = Token.load(contractTokenId);
 
         if (!token) {
-            log.error("[nft_burn] - Not found token {}", [tokenId.toString()]);
+            log.error("[nft_burn] - Not found token {}", [contractTokenId]);
             return;
         }
 
         removeToken(tokenId);
 
         // clear
-        const saleId = getMarketSaleId(this.contractId, tokenId.toString());
-        const rentId = getMarketRentId(this.contractId, tokenId.toString());
-        removeMarketSale(saleId);
-        removeMarketRent(rentId);
+        const contractSaleId = getMarketSaleId(this.contractId, tokenId);
+        const contractRentId = getMarketRentId(this.contractId, tokenId);
+        removeMarketSale(contractSaleId);
+        removeMarketRent(contractRentId);
 
         // stats
-        const senderStats = new AccountStatsApi(senderId.toString());
+        const senderStats = new AccountStatsApi(senderId);
         senderStats.nftBurn();
         senderStats.save();
-        this.stats.nftBurn(senderId.toString());
+        this.stats.nftBurn(senderId);
     }
 
     public onMint(data: TypedMap<string, JSONValue>): void {
-        const tokenIds = data.get("token_ids");
-        const receiverId = data.get("owner_id");
+        const tokenIdsJson = data.get("token_ids");
+        const receiverIdJson = data.get("owner_id");
 
-        if (!receiverId || !tokenIds) {
+        if (!receiverIdJson || !tokenIdsJson) {
             log.error("[nft_mint] - invalid args", []);
             return;
         }
 
-        const tokenIdRaw = tokenIds.toArray()[0].toString();
-        const tokenId = getTokenId(this.contractId, tokenIdRaw.toString());
+        const receiverId = receiverIdJson.toString();
+        const tokenId = tokenIdsJson.toArray()[0].toString();
+
+        const contractTokenId = getTokenId(this.contractId, tokenId);
 
         //
-        const accountStats = new AccountStatsApi(receiverId.toString());
+        const accountStats = new AccountStatsApi(receiverId);
         accountStats.nftReceive();
         accountStats.save();
     }

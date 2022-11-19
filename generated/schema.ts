@@ -446,6 +446,23 @@ export class Account extends Entity {
   set ftBalances(value: Array<string>) {
     this.set("ftBalances", Value.fromStringArray(value));
   }
+
+  get reputation(): string | null {
+    let value = this.get("reputation");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set reputation(value: string | null) {
+    if (!value) {
+      this.unset("reputation");
+    } else {
+      this.set("reputation", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class AccountRoyalty extends Entity {
