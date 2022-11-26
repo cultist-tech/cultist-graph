@@ -1,5 +1,5 @@
 import {JSONValue, JSONValueKind, store, TypedMap} from "@graphprotocol/graph-ts/index";
-import { TokenRoyalty, TokenStat } from "../../generated/schema";
+import { NftRoyalty, NftStat } from "../../generated/schema";
 
 export function getTokenId(contractId: string, tokenId: string): string {
     return contractId + "||" + tokenId;
@@ -10,7 +10,7 @@ export function getTokenStatId(contractIdTokenId: string, statKey: string): stri
 }
 
 export function removeToken(id: string): void {
-    store.remove("Token", id);
+    store.remove("Nft", id);
 }
 
 export function parseRarity(value: JSONValue): i32 {
@@ -45,9 +45,9 @@ export function saveTokenRoyalties(tokenId: string, obj: JSONValue): void {
 
         const rowId = tokenId + "-" + row.key.toString();
 
-        const royalty = new TokenRoyalty(rowId);
-        royalty.tokenId = tokenId;
-        royalty.token = tokenId;
+        const royalty = new NftRoyalty(rowId);
+        royalty.nftId = tokenId;
+        royalty.nft = tokenId;
         royalty.accountId = row.key;
         royalty.value = row.value.toI64() as i32;
 
@@ -64,10 +64,10 @@ export function saveTokenStats(contractId: string, tokenId: string, types: Typed
         const tokenStatId = getTokenStatId(contractTokenId, row.key);
         const value = row.value.toString();
 
-        const stat = new TokenStat(tokenStatId);
+        const stat = new NftStat(tokenStatId);
 
-        stat.token = contractTokenId;
-        stat.tokenId = tokenId;
+        stat.nft = contractTokenId;
+        stat.nftId = tokenId;
         stat.key = row.key;
         stat.value = value;
 
@@ -77,7 +77,7 @@ export function saveTokenStats(contractId: string, tokenId: string, types: Typed
 export function parseNftStats(token: TypedMap<string, JSONValue>): TypedMap<string, JSONValue> {
     const typesJson = token.get("types");
 
-    if (typesJson) {
+    if (typesJson && !typesJson.isNull()) {
         return typesJson.toObject();
     }
 
@@ -115,7 +115,7 @@ export function getNftUpgradeKey(types: TypedMap<string, JSONValue>, rarity: i64
     return id;
 }
 export function removeNftUpgrade(id: string): void {
-    store.remove("TokenUpgrade", id);
+    store.remove("NftUpgrade", id);
 }
 
 // burner
@@ -124,5 +124,5 @@ export function getNftBurnerKey(types: TypedMap<string, JSONValue>, rarity: i64)
     return getNftUpgradeKey(types, rarity);
 }
 export function removeNftBurner(id: string): void {
-    store.remove("TokenBurner", id);
+    store.remove("NftBurner", id);
 }

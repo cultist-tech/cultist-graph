@@ -1,4 +1,4 @@
-import { NftIdo, Statistic, Token } from "../../generated/schema";
+import { NftIdo, Statistic, Nft } from "../../generated/schema";
 import { getOrCreateStatisticSystem } from "../api/statistic";
 import { BigInt, JSONValue, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import { getNftIdoId } from "./helpers";
@@ -139,7 +139,7 @@ export class NftIdoMapper {
 
         const contractTokenId = getTokenId(contractId.toString(), tokenId.toString());
         const contractIdoId = getNftIdoId(contractId.toString(), idoId.toString());
-        const token = Token.load(contractTokenId);
+        const token = Nft.load(contractTokenId);
 
         if (token) {
             token.nftIdoId = contractIdoId;
@@ -168,7 +168,7 @@ export class NftIdoMapper {
 
         const contractTokenId = getTokenId(contractId.toString(), tokenId.toString());
         const contractIdoId = getNftIdoId(contractId.toString(), idoId.toString());
-        const token = Token.load(contractTokenId);
+        const token = Nft.load(contractTokenId);
 
         if (token) {
             token.nftIdoId = contractIdoId;

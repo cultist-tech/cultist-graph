@@ -411,13 +411,13 @@ export class Account extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get tokens(): Array<string> {
-    let value = this.get("tokens");
+  get nfts(): Array<string> {
+    let value = this.get("nfts");
     return value!.toStringArray();
   }
 
-  set tokens(value: Array<string>) {
-    this.set("tokens", Value.fromStringArray(value));
+  set nfts(value: Array<string>) {
+    this.set("nfts", Value.fromStringArray(value));
   }
 
   get marketSales(): Array<string> {
@@ -445,23 +445,6 @@ export class Account extends Entity {
 
   set ftBalances(value: Array<string>) {
     this.set("ftBalances", Value.fromStringArray(value));
-  }
-
-  get reputation(): string | null {
-    let value = this.get("reputation");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set reputation(value: string | null) {
-    if (!value) {
-      this.unset("reputation");
-    } else {
-      this.set("reputation", Value.fromString(<string>value));
-    }
   }
 }
 
@@ -776,36 +759,36 @@ export class ContractStat extends Entity {
   }
 }
 
-export class Token extends Entity {
+export class Nft extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("tokenId", Value.fromString(""));
+    this.set("nftId", Value.fromString(""));
     this.set("contractId", Value.fromString(""));
     this.set("bindToOwner", Value.fromBoolean(false));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("ownerId", Value.fromString(""));
-    this.set("tokenMetadataId", Value.fromString(""));
+    this.set("nftMetadataId", Value.fromString(""));
     this.set("owner", Value.fromString(""));
-    this.set("tokenMetadata", Value.fromString(""));
+    this.set("nftMetadata", Value.fromString(""));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Token entity without an ID");
+    assert(id != null, "Cannot save Nft entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save Token entity with non-string ID. " +
+        "Cannot save Nft entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("Token", id.toString(), this);
+      store.set("Nft", id.toString(), this);
     }
   }
 
-  static load(id: string): Token | null {
-    return changetype<Token | null>(store.get("Token", id));
+  static load(id: string): Nft | null {
+    return changetype<Nft | null>(store.get("Nft", id));
   }
 
   get id(): string {
@@ -817,13 +800,13 @@ export class Token extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get tokenId(): string {
-    let value = this.get("tokenId");
+  get nftId(): string {
+    let value = this.get("nftId");
     return value!.toString();
   }
 
-  set tokenId(value: string) {
-    this.set("tokenId", Value.fromString(value));
+  set nftId(value: string) {
+    this.set("nftId", Value.fromString(value));
   }
 
   get contractId(): string {
@@ -880,13 +863,13 @@ export class Token extends Entity {
     this.set("ownerId", Value.fromString(value));
   }
 
-  get tokenMetadataId(): string {
-    let value = this.get("tokenMetadataId");
+  get nftMetadataId(): string {
+    let value = this.get("nftMetadataId");
     return value!.toString();
   }
 
-  set tokenMetadataId(value: string) {
-    this.set("tokenMetadataId", Value.fromString(value));
+  set nftMetadataId(value: string) {
+    this.set("nftMetadataId", Value.fromString(value));
   }
 
   get rentId(): string | null {
@@ -966,13 +949,13 @@ export class Token extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
-  get tokenMetadata(): string {
-    let value = this.get("tokenMetadata");
+  get nftMetadata(): string {
+    let value = this.get("nftMetadata");
     return value!.toString();
   }
 
-  set tokenMetadata(value: string) {
-    this.set("tokenMetadata", Value.fromString(value));
+  set nftMetadata(value: string) {
+    this.set("nftMetadata", Value.fromString(value));
   }
 
   get rent(): string | null {
@@ -1130,29 +1113,29 @@ export class Token extends Entity {
   }
 }
 
-export class TokenMetadata extends Entity {
+export class NftMetadata extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("tokenId", Value.fromString(""));
+    this.set("nftId", Value.fromString(""));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save TokenMetadata entity without an ID");
+    assert(id != null, "Cannot save NftMetadata entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save TokenMetadata entity with non-string ID. " +
+        "Cannot save NftMetadata entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("TokenMetadata", id.toString(), this);
+      store.set("NftMetadata", id.toString(), this);
     }
   }
 
-  static load(id: string): TokenMetadata | null {
-    return changetype<TokenMetadata | null>(store.get("TokenMetadata", id));
+  static load(id: string): NftMetadata | null {
+    return changetype<NftMetadata | null>(store.get("NftMetadata", id));
   }
 
   get id(): string {
@@ -1215,42 +1198,42 @@ export class TokenMetadata extends Entity {
     }
   }
 
-  get tokenId(): string {
-    let value = this.get("tokenId");
+  get nftId(): string {
+    let value = this.get("nftId");
     return value!.toString();
   }
 
-  set tokenId(value: string) {
-    this.set("tokenId", Value.fromString(value));
+  set nftId(value: string) {
+    this.set("nftId", Value.fromString(value));
   }
 }
 
-export class TokenRoyalty extends Entity {
+export class NftRoyalty extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("tokenId", Value.fromString(""));
+    this.set("nftId", Value.fromString(""));
     this.set("accountId", Value.fromString(""));
     this.set("value", Value.fromI32(0));
-    this.set("token", Value.fromString(""));
+    this.set("nft", Value.fromString(""));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save TokenRoyalty entity without an ID");
+    assert(id != null, "Cannot save NftRoyalty entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save TokenRoyalty entity with non-string ID. " +
+        "Cannot save NftRoyalty entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("TokenRoyalty", id.toString(), this);
+      store.set("NftRoyalty", id.toString(), this);
     }
   }
 
-  static load(id: string): TokenRoyalty | null {
-    return changetype<TokenRoyalty | null>(store.get("TokenRoyalty", id));
+  static load(id: string): NftRoyalty | null {
+    return changetype<NftRoyalty | null>(store.get("NftRoyalty", id));
   }
 
   get id(): string {
@@ -1262,13 +1245,13 @@ export class TokenRoyalty extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get tokenId(): string {
-    let value = this.get("tokenId");
+  get nftId(): string {
+    let value = this.get("nftId");
     return value!.toString();
   }
 
-  set tokenId(value: string) {
-    this.set("tokenId", Value.fromString(value));
+  set nftId(value: string) {
+    this.set("nftId", Value.fromString(value));
   }
 
   get accountId(): string {
@@ -1289,42 +1272,42 @@ export class TokenRoyalty extends Entity {
     this.set("value", Value.fromI32(value));
   }
 
-  get token(): string {
-    let value = this.get("token");
+  get nft(): string {
+    let value = this.get("nft");
     return value!.toString();
   }
 
-  set token(value: string) {
-    this.set("token", Value.fromString(value));
+  set nft(value: string) {
+    this.set("nft", Value.fromString(value));
   }
 }
 
-export class TokenStat extends Entity {
+export class NftStat extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("tokenId", Value.fromString(""));
-    this.set("token", Value.fromString(""));
+    this.set("nftId", Value.fromString(""));
+    this.set("nft", Value.fromString(""));
     this.set("key", Value.fromString(""));
     this.set("value", Value.fromString(""));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save TokenStat entity without an ID");
+    assert(id != null, "Cannot save NftStat entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save TokenStat entity with non-string ID. " +
+        "Cannot save NftStat entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("TokenStat", id.toString(), this);
+      store.set("NftStat", id.toString(), this);
     }
   }
 
-  static load(id: string): TokenStat | null {
-    return changetype<TokenStat | null>(store.get("TokenStat", id));
+  static load(id: string): NftStat | null {
+    return changetype<NftStat | null>(store.get("NftStat", id));
   }
 
   get id(): string {
@@ -1336,22 +1319,22 @@ export class TokenStat extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get tokenId(): string {
-    let value = this.get("tokenId");
+  get nftId(): string {
+    let value = this.get("nftId");
     return value!.toString();
   }
 
-  set tokenId(value: string) {
-    this.set("tokenId", Value.fromString(value));
+  set nftId(value: string) {
+    this.set("nftId", Value.fromString(value));
   }
 
-  get token(): string {
-    let value = this.get("token");
+  get nft(): string {
+    let value = this.get("nft");
     return value!.toString();
   }
 
-  set token(value: string) {
-    this.set("token", Value.fromString(value));
+  set nft(value: string) {
+    this.set("nft", Value.fromString(value));
   }
 
   get key(): string {
@@ -1373,7 +1356,7 @@ export class TokenStat extends Entity {
   }
 }
 
-export class TokenUpgrade extends Entity {
+export class NftUpgrade extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -1385,19 +1368,19 @@ export class TokenUpgrade extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save TokenUpgrade entity without an ID");
+    assert(id != null, "Cannot save NftUpgrade entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save TokenUpgrade entity with non-string ID. " +
+        "Cannot save NftUpgrade entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("TokenUpgrade", id.toString(), this);
+      store.set("NftUpgrade", id.toString(), this);
     }
   }
 
-  static load(id: string): TokenUpgrade | null {
-    return changetype<TokenUpgrade | null>(store.get("TokenUpgrade", id));
+  static load(id: string): NftUpgrade | null {
+    return changetype<NftUpgrade | null>(store.get("NftUpgrade", id));
   }
 
   get id(): string {
@@ -1437,7 +1420,7 @@ export class TokenUpgrade extends Entity {
   }
 }
 
-export class TokenBurner extends Entity {
+export class NftBurner extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -1448,19 +1431,19 @@ export class TokenBurner extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save TokenBurner entity without an ID");
+    assert(id != null, "Cannot save NftBurner entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save TokenBurner entity with non-string ID. " +
+        "Cannot save NftBurner entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("TokenBurner", id.toString(), this);
+      store.set("NftBurner", id.toString(), this);
     }
   }
 
-  static load(id: string): TokenBurner | null {
-    return changetype<TokenBurner | null>(store.get("TokenBurner", id));
+  static load(id: string): NftBurner | null {
+    return changetype<NftBurner | null>(store.get("NftBurner", id));
   }
 
   get id(): string {
@@ -1497,13 +1480,13 @@ export class MarketRent extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("contractId", Value.fromString(""));
-    this.set("tokenId", Value.fromString(""));
+    this.set("nftId", Value.fromString(""));
     this.set("ownerId", Value.fromString(""));
     this.set("minTime", Value.fromI32(0));
     this.set("maxTime", Value.fromI32(0));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("owner", Value.fromString(""));
-    this.set("token", Value.fromString(""));
+    this.set("nft", Value.fromString(""));
   }
 
   save(): void {
@@ -1541,13 +1524,13 @@ export class MarketRent extends Entity {
     this.set("contractId", Value.fromString(value));
   }
 
-  get tokenId(): string {
-    let value = this.get("tokenId");
+  get nftId(): string {
+    let value = this.get("nftId");
     return value!.toString();
   }
 
-  set tokenId(value: string) {
-    this.set("tokenId", Value.fromString(value));
+  set nftId(value: string) {
+    this.set("nftId", Value.fromString(value));
   }
 
   get ownerId(): string {
@@ -1621,13 +1604,13 @@ export class MarketRent extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
-  get token(): string {
-    let value = this.get("token");
+  get nft(): string {
+    let value = this.get("nft");
     return value!.toString();
   }
 
-  set token(value: string) {
-    this.set("token", Value.fromString(value));
+  set nft(value: string) {
+    this.set("nft", Value.fromString(value));
   }
 
   get conditions(): Array<string> {
@@ -1723,11 +1706,11 @@ export class MarketSale extends Entity {
 
     this.set("ownerId", Value.fromString(""));
     this.set("contractId", Value.fromString(""));
-    this.set("tokenId", Value.fromString(""));
+    this.set("nftId", Value.fromString(""));
     this.set("isAuction", Value.fromBoolean(false));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("owner", Value.fromString(""));
-    this.set("token", Value.fromString(""));
+    this.set("nft", Value.fromString(""));
     this.set("isDeleted", Value.fromBoolean(false));
   }
 
@@ -1775,13 +1758,13 @@ export class MarketSale extends Entity {
     this.set("contractId", Value.fromString(value));
   }
 
-  get tokenId(): string {
-    let value = this.get("tokenId");
+  get nftId(): string {
+    let value = this.get("nftId");
     return value!.toString();
   }
 
-  set tokenId(value: string) {
-    this.set("tokenId", Value.fromString(value));
+  set nftId(value: string) {
+    this.set("nftId", Value.fromString(value));
   }
 
   get isAuction(): boolean {
@@ -1811,13 +1794,13 @@ export class MarketSale extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
-  get token(): string {
-    let value = this.get("token");
+  get nft(): string {
+    let value = this.get("nft");
     return value!.toString();
   }
 
-  set token(value: string) {
-    this.set("token", Value.fromString(value));
+  set nft(value: string) {
+    this.set("nft", Value.fromString(value));
   }
 
   get isDeleted(): boolean {
@@ -2174,13 +2157,13 @@ export class NftIdo extends Entity {
     }
   }
 
-  get tokens(): Array<string> {
-    let value = this.get("tokens");
+  get nfts(): Array<string> {
+    let value = this.get("nfts");
     return value!.toStringArray();
   }
 
-  set tokens(value: Array<string>) {
-    this.set("tokens", Value.fromStringArray(value));
+  set nfts(value: Array<string>) {
+    this.set("nfts", Value.fromStringArray(value));
   }
 }
 
@@ -2190,7 +2173,7 @@ export class NftFractionation extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("contractId", Value.fromString(""));
-    this.set("tokenId", Value.fromString(""));
+    this.set("nftId", Value.fromString(""));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
   }
 
@@ -2231,13 +2214,13 @@ export class NftFractionation extends Entity {
     this.set("contractId", Value.fromString(value));
   }
 
-  get tokenId(): string {
-    let value = this.get("tokenId");
+  get nftId(): string {
+    let value = this.get("nftId");
     return value!.toString();
   }
 
-  set tokenId(value: string) {
-    this.set("tokenId", Value.fromString(value));
+  set nftId(value: string) {
+    this.set("nftId", Value.fromString(value));
   }
 
   get createdAt(): BigInt {
@@ -2283,8 +2266,8 @@ export class NftFractionation extends Entity {
     }
   }
 
-  get token(): string | null {
-    let value = this.get("token");
+  get nft(): string | null {
+    let value = this.get("nft");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -2292,11 +2275,11 @@ export class NftFractionation extends Entity {
     }
   }
 
-  set token(value: string | null) {
+  set nft(value: string | null) {
     if (!value) {
-      this.unset("token");
+      this.unset("nft");
     } else {
-      this.set("token", Value.fromString(<string>value));
+      this.set("nft", Value.fromString(<string>value));
     }
   }
 
@@ -2316,7 +2299,7 @@ export class NftFractionationPart extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("contractId", Value.fromString(""));
-    this.set("tokenId", Value.fromString(""));
+    this.set("nftId", Value.fromString(""));
     this.set("fractionation", Value.fromString(""));
   }
 
@@ -2357,13 +2340,13 @@ export class NftFractionationPart extends Entity {
     this.set("contractId", Value.fromString(value));
   }
 
-  get tokenId(): string {
-    let value = this.get("tokenId");
+  get nftId(): string {
+    let value = this.get("nftId");
     return value!.toString();
   }
 
-  set tokenId(value: string) {
-    this.set("tokenId", Value.fromString(value));
+  set nftId(value: string) {
+    this.set("nftId", Value.fromString(value));
   }
 
   get ownerId(): string | null {
@@ -2392,8 +2375,8 @@ export class NftFractionationPart extends Entity {
     this.set("fractionation", Value.fromString(value));
   }
 
-  get token(): string | null {
-    let value = this.get("token");
+  get nft(): string | null {
+    let value = this.get("nft");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -2401,11 +2384,11 @@ export class NftFractionationPart extends Entity {
     }
   }
 
-  set token(value: string | null) {
+  set nft(value: string | null) {
     if (!value) {
-      this.unset("token");
+      this.unset("nft");
     } else {
-      this.set("token", Value.fromString(<string>value));
+      this.set("nft", Value.fromString(<string>value));
     }
   }
 }

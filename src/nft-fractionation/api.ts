@@ -3,7 +3,7 @@ import {
     NftFractionationPart,
     NftIdo,
     Statistic,
-    Token,
+    Nft,
 } from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import { JSONValue } from "@graphprotocol/graph-ts";
@@ -56,8 +56,8 @@ export class NftFractionationMapper {
         const fractionation = new NftFractionation(contractFractionationId);
 
         fractionation.contractId = contractId.toString();
-        fractionation.tokenId = tokenId.toString();
-        fractionation.token = contractTokenId;
+        fractionation.nftId = tokenId.toString();
+        fractionation.nft = contractTokenId;
         fractionation.createdAt = this.createdAt;
 
         fractionation.save();
@@ -148,7 +148,7 @@ export class NftFractionationMapper {
     }
 
     protected addFractionationMain(contractTokenId: string, contractFractionationId: string): void {
-        const token = Token.load(contractTokenId);
+        const token = Nft.load(contractTokenId);
 
         if (token) {
             token.fractionation = contractFractionationId;
@@ -168,12 +168,12 @@ export class NftFractionationMapper {
         entry.contractId = contractId;
         entry.fractionation = fractionationId;
         entry.ownerId = null;
-        entry.tokenId = entryId;
-        entry.token = contractTokenId;
+        entry.nftId = entryId;
+        entry.nft = contractTokenId;
 
         entry.save();
 
-        const token = Token.load(contractTokenId);
+        const token = Nft.load(contractTokenId);
 
         if (token) {
             token.fractionation = fractionationId;

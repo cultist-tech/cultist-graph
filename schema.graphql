@@ -1,9 +1,9 @@
 type _Schema_
     @fulltext(
-        name: "tokenSearch"
+        name: "nftSearch"
         language: en
         algorithm: rank
-        include: [{ entity: "Token", fields: [{ name: "ownerId" }] }]
+        include: [{ entity: "Nft", fields: [{ name: "ownerId" }] }]
     )
 
 #
@@ -59,7 +59,7 @@ type AccountStat @entity  {
 type Account @entity {
     id: ID!
 
-    tokens: [Token!]! @derivedFrom(field: "owner")
+    nfts: [Nft!]! @derivedFrom(field: "owner")
     marketSales: [MarketSale!]! @derivedFrom(field: "owner")
     marketRents: [MarketRent!]! @derivedFrom(field: "owner")
     ftBalances: [FtBalance!]! @derivedFrom(field: "owner")
@@ -108,9 +108,9 @@ type ContractStat @entity  {
 
 # nft
 
-type Token @entity {
+type Nft @entity {
     id: ID!
-    tokenId: String!
+    nftId: String!
     contractId: ID!
 
     rarity: Int
@@ -122,30 +122,30 @@ type Token @entity {
     #
 
     ownerId: ID!
-    tokenMetadataId: ID!
+    nftMetadataId: ID!
     rentId: ID
     saleId: ID
     fractionationId: ID
     nftIdoId: ID
 
     owner: Account!
-    tokenMetadata: TokenMetadata!
+    nftMetadata: NftMetadata!
 
     rent: MarketRent
     sale: MarketSale
     fractionation: NftFractionation
     nftIdo: NftIdo
 
-    nftUpgrade: TokenUpgrade
-    nftBurner: TokenBurner
+    nftUpgrade: NftUpgrade
+    nftBurner: NftBurner
     nftUpgradeId: ID
     nftBurnerId: ID
 
-    royalty: [TokenRoyalty!]! @derivedFrom(field: "token")
-    stats: [TokenStat!]! @derivedFrom(field: "token")
+    royalty: [NftRoyalty!]! @derivedFrom(field: "nft")
+    stats: [NftStat!]! @derivedFrom(field: "nft")
 }
 
-type TokenMetadata @entity {
+type NftMetadata @entity {
     id: ID!
     title: String
     description: String
@@ -153,34 +153,34 @@ type TokenMetadata @entity {
 
     #
 
-    tokenId: String!
+    nftId: String!
 }
 
-type TokenRoyalty @entity {
+type NftRoyalty @entity {
     id: ID!
-    tokenId: ID!
+    nftId: ID!
     accountId: String!
     value: Int!
 
-    token: Token!
+    nft: Nft!
 }
 
-type TokenStat @entity {
+type NftStat @entity {
     id: ID!
-    tokenId: ID!
-    token: Token!
+    nftId: ID!
+    nft: Nft!
     key: String!
     value: String!
 }
 
-type TokenUpgrade @entity {
+type NftUpgrade @entity {
     id: ID!
     rarity: Int!
     ftTokenId: ID!
     price: String!
 }
 
-type TokenBurner @entity {
+type NftBurner @entity {
     id: ID!
     rarity: Int!
     rarity_sum: Int!
@@ -191,7 +191,7 @@ type TokenBurner @entity {
 type MarketRent @entity {
     id: ID!
     contractId: ID!
-    tokenId: ID!
+    nftId: ID!
     ownerId: ID!
 
     minTime: Int!
@@ -201,7 +201,7 @@ type MarketRent @entity {
     renterId: ID
 
     owner: Account!
-    token: Token!
+    nft: Nft!
     conditions: [MarketRentCondition!]! @derivedFrom(field: "rent")
 }
 
@@ -220,13 +220,13 @@ type MarketSale @entity {
     id: ID!
     ownerId: ID!
     contractId: ID!
-    tokenId: ID!
+    nftId: ID!
 
     isAuction: Boolean!
     createdAt: BigInt!
 
     owner: Account!
-    token: Token!
+    nft: Nft!
     isDeleted: Boolean!
     conditions: [MarketSaleCondition!]! @derivedFrom(field: "sale")
 }
@@ -273,7 +273,7 @@ type NftIdo @entity {
     startDate: Int
     ftToken: String
 
-    tokens: [Token!]! @derivedFrom(field: "nftIdo")
+    nfts: [Nft!]! @derivedFrom(field: "nftIdo")
 }
 
 # nft-fractionation
@@ -282,13 +282,13 @@ type NftFractionation @entity {
     id: ID!
 
     contractId: ID!
-    tokenId: ID!
+    nftId: ID!
 
     createdAt: BigInt!
     competedAt: BigInt
     competedBy: ID
 
-    token: Token
+    nft: Nft
     parts: [NftFractionationPart!]! @derivedFrom(field: "fractionation")
 }
 
@@ -296,11 +296,11 @@ type NftFractionationPart @entity {
     id: ID!
 
     contractId: ID!
-    tokenId: ID!
+    nftId: ID!
     ownerId: ID
     fractionation: NftFractionation!
 
-    token: Token
+    nft: Nft
 }
 
 # referral

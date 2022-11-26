@@ -1,9 +1,9 @@
 import {
     NftContract,
-    Token,
-    TokenBurner,
-    TokenMetadata,
-    TokenUpgrade,
+    Nft,
+    NftBurner,
+    NftMetadata,
+    NftUpgrade,
 } from "../../generated/schema";
 import { BigInt, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts/index";
 import {
@@ -59,6 +59,8 @@ export class TokenMapper {
             this.onUpgrade(data);
         } else if (method == "nft_set_burner_price") {
             this.onSetBurnerPrice(data);
+        } else {
+
         }
 
         this.end();
@@ -90,9 +92,9 @@ export class TokenMapper {
 
         const tokenId = tokenIdJson.toString();
         const contractTokenId = getTokenId(this.contractId, tokenId);
-        const token = new Token(contractTokenId);
+        const token = new Nft(contractTokenId);
 
-        token.tokenId = tokenId;
+        token.nftId = tokenId;
         token.ownerId = ownerId.toString();
         token.owner = ownerId.toString();
         token.bindToOwner = bindToOwner && !bindToOwner.isNull() ? bindToOwner.toBool() : false;
@@ -115,25 +117,25 @@ export class TokenMapper {
 
         if (metadata && !metadata.isNull()) {
             const metaObj = metadata.toObject();
-            const tokenMetadata = new TokenMetadata(contractTokenId);
+            const tokenMetadata = new NftMetadata(contractTokenId);
             const metaTitle = metaObj.get("title");
             const metaDescription = metaObj.get("description");
             const metaMedia = metaObj.get("media");
 
-            tokenMetadata.tokenId = tokenId;
+            tokenMetadata.nftId = tokenId;
             tokenMetadata.title = metaTitle && !metaTitle.isNull() ? metaTitle.toString() : null;
             tokenMetadata.description =
                 metaDescription && !metaDescription.isNull() ? metaDescription.toString() : null;
             tokenMetadata.media = metaMedia && !metaMedia.isNull() ? metaMedia.toString() : null;
 
-            token.tokenMetadata = contractTokenId.toString();
-            token.tokenMetadataId = contractTokenId.toString();
+            token.nftMetadata = contractTokenId.toString();
+            token.nftMetadataId = contractTokenId.toString();
 
             tokenMetadata.save();
         }
 
         if (royalty && !royalty.isNull()) {
-            saveTokenRoyalties(token.tokenId, royalty);
+            saveTokenRoyalties(token.nftId, royalty);
         }
 
         // save stats
@@ -157,7 +159,7 @@ export class TokenMapper {
         const receiverId = receiverIdJson.toString();
         const senderId = senderIdJson.toString();
 
-        let token = Token.load(contractTokenId);
+        let token = Nft.load(contractTokenId);
 
         if (!token) {
             log.error("[nft_transfer] - Not found transferred token {}", [contractTokenId]);
@@ -199,7 +201,7 @@ export class TokenMapper {
 
         const contractTokenId = getTokenId(this.contractId, tokenId);
 
-        let token = Token.load(contractTokenId);
+        let token = Nft.load(contractTokenId);
 
         if (!token) {
             log.error("[nft_burn] - Not found token {}", [contractTokenId]);
@@ -277,7 +279,7 @@ export class TokenMapper {
 
         const upgradeId = getNftUpgradeKey(typesJson.toObject(), rarityJson.toI64());
 
-        const nftUpgrade = new TokenUpgrade(upgradeId);
+        const nftUpgrade = new NftUpgrade(upgradeId);
         nftUpgrade.ftTokenId = ftTokenJson.toString();
         nftUpgrade.price = priceJson.toString();
         nftUpgrade.rarity = rarityJson.toI64() as i32;
@@ -359,7 +361,7 @@ export class TokenMapper {
 
         const upgradeId = getNftBurnerKey(typesJson.toObject(), rarityJson.toI64());
 
-        const nftBurner = new TokenBurner(upgradeId);
+        const nftBurner = new NftBurner(upgradeId);
         nftBurner.rarity = rarityJson.toI64() as i32;
         nftBurner.rarity_sum = burningRaritySum.toI64() as i32;
 
@@ -372,8 +374,8 @@ export class TokenMapper {
 
     // private
 
-    public get(contractNftId: string): Token {
-        const nft = Token.load(contractNftId);
+    public get(contractNftId: string): Nft {
+        const nft = Nft.load(contractNftId);
 
         if (!nft) {
             log.error("not found token {}", [contractNftId]);

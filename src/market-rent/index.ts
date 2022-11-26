@@ -1,6 +1,6 @@
 import { near, store } from "@graphprotocol/graph-ts";
 import { log } from "@graphprotocol/graph-ts";
-import { MarketRent, MarketRentCondition, Token } from "../../generated/schema";
+import { MarketRent, MarketRentCondition, Nft } from "../../generated/schema";
 import { getReceiptDate, parseEvent } from "../utils";
 import { getOrCreateAccount } from "../api/account";
 import { BigDecimal } from "@graphprotocol/graph-ts/index";
@@ -70,8 +70,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             const rentId = getMarketRentId(contractId.toString(), tokenId.toString());
 
             const rent = new MarketRent(rentId.toString());
-            rent.tokenId = tokenIdRaw.toString();
-            rent.token = tokenId.toString();
+            rent.nftId = tokenIdRaw.toString();
+            rent.nft = tokenId.toString();
             rent.ownerId = accountId.toString();
             rent.owner = accountId.toString();
             rent.minTime = minTime.toU64() as i32;
@@ -87,7 +87,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // token
             const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
-            const token = Token.load(tokenContractId);
+            const token = Nft.load(tokenContractId);
 
             if (token) {
                 token.rent = rentId;
@@ -133,7 +133,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // token
             const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
-            const token = Token.load(tokenContractId);
+            const token = Nft.load(tokenContractId);
 
             if (token) {
                 token.rent = null;
@@ -291,7 +291,7 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
 
             // token
             const tokenContractId = getTokenId(contractId.toString(), tokenId.toString());
-            const token = Token.load(tokenContractId);
+            const token = Nft.load(tokenContractId);
 
             if (token) {
                 token.rent = null;

@@ -8,7 +8,7 @@ import {
     getMarketSaleId,
     removeMarketSale,
 } from "./helpers";
-import { MarketSale, MarketSaleCondition, Statistic, Token } from "../../generated/schema";
+import { MarketSale, MarketSaleCondition, Statistic, Nft } from "../../generated/schema";
 import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
 import {
     referralIncrementPayout,
@@ -106,8 +106,8 @@ export class SaleMapper {
         // sale
         const sale = new MarketSale(contractSaleId);
 
-        sale.tokenId = contractTokenId;
-        sale.token = contractTokenId;
+        sale.nftId = contractTokenId;
+        sale.nft = contractTokenId;
         sale.ownerId = ownerId.toString();
         sale.owner = ownerId.toString();
         sale.contractId = contractId.toString();
@@ -139,7 +139,7 @@ export class SaleMapper {
         }
 
         // token
-        const token = Token.load(contractTokenId);
+        const token = Nft.load(contractTokenId);
 
         if (token) {
             token.sale = contractSaleId;
@@ -192,7 +192,7 @@ export class SaleMapper {
         removeMarketSale(contractSaleId);
 
         // token
-        const token = Token.load(tokenContractId);
+        const token = Nft.load(tokenContractId);
 
         if (token) {
             token.sale = null;
@@ -257,7 +257,7 @@ export class SaleMapper {
         sale.isDeleted = true;
 
         // token
-        const token = Token.load(tokenContractId);
+        const token = Nft.load(tokenContractId);
 
         if (token) {
             token.sale = null;
