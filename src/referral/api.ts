@@ -5,9 +5,9 @@ import {
     ReferralProgram,
     Statistic,
 } from "../../generated/schema";
-import { getOrCreateStatistic, getOrCreateStatisticSystem } from "../api/statistic";
-import { JSONValue, TypedMap, BigInt } from "@graphprotocol/graph-ts";
-import { log } from "@graphprotocol/graph-ts/index";
+import {getOrCreateStatistic, getOrCreateStatisticSystem} from "../api/statistic";
+import {BigInt, JSONValue, JSONValueKind, TypedMap} from "@graphprotocol/graph-ts";
+import {log} from "@graphprotocol/graph-ts/index";
 import {
     getOrCreateReferralContract,
     getOrCreateReferralContractInfluencer,
@@ -18,7 +18,7 @@ import {
     getReferralInfluencerContractId,
     getReferralProgramId,
 } from "./helpers";
-import { getOrCreateAccount } from "../api/account";
+import {getOrCreateAccount} from "../api/account";
 
 export class ReferralService {
     protected stats: Statistic;
@@ -79,7 +79,7 @@ export class ReferralService {
         program.programId = program_id.toString();
         program.contract = contract_id.toString();
         program.influencer = influencer_id.toString();
-        program.royalty_percent = royalty_percent.toI64() as i32;
+        program.royalty_percent = royalty_percent.kind == JSONValueKind.NUMBER ? royalty_percent.toI64() as i32 : 0 as i32;
         program.code = code.toString();
         program.payoutNear = "0";
         program.createdAt = this.createdAt;
