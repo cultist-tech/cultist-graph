@@ -91,10 +91,10 @@ export class ReferralService {
             const mediaJson = metadataObj.get("media");
             const urlJson = metadataObj.get("url");
 
-            program.title = titleJson ? titleJson.toString() : null;
-            program.description = descriptionJson ? descriptionJson.toString() : null;
-            program.media = mediaJson ? mediaJson.toString() : null;
-            program.url = urlJson ? urlJson.toString() : null;
+            program.title = titleJson && !titleJson.isNull() ? titleJson.toString() : null;
+            program.description = descriptionJson && !descriptionJson.isNull() ? descriptionJson.toString() : null;
+            program.media = mediaJson && !mediaJson.isNull() ? mediaJson.toString() : null;
+            program.url = urlJson && !urlJson.isNull() ? urlJson.toString() : null;
         }
 
         program.save();

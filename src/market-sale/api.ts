@@ -96,9 +96,11 @@ export class SaleMapper {
             return;
         }
 
+        const tokenId = tokenIdJson.toString();
+
         // args
-        const contractTokenId = getTokenId(contractId.toString(), tokenIdJson.toString());
-        const contractSaleId = getMarketSaleId(contractId.toString(), tokenIdJson.toString());
+        const contractTokenId = getTokenId(contractId.toString(), tokenId);
+        const contractSaleId = getMarketSaleId(contractId.toString(), tokenId);
 
         // structures
         const contractStats = new ContractStatsApi(contractId.toString());
@@ -106,8 +108,8 @@ export class SaleMapper {
         // sale
         const sale = new MarketSale(contractSaleId);
 
-        sale.nftId = contractTokenId;
         sale.nft = contractTokenId;
+        sale.nftId = tokenId;
         sale.ownerId = ownerId.toString();
         sale.owner = ownerId.toString();
         sale.contractId = contractId.toString();
