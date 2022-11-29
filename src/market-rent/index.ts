@@ -91,6 +91,8 @@ function handleAction(action: near.ActionValue, receiptWithOutcome: near.Receipt
             if (token) {
                 token.rent = contractRentId;
                 token.rentId = contractRentId;
+
+                token.save();
             }
 
             //

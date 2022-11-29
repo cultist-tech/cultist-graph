@@ -146,6 +146,8 @@ export class SaleMapper {
         if (token) {
             token.sale = contractSaleId;
             token.saleId = contractSaleId;
+
+            token.save();
         }
 
         // stats
